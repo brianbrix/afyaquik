@@ -1,4 +1,4 @@
-package com.afyaquik.webapp.api.users;
+package com.afyaquik.web.api.users;
 
 import com.afyaquik.users.dto.AssignRolesRequest;
 import com.afyaquik.users.dto.CreateUserRequest;

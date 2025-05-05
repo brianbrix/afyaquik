@@ -1,4 +1,4 @@
-package com.afyaquik.webapp.api.auth;
+package com.afyaquik.web.api.auth;
 
 import com.afyaquik.users.dto.LoginRequest;
 import com.afyaquik.users.entity.Role;
