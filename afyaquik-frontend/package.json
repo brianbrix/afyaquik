@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "workspaces": [
+    "admin",
+    "user-management",
+    "consultations",
+    "appointments",
+    "reports"
+  ],
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.7.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.5.3"
+  }
+}

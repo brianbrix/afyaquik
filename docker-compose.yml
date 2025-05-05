@@ -1,0 +1,36 @@
+version: '3'
+services:
+  afyaquik-api:
+    build: ./afyaquik-api
+    ports:
+      - "8080:8080"
+
+  admin-frontend:
+    build:
+      context: ./afyaquik-frontend/admin
+    ports:
+      - "3001:3000"
+
+  user-management-frontend:
+    build:
+      context: ./afyaquik-frontend/user-management
+    ports:
+      - "3002:3000"
+
+  consultations-frontend:
+    build:
+      context: ./afyaquik-frontend/consultations
+    ports:
+      - "3003:3000"
+
+  appointments-frontend:
+    build:
+      context: ./afyaquik-frontend/appointments
+    ports:
+      - "3004:3000"
+
+  reports-frontend:
+    build:
+      context: ./afyaquik-frontend/reports
+    ports:
+      - "3005:3000"
