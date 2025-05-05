@@ -12,12 +12,14 @@ import com.afyaquik.users.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Service
 public class UserServiceImpl implements UserService {
     private final UsersRepository userRepository;
     private final PasswordEncoder passwordEncoder;

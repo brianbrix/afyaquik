@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
-@Component
 public interface JwtProviderService {
     String generateToken(String username, Set<String> roles);
     String getUserNameFromToken(String token);

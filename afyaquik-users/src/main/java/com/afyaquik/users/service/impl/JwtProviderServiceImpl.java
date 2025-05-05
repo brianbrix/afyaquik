@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class JwtProviderServiceImpl implements JwtProviderService {
     private final String jwtSecret = "MySuperSecretKeyForJWTGenerationThatIsLongEnough"; //TODO: to store in env
     private final long jwtExpirationMs = 86400000;//TODO: make configurable

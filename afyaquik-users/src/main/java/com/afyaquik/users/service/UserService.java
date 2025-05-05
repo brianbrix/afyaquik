@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface UserService {
     UserResponse createUser(CreateUserRequest request);
     List<UserResponse> getAllUsers();
