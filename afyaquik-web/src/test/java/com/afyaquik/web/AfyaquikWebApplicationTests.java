@@ -1,13 +1,13 @@
-package com.afyaquik.webapp;
+package com.afyaquik.web;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AfyaquickWebApplicationTests {
+class AfyaquikWebApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
