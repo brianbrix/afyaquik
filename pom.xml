@@ -14,6 +14,7 @@
     <name>afyaquik</name>
     <description>afyaquik</description>
     <modules>
+        <module>dtos</module>
         <module>afyaquik-core</module>
         <module>afyaquik-users</module>
         <module>afyaquik-appointments</module>

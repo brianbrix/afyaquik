@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.auth;
 
-import com.afyaquik.users.dto.LoginRequest;
+import com.afyaquik.dtos.user.LoginRequest;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.service.JwtProviderService;
