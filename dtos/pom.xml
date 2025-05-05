@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.afyaquik</groupId>
         <artifactId>afyaquik</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+       <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>afyaquik-users</artifactId>
+    <artifactId>dtos</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>afyaquik-users</name>
-    <description>afyaquik-users</description>
+    <name>dtos</name>
+    <description>dtos</description>
     <packaging>jar</packaging>
     <url/>
     <licenses>
@@ -29,32 +29,6 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.afyaquik</groupId>
-            <artifactId>dtos</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>

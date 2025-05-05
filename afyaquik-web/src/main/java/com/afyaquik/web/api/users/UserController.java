@@ -1,8 +1,9 @@
 package com.afyaquik.web.api.users;
 
-import com.afyaquik.users.dto.AssignRolesRequest;
-import com.afyaquik.users.dto.CreateUserRequest;
-import com.afyaquik.users.dto.UserResponse;
+
+import com.afyaquik.dtos.user.AssignRolesRequest;
+import com.afyaquik.dtos.user.CreateUserRequest;
+import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.service.UserService;

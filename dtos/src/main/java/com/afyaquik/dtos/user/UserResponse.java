@@ -1,4 +1,4 @@
-package com.afyaquik.users.dto;
+package com.afyaquik.dtos.user;
 
 import lombok.Builder;
 import lombok.Data;

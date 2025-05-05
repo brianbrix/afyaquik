@@ -15,6 +15,7 @@
     <description>afyaquik</description>
     <modules>
         <module>afyaquik-core</module>
+        <module>afyaquik-users</module>
         <module>afyaquik-appointments</module>
         <module>afyaquik-web</module>
         <module>afyaquik-admin</module>
@@ -22,7 +23,6 @@
         <module>afyaquik-consultations</module>
         <module>afyaquik-patients</module>
         <module>afyaquik-reports</module>
-        <module>afyaquik-users</module>
         <module>afyaquik-frontend</module>
     </modules>
     <url/>
@@ -81,10 +81,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 
