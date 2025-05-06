@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")//TODO: specify origins
 public class AuthController {
     private final UserService userService;
     private final JwtProviderService jwtProvider;
