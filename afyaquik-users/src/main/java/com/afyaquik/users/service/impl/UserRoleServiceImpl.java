@@ -16,6 +16,9 @@ public class UserRoleServiceImpl implements UserRoleService {
     private final RolesRepository rolesRepository;
     @Override
     public RoleResponse createRole(RoleRequest roleRequest) {
+        rolesRepository.findByName(roleRequest.getName()).ifPresent(role -> {
+            throw new IllegalArgumentException("Role already exists");
+        });
         Role role = rolesRepository.save(Role.builder().name(roleRequest.getName()).build());
         return RoleResponse.builder().id(role.getId()).name(role.getName()).build();
     }
