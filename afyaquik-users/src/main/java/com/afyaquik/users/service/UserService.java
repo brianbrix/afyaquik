@@ -18,4 +18,5 @@ public interface UserService {
     List<UserResponse> getUsersByRole(Long roleId);
 
     List<UserResponse> getUsersByRoles(List<Long> roleIds);
+    void logoutUser(String authHeader);
 }

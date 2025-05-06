@@ -4,8 +4,10 @@ package com.afyaquik.users.service.impl;
 import com.afyaquik.dtos.user.AssignRolesRequest;
 import com.afyaquik.dtos.user.CreateUserRequest;
 import com.afyaquik.dtos.user.UserResponse;
+import com.afyaquik.users.entity.RevokedToken;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
+import com.afyaquik.users.repository.RevokedTokenRepository;
 import com.afyaquik.users.repository.RolesRepository;
 import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.users.service.UserService;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UsersRepository userRepository;
+    private final RevokedTokenRepository revokedTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final RolesRepository roleRepository;
     @Override
@@ -147,6 +151,21 @@ public class UserServiceImpl implements UserService {
                         .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void logoutUser(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            RevokedToken revokedToken = new RevokedToken();
+            revokedToken.setToken(token);
+            revokedToken.setRevokedAt(Instant.now());
+            revokedTokenRepository.save(revokedToken);
+        }
+        else
+            {
+            throw new IllegalArgumentException("Invalid token.");
+        }
     }
 
 
