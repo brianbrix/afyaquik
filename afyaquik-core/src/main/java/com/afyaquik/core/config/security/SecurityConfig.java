@@ -1,8 +1,9 @@
-package com.afyaquik.users.security;
+package com.afyaquik.core.config.security;
 
 
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
+import com.afyaquik.users.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
@@ -28,7 +30,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtFilter;
     private final UsersRepository userRepository;
 
@@ -38,8 +39,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN","SUPERADMIN")
                         .requestMatchers("/api/s_admin/**").hasRole("SUPERADMIN")
                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                         .requestMatchers("/api/reception/**").hasRole("RECEPTIONIST")

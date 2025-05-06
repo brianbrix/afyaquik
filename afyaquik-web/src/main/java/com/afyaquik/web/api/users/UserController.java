@@ -4,16 +4,14 @@ package com.afyaquik.web.api.users;
 import com.afyaquik.dtos.user.AssignRolesRequest;
 import com.afyaquik.dtos.user.CreateUserRequest;
 import com.afyaquik.dtos.user.UserResponse;
-import com.afyaquik.users.entity.Role;
-import com.afyaquik.users.entity.User;
 import com.afyaquik.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -22,33 +20,30 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public UserResponse createUser(@RequestBody CreateUserRequest request) {
-        return userService.createUser(request);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(userService.createUser(request));
     }
 
     @GetMapping
-    public List<UserResponse> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<?> getAllUsers(@RequestParam(required = false) List<Long> ids) {
+        return ResponseEntity.ok(userService.getAllUsers(ids));
+    }
+    @GetMapping("/byrole")
+    public ResponseEntity<?> getAllUsersByRole(@RequestParam Long roleId) {
+        return ResponseEntity.ok(userService.getUsersByRole(roleId));
     }
 
     @PutMapping("/{userId}/roles")
-    public UserResponse assignRoles(@PathVariable Long userId, @RequestBody AssignRolesRequest request) {
-        return userService.assignRoles(userId, request);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestBody AssignRolesRequest request) {
+        return ResponseEntity.ok(userService.assignRoles(userId, request));
+
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
-        User user = userService.findByUsername(username);
-        UserResponse response = UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .firstName(user.getFirstName())
-                .secondName(user.getSecondName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.fetchByUsername(username));
     }
 }

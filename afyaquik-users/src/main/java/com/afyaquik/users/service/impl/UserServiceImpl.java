@@ -57,7 +57,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getAllUsers() {
+    public List<UserResponse> getAllUsers(List<Long> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            return userRepository.findAllByIdIn(ids).stream()
+                    .map(user -> UserResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .firstName(user.getFirstName())
+                            .secondName(user.getSecondName())
+                            .lastName(user.getLastName())
+                            .email(user.getEmail())
+                            .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                            .build())
+                    .collect(Collectors.toList());
+        }
         return userRepository.findAll().stream()
                 .map(user -> UserResponse.builder()
                         .id(user.getId())
@@ -75,6 +88,20 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+    }
+
+    @Override
+    public UserResponse fetchByUsername(String username) {
+        User user = findByUsername(username);
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .secondName(user.getSecondName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                .build();
     }
 
     @Override
@@ -97,4 +124,30 @@ public class UserServiceImpl implements UserService {
                 .roles(userRoles.stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }
+
+    @Override
+    public List<UserResponse> getUsersByRole(Long roleId) {
+        return List.of();
+    }
+
+    @Override
+    public List<UserResponse> getUsersByRoles(List<Long> roleIds) {
+        List<Role> roles = roleIds.stream()
+                .map(roleId -> roleRepository.findById(roleId)
+                        .orElseThrow(() -> new EntityNotFoundException("Role not found")))
+                .toList();
+        return userRepository.findByRolesIn(roles).stream()
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .firstName(user.getFirstName())
+                        .secondName(user.getSecondName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
 }
