@@ -27,8 +27,15 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllUsers(@RequestParam(required = false) List<Long> ids) {
-        return ResponseEntity.ok(userService.getAllUsers(ids));
+    public ResponseEntity<?> getAllUsers( @RequestParam(required = false) List<Long> ids,
+                                          @RequestParam(required = false) String sortBy,
+                                          @RequestParam(required = false, defaultValue = "asc") String sortDir,
+                                          @RequestParam(required = false) String rangeField,
+                                          @RequestParam(required = false) Integer rangeMin,
+                                          @RequestParam(required = false) Integer rangeMax,
+                                          @RequestParam(required = false, defaultValue = "0") Integer page,
+                                          @RequestParam(required = false, defaultValue = "10") Integer size ) {
+        return ResponseEntity.ok(userService.getFilteredUsers(ids, sortBy, sortDir, rangeField, rangeMin, rangeMax, page, size));
     }
     @GetMapping("/byrole")
     public ResponseEntity<?> getAllUsersByRole(@RequestParam Long roleId) {

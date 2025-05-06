@@ -1,4 +1,3 @@
-// src/authProvider.ts
 const authProvider = {
     login: ({ username, password }: any) => {
         const request = new Request('http://localhost:8080/api/auth/login', {
