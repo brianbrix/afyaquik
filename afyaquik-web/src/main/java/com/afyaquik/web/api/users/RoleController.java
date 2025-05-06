@@ -4,14 +4,16 @@ import com.afyaquik.dtos.user.RoleRequest;
 import com.afyaquik.dtos.user.RoleResponse;
 import com.afyaquik.users.service.UserRoleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")//TODO: specify origins
 public class RoleController {
     private final UserRoleService userRoleService;
 
@@ -34,6 +36,9 @@ public class RoleController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<?> getAllRoles() {
-        return ResponseEntity.ok(userRoleService.getAllRoles());
+        List<RoleResponse> roles = userRoleService.getAllRoles();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "roles " + 1 + "-" + roles.size() + "/" + roles.size());
+        return ResponseEntity.ok().headers(headers).body(roles);
     }
 }

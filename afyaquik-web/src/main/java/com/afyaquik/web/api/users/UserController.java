@@ -6,6 +6,8 @@ import com.afyaquik.dtos.user.CreateUserRequest;
 import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -16,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")//TODO: specify origins
 public class UserController {
     private final UserService userService;
 
@@ -35,7 +36,13 @@ public class UserController {
                                           @RequestParam(required = false) Integer rangeMax,
                                           @RequestParam(required = false, defaultValue = "0") Integer page,
                                           @RequestParam(required = false, defaultValue = "10") Integer size ) {
-        return ResponseEntity.ok(userService.getFilteredUsers(ids, sortBy, sortDir, rangeField, rangeMin, rangeMax, page, size));
+
+        Page<UserResponse> users = userService.getFilteredUsers(ids, sortBy, sortDir, rangeField, rangeMin, rangeMax, page, size);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "users " + (page * size) + "-" + ((page * size) + users.getNumberOfElements() - 1) + "/" + users.getTotalElements());
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(users);
     }
     @GetMapping("/byrole")
     public ResponseEntity<?> getAllUsersByRole(@RequestParam Long roleId) {
