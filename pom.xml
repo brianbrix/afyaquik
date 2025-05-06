@@ -25,6 +25,7 @@
         <module>afyaquik-patients</module>
         <module>afyaquik-reports</module>
         <module>afyaquik-frontend</module>
+        <module>afyaquik-communication</module>
     </modules>
     <url/>
     <licenses>
