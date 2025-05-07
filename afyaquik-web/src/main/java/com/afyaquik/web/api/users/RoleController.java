@@ -22,6 +22,11 @@ public class RoleController {
     public ResponseEntity<RoleResponse> createRole(@RequestBody RoleRequest roleRequest) {
         return ResponseEntity.ok(userRoleService.createRole(roleRequest));
     }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SUPERADMIN')")
+    public ResponseEntity<RoleResponse> getRole(@PathVariable Long id) {
+        return ResponseEntity.ok(userRoleService.getRole(id));
+    }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPERADMIN')")
     public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,@RequestBody RoleRequest roleRequest) {
@@ -39,6 +44,7 @@ public class RoleController {
         List<RoleResponse> roles = userRoleService.getAllRoles();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Range", "roles " + 1 + "-" + roles.size() + "/" + roles.size());
+        headers.add("Access-Control-Expose-Headers","Content-Range");
         return ResponseEntity.ok().headers(headers).body(roles);
     }
 }

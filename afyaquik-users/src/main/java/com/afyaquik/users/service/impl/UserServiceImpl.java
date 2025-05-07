@@ -72,6 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public List<UserResponse> getAllUsers(List<Long> ids) {
         if (ids != null && !ids.isEmpty()) {
             return userRepository.findAllByIdIn(ids).stream()
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
                             .secondName(user.getSecondName())
                             .lastName(user.getLastName())
                             .email(user.getEmail())
+                            .enabled(user.isEnabled())
                             .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                             .build())
                     .collect(Collectors.toList());
@@ -94,6 +96,7 @@ public class UserServiceImpl implements UserService {
                         .secondName(user.getSecondName())
                         .lastName(user.getLastName())
                         .email(user.getEmail())
+                        .enabled(user.isEnabled())
                         .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                         .build())
                 .collect(Collectors.toList());
@@ -115,6 +118,46 @@ public class UserServiceImpl implements UserService {
                 .secondName(user.getSecondName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .enabled(user.isEnabled())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                .build();
+    }
+
+    @Override
+    public UserResponse fetchById(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> UserResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .firstName(user.getFirstName())
+                        .secondName(user.getSecondName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .enabled(user.isEnabled())
+                        .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                        .build())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    @Override
+    public UserResponse updateUserDetails(Long userId, CreateUserRequest  request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        user.setFirstName(request.getFirstname());
+        user.setSecondName(request.getSecondname());
+        user.setLastName(request.getLastname());
+        user.setUsername(request.getUsername());
+        user.setEnabled(request.getEnabled());
+        user.setEmail(request.getEmail());
+        userRepository.save(user);
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .secondName(user.getSecondName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .enabled(user.isEnabled())
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }

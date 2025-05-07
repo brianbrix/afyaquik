@@ -26,6 +26,11 @@ public class UserController {
     public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(userService.createUser(request));
     }
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.fetchById(userId));
+    }
 
     @GetMapping
     public ResponseEntity<?> getAllUsers( @RequestParam(required = false) List<Long> ids,
@@ -40,6 +45,7 @@ public class UserController {
         Page<UserResponse> users = userService.getFilteredUsers(ids, sortBy, sortDir, rangeField, rangeMin, rangeMax, page, size);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Range", "users " + (page * size) + "-" + ((page * size) + users.getNumberOfElements() - 1) + "/" + users.getTotalElements());
+        headers.add("Access-Control-Expose-Headers","Content-Range");
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(users);
@@ -48,6 +54,7 @@ public class UserController {
     public ResponseEntity<?> getAllUsersByRole(@RequestParam Long roleId) {
         return ResponseEntity.ok(userService.getUsersByRole(roleId));
     }
+
 
     @PutMapping("/{userId}/roles")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")

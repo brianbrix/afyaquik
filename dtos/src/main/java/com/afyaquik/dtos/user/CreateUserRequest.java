@@ -12,6 +12,7 @@ public class CreateUserRequest {
     private String email;
     private String secondname;
     private String password;
+    private Boolean enabled=true;
     private Set<String> roles;
 }
 

@@ -41,4 +41,9 @@ public class UserRoleServiceImpl implements UserRoleService {
     public List<RoleResponse> getAllRoles() {
         return rolesRepository.findAll().stream().map(role -> RoleResponse.builder().id(role.getId()).name(role.getName()).build()).toList();
     }
+
+    @Override
+    public RoleResponse getRole(Long id) {
+        return rolesRepository.findById(id).map(role -> RoleResponse.builder().id(role.getId()).name(role.getName()).build()).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+    }
 }

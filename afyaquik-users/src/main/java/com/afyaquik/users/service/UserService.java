@@ -15,6 +15,8 @@ public interface UserService {
     List<UserResponse> getAllUsers(List<Long> ids);
     User findByUsername(String username);
     UserResponse fetchByUsername(String username);
+    UserResponse fetchById(Long userId);
+    UserResponse updateUserDetails(Long userId, CreateUserRequest  request);
     UserResponse assignRoles(Long userId, AssignRolesRequest request);
     List<UserResponse> getUsersByRole(Long roleId);
     Page<UserResponse> getFilteredUsers(
