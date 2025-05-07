@@ -16,6 +16,13 @@ public class UserRoleServiceImpl implements UserRoleService {
     private final RolesRepository rolesRepository;
     @Override
     public RoleResponse createRole(RoleRequest roleRequest) {
+        if (roleRequest.getName() == null || roleRequest.getName().isEmpty()) {
+            throw new IllegalArgumentException("Role name is required");
+        }
+        if (!roleRequest.getName().startsWith("ROLE_"))
+        {
+            roleRequest.setName("ROLE_" + roleRequest.getName());
+        }
         rolesRepository.findByName(roleRequest.getName()).ifPresent(role -> {
             throw new IllegalArgumentException("Role already exists");
         });
@@ -25,6 +32,10 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public RoleResponse updateRole(Long id, RoleRequest roleRequest) {
+        if (!roleRequest.getName().startsWith("ROLE_"))
+        {
+            roleRequest.setName("ROLE_" + roleRequest.getName());
+        }
        Role  role = rolesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Role not found"));
        role.setName(roleRequest.getName());
        rolesRepository.save(role);

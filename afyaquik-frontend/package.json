@@ -13,6 +13,7 @@
     "react-router-dom": "^7.5.3"
   },
   "scripts": {
-    "build:all": "npm run build --workspaces"
+    "build:all": "npm run build --workspaces",
+    "copy:all": "cp -r admin/build/* ../afyaquik-web/src/main/resources/static/admin/ && cp -r user-management/build/* ../afyaquik-web/src/main/resources/static/users/ && cp -r consultations/build/* ../afyaquik-web/src/main/resources/static/consultations/ && cp -r appointments/build/* ../afyaquik-web/src/main/resources/static/appointments/ && cp -r reports/build/* ../afyaquik-web/src/main/resources/static/reports/"
   }
 }

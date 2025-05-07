@@ -44,6 +44,14 @@
                             <arguments>run build:all</arguments>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>copy-build</id>
+                        <goals><goal>npm</goal></goals>
+                        <configuration>
+                            <arguments>run copy:all</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

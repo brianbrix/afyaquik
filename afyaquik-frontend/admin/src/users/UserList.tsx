@@ -5,9 +5,9 @@ const UserList = () => (
         <Datagrid rowClick="edit">
             <TextField source="id" />
             <TextField source="username" />
-            <TextField source="firstname" />
-            <TextField source="secondname" />
-            <TextField source="lastname" />
+            <TextField source="firstName" />
+            <TextField source="secondName" />
+            <TextField source="lastName" />
             <EmailField source="email" />
             <TextField source="roles" />
             <EditButton />

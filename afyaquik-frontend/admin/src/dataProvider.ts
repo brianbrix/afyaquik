@@ -13,4 +13,25 @@ const httpClient = (url: string, options: any = {}) => {
     return fetchUtils.fetchJson(url, options);
 };
 
-export default simpleRestProvider(apiUrl, httpClient);
+const baseDataProvider = simpleRestProvider(apiUrl, httpClient);
+
+const dataProvider = {
+    ...baseDataProvider,
+
+    getList: (resource: string, params: any) => {
+        if (resource === 'users') {
+            const { page, perPage } = params.pagination;
+            const url = `${apiUrl}/${resource}?page=${page - 1}&size=${perPage}`;
+
+            return httpClient(url).then(({ json }) => ({
+                data: json.content,
+                total: json.page.totalElements,
+            }));
+        }
+
+        // Fallback to default for other resources
+        return baseDataProvider.getList(resource, params);
+    }
+};
+
+export default dataProvider;
