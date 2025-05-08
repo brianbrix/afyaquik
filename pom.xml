@@ -14,16 +14,18 @@
     <name>afyaquik</name>
     <description>afyaquik</description>
     <modules>
+        <module>dtos</module>
         <module>afyaquik-core</module>
-        <module>afyaquik-appointments</module>
+        <module>afyaquik-users</module>
+        <module>afyaquik-receptionist</module>
         <module>afyaquik-web</module>
         <module>afyaquik-admin</module>
         <module>afyaquik-billing</module>
-        <module>afyaquik-consultations</module>
+        <module>afyaquik-doctor</module>
         <module>afyaquik-patients</module>
         <module>afyaquik-reports</module>
-        <module>afyaquik-users</module>
         <module>afyaquik-frontend</module>
+        <module>afyaquik-communication</module>
     </modules>
     <url/>
     <licenses>
@@ -77,14 +79,25 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.6</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 

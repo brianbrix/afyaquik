@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtProviderService tokenProvider;
     private final UsersRepository userRepository;
 
