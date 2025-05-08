@@ -7,6 +7,14 @@ export const authService = {
         });
         const data = await response.json();
         if (response.ok) {
+            const rolesResponse = await fetch('/api/users/me', {
+                headers: { 'Authorization': `Bearer ${data.token}` }
+            });
+            const rolesData = await rolesResponse.json();
+            if (rolesResponse.ok) {
+                data.roles = rolesData.roles;
+            }
+            localStorage.setItem('userRoles', JSON.stringify(data.roles));
             localStorage.setItem('authToken', data.token);
         }
         return data;

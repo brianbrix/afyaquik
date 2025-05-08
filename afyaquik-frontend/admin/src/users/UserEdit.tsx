@@ -1,14 +1,18 @@
-import { Edit, SimpleForm, TextInput } from 'react-admin';
+import { Edit, SimpleForm, TextInput, ReferenceArrayInput, CheckboxGroupInput,BooleanInput } from 'react-admin';
 
 const UserEdit = () => (
     <Edit>
         <SimpleForm>
             <TextInput source="id" disabled />
             <TextInput source="username" />
-            <TextInput source="firstname" />
-            <TextInput source="secondname" />
-            <TextInput source="lastname" />
+            <TextInput source="firstName" />
+            <TextInput source="secondName" />
+            <TextInput source="lastName" />
             <TextInput source="email" />
+            <ReferenceArrayInput source="roles" reference="roles">
+                <CheckboxGroupInput optionText="name" optionValue="name" />
+            </ReferenceArrayInput>
+            <BooleanInput source="enabled" label="Enabled" />
         </SimpleForm>
     </Edit>
 );

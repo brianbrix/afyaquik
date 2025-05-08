@@ -6,11 +6,13 @@ import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.services.PatientVisitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/patient/visits")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('RECEPTIONIST') or hasRole('NURSE') or hasRole('DOCTOR')")
 public class PatientVisitController {
     private final PatientService patientService;
     private final PatientVisitService  patientVisitService;

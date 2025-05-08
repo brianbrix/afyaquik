@@ -4,11 +4,13 @@ import com.afyaquik.dtos.user.department.DepartmentDto;
 import com.afyaquik.users.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/departments")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
 public class DepartmentController {
     private final DepartmentService departmentService;
 

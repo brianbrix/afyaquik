@@ -19,6 +19,6 @@
   },
   "scripts": {
     "build:all": "npm run build --workspaces",
-    "copy:all": "rm -rf ../afyaquik-web/src/main/resources/static/client/admin/* && cp -r admin/build/* ../afyaquik-web/src/main/resources/static/client/admin/ && rm -rf ../afyaquik-web/src/main/resources/static/client/auth/* && cp -r auth/build/* ../afyaquik-web/src/main/resources/static/client/auth/ && rm -rf ../afyaquik-web/src/main/resources/static/client/doctor/* && cp -r doctor/build/* ../afyaquik-web/src/main/resources/static/client/doctor/ && rm -rf ../afyaquik-web/src/main/resources/static/client/receptionist/* && cp -r receptionist/build/* ../afyaquik-web/src/main/resources/static/client/receptionist/ && rm -rf ../afyaquik-web/src/main/resources/static/client/reports/* && cp -r reports/build/* ../afyaquik-web/src/main/resources/static/client/reports/ && rm -rf ../afyaquik-web/src/main/resources/static/client/nurse/* && cp -r nurse/build/* ../afyaquik-web/src/main/resources/static/client/nurse/"
+    "copy:all": "bash copy-all.sh"
   }
 }

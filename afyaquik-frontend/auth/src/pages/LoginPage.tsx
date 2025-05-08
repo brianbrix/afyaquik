@@ -6,7 +6,14 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const getRedirectParam = () => {
+        const hash = window.location.hash;
+        const queryString = hash.split('?')[1];
+        if (!queryString) return null;
 
+        const params = new URLSearchParams(queryString);
+        return params.get('redirect');
+    };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -17,13 +24,14 @@ export default function LoginPage() {
             setLoading(false);
 
             if (result.token) {
-                const params = new URLSearchParams(window.location.search);
-                const redirect = params.get('redirect');
+                const redirect = getRedirectParam();
+                console.log('Redirect:', redirect);
 
                 if (redirect && redirect.startsWith('/client/')) {
                     window.location.href = redirect;
-                } else {
-                    window.location.href = '/client/admin/index.html';
+                }
+                else {
+                    window.location.href = '/client/auth/index.html#/home';
                 }
             } else {
                 setError('Invalid username or password.');

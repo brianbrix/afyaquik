@@ -4,11 +4,13 @@ import com.afyaquik.dtos.patient.PatientDto;
 import com.afyaquik.patients.services.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST')")
 public class PatientController {
     private final PatientService patientService;
 

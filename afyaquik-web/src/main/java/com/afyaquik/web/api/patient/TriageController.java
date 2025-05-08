@@ -5,11 +5,13 @@ import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.services.TriageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/patient/triage")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('NURSE') or hasRole('DOCTOR')")
 public class TriageController {
     private final TriageService triageService;
     @PostMapping("/create")

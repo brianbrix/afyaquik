@@ -4,6 +4,7 @@ const Header = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('userRoles');
         window.location.href = '/client/auth/index.html#/login';
     };
 

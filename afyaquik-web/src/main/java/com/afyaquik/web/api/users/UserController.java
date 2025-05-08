@@ -21,10 +21,16 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(userService.createUser(request));
+    }
+
+    @PutMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @RequestBody CreateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUserDetails(userId, request));
     }
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
@@ -56,12 +62,12 @@ public class UserController {
     }
 
 
-    @PutMapping("/{userId}/roles")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
-    public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestBody AssignRolesRequest request) {
-        return ResponseEntity.ok(userService.assignRoles(userId, request));
-
-    }
+//    @PutMapping("/{userId}/roles")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+//    public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestBody AssignRolesRequest request) {
+//        return ResponseEntity.ok(userService.assignRoles(userId, request));
+//
+//    }
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {

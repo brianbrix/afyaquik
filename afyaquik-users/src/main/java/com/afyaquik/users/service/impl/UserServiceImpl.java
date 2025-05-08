@@ -54,10 +54,11 @@ public class UserServiceImpl implements UserService {
 
         User user = User.builder()
                 .username(request.getUsername())
-                .firstName(request.getFirstname())
-                .secondName(request.getSecondname())
+                .firstName(request.getFirstName())
+                .secondName(request.getSecondName())
                 .email(request.getEmail())
-                .lastName(request.getLastname())
+                .enabled(request.getEnabled())
+                .lastName(request.getLastName())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .roles(userRoles)
                 .build();
@@ -152,13 +153,16 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUserDetails(Long userId, CreateUserRequest  request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        user.setFirstName(request.getFirstname());
-        user.setSecondName(request.getSecondname());
-        user.setLastName(request.getLastname());
+        user.setFirstName(request.getFirstName());
+        user.setSecondName(request.getSecondName());
+        user.setLastName(request.getLastName());
         user.setUsername(request.getUsername());
         user.setEnabled(request.getEnabled());
         user.setEmail(request.getEmail());
-        userRepository.save(user);
+        user.setEnabled(request.getEnabled());
+        AssignRolesRequest assignRolesRequest= new AssignRolesRequest();
+        assignRolesRequest.setRoles(request.getRoles());
+        assignRoles(user, assignRolesRequest);
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -171,25 +175,15 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    @Override
-    public UserResponse assignRoles(Long userId, AssignRolesRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    private void assignRoles(User user, AssignRolesRequest request) {
         Set<Role> userRoles = request.getRoles().stream()
                 .map(roleName -> roleRepository.findByName(roleName)
                         .orElseThrow(() -> new EntityNotFoundException("Role not found: " + roleName)))
                 .collect(Collectors.toSet());
         user.setRoles(userRoles);
         userRepository.save(user);
-        return UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .firstName(user.getFirstName())
-                .secondName(user.getSecondName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .roles(userRoles.stream().map(Role::getName).collect(Collectors.toSet()))
-                .build();
+
     }
 
     @Override
