@@ -3,17 +3,22 @@
   "workspaces": [
     "admin",
     "auth",
-    "consultations",
-    "appointments",
-    "reports"
+    "doctor",
+    "receptionist",
+    "nurse",
+    "reports",
+    "shared"
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^2.7.0",
+    "bootstrap": "^5.3.6",
+    "bootstrap-icons": "^1.12.1",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.5.3"
+    "react-router-dom": "^7.5.3",
+    "sass": "^1.87.0"
   },
   "scripts": {
     "build:all": "npm run build --workspaces",
-    "copy:all": "cp -r admin/build/* ../afyaquik-web/src/main/resources/static/client/admin/ && cp -r auth/build/* ../afyaquik-web/src/main/resources/static/client/auth/ && cp -r consultations/build/* ../afyaquik-web/src/main/resources/static/client/consultations/ && cp -r appointments/build/* ../afyaquik-web/src/main/resources/static/client/appointments/ && cp -r reports/build/* ../afyaquik-web/src/main/resources/static/client/reports/"
+    "copy:all": "rm -rf ../afyaquik-web/src/main/resources/static/client/admin/* && cp -r admin/build/* ../afyaquik-web/src/main/resources/static/client/admin/ && rm -rf ../afyaquik-web/src/main/resources/static/client/auth/* && cp -r auth/build/* ../afyaquik-web/src/main/resources/static/client/auth/ && rm -rf ../afyaquik-web/src/main/resources/static/client/doctor/* && cp -r doctor/build/* ../afyaquik-web/src/main/resources/static/client/doctor/ && rm -rf ../afyaquik-web/src/main/resources/static/client/receptionist/* && cp -r receptionist/build/* ../afyaquik-web/src/main/resources/static/client/receptionist/ && rm -rf ../afyaquik-web/src/main/resources/static/client/reports/* && cp -r reports/build/* ../afyaquik-web/src/main/resources/static/client/reports/ && rm -rf ../afyaquik-web/src/main/resources/static/client/nurse/* && cp -r nurse/build/* ../afyaquik-web/src/main/resources/static/client/nurse/"
   }
 }

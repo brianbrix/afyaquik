@@ -17,11 +17,11 @@
         <module>dtos</module>
         <module>afyaquik-core</module>
         <module>afyaquik-users</module>
-        <module>afyaquik-appointments</module>
+        <module>afyaquik-receptionist</module>
         <module>afyaquik-web</module>
         <module>afyaquik-admin</module>
         <module>afyaquik-billing</module>
-        <module>afyaquik-consultations</module>
+        <module>afyaquik-doctor</module>
         <module>afyaquik-patients</module>
         <module>afyaquik-reports</module>
         <module>afyaquik-frontend</module>
