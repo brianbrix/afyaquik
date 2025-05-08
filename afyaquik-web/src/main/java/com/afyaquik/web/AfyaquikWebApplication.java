@@ -9,7 +9,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 
 @SpringBootApplication
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
-@ComponentScan(basePackages = {"com.afyaquik.users", "com.afyaquik.web", "com.afyaquik.core"})
+@ComponentScan(basePackages = {"com.afyaquik.users","com.afyaquik.patients", "com.afyaquik.web", "com.afyaquik.core"})
 public class AfyaquikWebApplication {
 
     public static void main(String[] args) {

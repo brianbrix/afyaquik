@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +71,13 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .roles(userRoles.stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
+    }
+    public String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        return authentication.getName();
     }
 
     @Override

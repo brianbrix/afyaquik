@@ -40,8 +40,13 @@
         </dependency>
         <dependency>
             <groupId>com.afyaquik</groupId>
+            <artifactId>afyaquik-patients</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.afyaquik</groupId>
             <artifactId>dtos</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

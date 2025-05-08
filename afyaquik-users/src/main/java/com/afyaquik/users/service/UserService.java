@@ -31,4 +31,5 @@ public interface UserService {
     );
     List<UserResponse> getUsersByRoles(List<Long> roleIds);
     void logoutUser(String authHeader);
+    String getCurrentUsername();
 }

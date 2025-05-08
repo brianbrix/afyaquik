@@ -14,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,4 +56,8 @@ public class User {
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+    @OneToOne
+    @JoinColumn(name="contact_info_id")
+    private ContactInfo contactInfo;
 }
