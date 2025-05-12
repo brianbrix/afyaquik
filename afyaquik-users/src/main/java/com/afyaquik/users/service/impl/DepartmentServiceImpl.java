@@ -19,7 +19,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department  department = new Department();
         department.setName(departmentDto.getName());
         department.setDescription(departmentDto.getDescription());
-        departmentRepository.save(department);
+        department = departmentRepository.save(department);
         return DepartmentDto.builder()
                 .id(department.getId())
                 .name(department.getName())
@@ -27,12 +27,13 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .build();
     }
 
+
     @Override
     public DepartmentDto updateDepartment(Long departmentId, DepartmentDto departmentDto) {
         Department department = departmentRepository.findById(departmentId).orElseThrow(()-> new EntityNotFoundException("Department not found."));
         department.setName(departmentDto.getName());
         department.setDescription(departmentDto.getDescription());
-        departmentRepository.save(department);
+        department =departmentRepository.save(department);
         return DepartmentDto.builder()
                 .id(department.getId())
                 .name(department.getName())

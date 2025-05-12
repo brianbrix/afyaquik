@@ -18,13 +18,14 @@ public class PatientController {
     public ResponseEntity<PatientDto> createPatient(@RequestBody PatientDto patientDto) {
         return ResponseEntity.ok(patientService.createPatient(patientDto));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientDto> getPatient(@PathVariable Long id) {
+        return ResponseEntity.ok(patientService.getPatient(id));
+    }
     @PostMapping("/search")
     public ResponseEntity<?> searchPatient(@RequestBody PatientDto patientDto) {
         return ResponseEntity.ok(patientService.filterPatients(patientDto));
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<PatientDto> getPatient(@RequestBody PatientDto patientDto) {
-        return ResponseEntity.ok(patientService.getPatient(patientDto.getId()));
     }
     @PutMapping("/{id}/update")
     public ResponseEntity<PatientDto> updatePatient(@RequestBody PatientDto patientDto) {

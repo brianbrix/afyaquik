@@ -1,4 +1,5 @@
 package com.afyaquik.users.entity;
+import com.afyaquik.dtos.SuperEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,13 +41,6 @@ public class User {
 
     @Column(nullable = false)
     private boolean enabled = true;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private String createdAt;
-
-    @UpdateTimestamp
-    private String updatedAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

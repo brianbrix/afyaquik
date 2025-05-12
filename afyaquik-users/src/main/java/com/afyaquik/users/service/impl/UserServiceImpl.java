@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .roles(userRoles)
                 .build();
-        userRepository.save(user);
+        user = userRepository.save(user);
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())

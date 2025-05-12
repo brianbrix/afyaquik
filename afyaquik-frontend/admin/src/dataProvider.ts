@@ -15,22 +15,34 @@ const httpClient = (url: string, options: any = {}) => {
 
 const baseDataProvider = simpleRestProvider(apiUrl, httpClient);
 
+const resourceUrlMap: { [key: string]: string } = {
+    users: 'users',
+    roles: 'roles',
+    generalSettings: 'settings/general',
+};
 const dataProvider = {
     ...baseDataProvider,
 
     getList: (resource: string, params: any) => {
-        if (resource === 'users') {
-            const { page, perPage } = params.pagination;
-            const url = `${apiUrl}/${resource}?page=${page - 1}&size=${perPage}`;
+        const endpoint = resourceUrlMap[resource];
+        let url = `${apiUrl}/${endpoint}`;
 
-            return httpClient(url).then(({ json }) => ({
-                data: json.content,
-                total: json.page.totalElements,
-            }));
+        // Check if pagination param exists and whether it's explicitly disabled
+        const shouldPaginate = params?.pagination && params.pagination !== false;
+
+        if (shouldPaginate) {
+            const { page, perPage } = params.pagination;
+            url += `?page=${page - 1}&size=${perPage}`;
         }
 
-        // Fallback to default for other resources
-        return baseDataProvider.getList(resource, params);
+        return httpClient(url).then(({ json }) => {
+            // Handle both array and paginated response shapes
+            const data = Array.isArray(json) ? json : json.content || json;
+            const total = Array.isArray(json)
+                ? json.length
+                : json.totalElements || (json.content ? json.content.length : 0);
+            return { data, total };
+        });
     }
 };
 

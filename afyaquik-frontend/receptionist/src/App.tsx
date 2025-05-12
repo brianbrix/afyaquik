@@ -1,31 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import {AuthGuard, Header} from "@afyaquik/shared";
+import {AuthGuard, Header, HomePage} from "@afyaquik/shared";
+import RegisterPatient from "./RegisterPatient";
+import PatientList from "./PatientList";
+import {HashRouter, Route, Routes} from "react-router-dom";
+import EditPatient from "./EditPatient";
 
 function App() {
   return (
+      <HashRouter>
       <AuthGuard requiredRoles={['ROLE_RECEPTIONIST']}>
         <Header />
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+        <Routes>
+          <Route path="" element={<PatientList />} />
+          <Route path="/add" element={<RegisterPatient />} />
+          <Route path="/edit/:id" element={<EditPatient />} />
+        </Routes>
       </AuthGuard>
+</HashRouter>
 
-  );
+
+);
 }
 
 export default App;

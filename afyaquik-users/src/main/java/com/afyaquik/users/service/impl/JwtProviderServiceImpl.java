@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,8 @@ public class JwtProviderServiceImpl implements JwtProviderService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return ((Set<?>) claims.get("roles"))
+        List<?> roles = (List<?>) claims.get("roles");
+        return roles
                 .stream()
                 .map(Object::toString)
                 .collect(Collectors.toSet());
