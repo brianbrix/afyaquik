@@ -1,17 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {FieldConfig, StepConfig} from "./StepConfig";
+import DraftEditor from "./DraftEditor";
 import {Button} from "react-bootstrap";
+import {useParams} from "react-router-dom";
 
 interface StepFormProps {
     config: StepConfig[];
     onSubmit: (data: any) => void;
     defaultValues?: any;
+    idFromParent?: number;
 }
 
-const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues }) => {
+const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent }) => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({ defaultValues });
     const [step, setStep] = useState(0);
+    const [formData, setFormData] = useState<any>({});
     useEffect(() => {
         if (defaultValues) {
             reset(defaultValues);
@@ -39,9 +43,9 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues }) 
                         if (field.type === 'select' && field.options) {
                             return (
                                 <select disabled={field.disabled}
-                                    multiple={field.multiple}
-                                    {...controllerField}
-                                    className={`form-select ${isInvalid ? 'is-invalid' : ''}`}
+                                        multiple={field.multiple}
+                                        {...controllerField}
+                                        className={`form-select ${isInvalid ? 'is-invalid' : ''}`}
                                 >
                                     {!field.multiple && <option value="">Select...</option>}
                                     {field.options.map(opt => (
@@ -51,6 +55,10 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues }) 
                                     ))}
                                 </select>
                             );
+                        }
+                            else if (field.type === 'wysiwyg')
+                        {
+                            return <DraftEditor disabled={field.disabled} hidden={field.hidden} value={controllerField.value || ''} onChange={controllerField.onChange} />
                         } else {
                             return (
                                 <input hidden={field.hidden} disabled={field.disabled}
@@ -70,11 +78,29 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues }) 
         );
     };
 
-    const submitStep = handleSubmit(data => {
-        if (isLastStep) {
-            onSubmit(data);
-        } else {
-            nextStep();
+    const submitStep = handleSubmit(async (data) => {
+        const stepData = { ...formData, ...data };
+        const current = config[step];
+        console.log('id', idFromParent)
+        console.log('Type of', typeof idFromParent)
+
+
+        try {
+            // If this step has an external save action (like saveVisit())
+            if (current.onStepSubmit) {
+                const result = await current.onStepSubmit(stepData, idFromParent);
+                setFormData((prev: any) => ({ ...prev, ...result }));
+            } else {
+                setFormData(stepData);
+            }
+
+            if (isLastStep) {
+                onSubmit(stepData);
+            } else {
+                nextStep();
+            }
+        } catch (error) {
+            console.error("Step submission failed", error);
         }
     });
 

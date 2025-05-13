@@ -12,6 +12,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class PatientVisitServiceImpl implements PatientVisitService {
@@ -26,7 +28,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         PatientVisit patientVisit = PatientVisit.builder()
                 .patient(patient)
                 .summaryReasonForVisit(patientVisitDto.getSummaryReasonForVisit())
-                .visitDate(patientVisitDto.getVisitDate())
+                .visitDate(LocalDateTime.now())
                 .visitType(VisitType.valueOf(patientVisitDto.getVisitType()))
                 .build();
 
@@ -35,6 +37,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         return PatientVisitDto.builder()
                 .id(savedVisit.getId())
                 .patientId(savedVisit.getPatient().getId())
+                .patientName(savedVisit.getPatient().getPatientName())
                 .summaryReasonForVisit(savedVisit.getSummaryReasonForVisit())
                 .visitDate(savedVisit.getVisitDate())
                 .visitType(savedVisit.getVisitType().name())
@@ -58,6 +61,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         return PatientVisitDto.builder()
                 .id(patientVisit.getId())
                 .patientId(patientVisit.getPatient().getId())
+                .patientName(patientVisit.getPatient().getPatientName())
                 .summaryReasonForVisit(patientVisit.getSummaryReasonForVisit())
                 .visitDate(patientVisit.getVisitDate())
                 .visitType(patientVisit.getVisitType().name())

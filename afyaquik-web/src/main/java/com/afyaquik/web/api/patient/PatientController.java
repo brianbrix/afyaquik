@@ -1,7 +1,9 @@
 package com.afyaquik.web.api.patient;
 
 import com.afyaquik.dtos.patient.PatientDto;
+import com.afyaquik.dtos.patient.PatientVisitDto;
 import com.afyaquik.patients.services.PatientService;
+import com.afyaquik.patients.services.PatientVisitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,10 +15,15 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST')")
 public class PatientController {
     private final PatientService patientService;
+    private final PatientVisitService patientVisitService;
 
     @PostMapping
     public ResponseEntity<PatientDto> createPatient(@RequestBody PatientDto patientDto) {
         return ResponseEntity.ok(patientService.createPatient(patientDto));
+    }
+    @PostMapping("/{patientId}/visits/create")
+    public ResponseEntity<PatientVisitDto> createVisit(@RequestBody PatientVisitDto  patientVisitDto, @PathVariable Long patientId) {
+        return ResponseEntity.ok(patientVisitService.createPatientVisit(patientVisitDto, patientId));
     }
 
     @GetMapping("/{id}")

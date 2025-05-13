@@ -23,6 +23,8 @@
     "copy:all": "bash copy-all.sh"
   },
   "devDependencies": {
-    "@types/papaparse": "^5.3.16"
+    "@types/papaparse": "^5.3.16",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2"
   }
 }

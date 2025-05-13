@@ -19,7 +19,9 @@ import com.afyaquik.patients.repository.TriageReportRepository;
 import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.utils.PatientSpecifications;
 import com.afyaquik.users.entity.ContactInfo;
+import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
+import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.users.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,26 +34,31 @@ import java.util.List;
 public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
     private final PatientVisitRepo patientVisitRepository;
+    private final StationRepository stationRepository;
     private final PatientAttendingPlanRepo  patientAttendingPlanRepo;
     private final UserService userService;
 
     private static PatientDto buildPatientDto(Patient patient) {
-        return PatientDto.builder()
+        PatientDto patientDto = PatientDto.builder()
                 .id(patient.getId())
                 .firstName(patient.getFirstName())
                 .secondName(patient.getSecondName())
                 .lastName(patient.getLastName())
-                .gender(patient.getGender().name())
+                .gender(patient.getGender()!=null?patient.getGender().name():null)
                 .dateOfBirth(patient.getDateOfBirth())
                 .nationalId(patient.getNationalId())
-                .maritalStatus(patient.getMaritalStatus().name())
-                .contactInfo(com.afyaquik.dtos.user.ContactInfo.builder()
-                        .phone(patient.getContactInfo().getPhoneNumber())
-                        .phone2(patient.getContactInfo().getPhoneNumber2())
-                        .email(patient.getContactInfo().getEmail())
-                        .address(patient.getContactInfo().getAddress())
-                        .build())
+                .maritalStatus(patient.getMaritalStatus()!=null?patient.getMaritalStatus().name():null)
                 .build();
+        if (patient.getContactInfo() != null)
+        {
+            patientDto.setContactInfo(com.afyaquik.dtos.user.ContactInfo.builder()
+                .phone(patient.getContactInfo().getPhoneNumber())
+                .phone2(patient.getContactInfo().getPhoneNumber2())
+                .email(patient.getContactInfo().getEmail())
+                .address(patient.getContactInfo().getAddress())
+                .build());
+        }
+        return patientDto;
     }
 
     @Override
@@ -97,10 +104,15 @@ public class PatientServiceImpl implements PatientService {
         patient.setFirstName(patientDto.getFirstName());
         patient.setSecondName(patientDto.getSecondName());
         patient.setLastName(patientDto.getLastName());
-        patient.setGender(Gender.valueOf(patientDto.getGender().toUpperCase()));
+        if (patientDto.getGender() != null)
+        {
+            patient.setGender(Gender.valueOf(patientDto.getGender()));
+        }
         patient.setDateOfBirth(patientDto.getDateOfBirth());
         patient.setNationalId(patientDto.getNationalId());
-        patient.setMaritalStatus(MaritalStatus.valueOf(patientDto.getMaritalStatus().toUpperCase()));
+        if (patientDto.getMaritalStatus() != null) {
+            patient.setMaritalStatus(MaritalStatus.valueOf(patientDto.getMaritalStatus()));
+        }
         if (patientDto.getContactInfo() != null) {
             ContactInfo contactInfo = patient.getContactInfo();
             contactInfo.setPhoneNumber(patientDto.getContactInfo().getPhone());
@@ -149,16 +161,21 @@ public class PatientServiceImpl implements PatientService {
         String userName = userService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
         patientAttendingPlan.setAttendingOfficer(attendingOfficer);
-        patientAttendingPlan.setOfficerRole(patientAttendingPlanDto.getRole());
-        patientAttendingPlan.setAssignedOfficer(userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer()));
-        patientAttendingPlan.setAssignedOfficerRole(patientAttendingPlanDto.getAssignedOfficerRole());
+        Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).orElseThrow(()-> new EntityNotFoundException("Station not found"));
+        User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
+        patientAttendingPlan.setNextStation(nextStation);
+        patientAttendingPlan.setAssignedOfficer(assignedOfficer);
         patientVisit.setPatientAttendingPlan(patientAttendingPlan);
         patientVisitRepository.save(patientVisit);
 
         return PatientAttendingPlanDto.builder()
-            .id(patientAttendingPlan.getId())
-            .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
-            .build();
+                .id(patientAttendingPlan.getId())
+                .patientName(patientVisit.getPatient().getPatientName())
+                .nextStation(patientAttendingPlan.getNextStation().getName())
+                .assignedOfficer(patientAttendingPlan.getAssignedOfficer().getUsername())
+                .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
+                .attendingOfficerUserName(patientAttendingPlan.getAttendingOfficer().getUsername())
+                .build();
 
     }
 
@@ -171,13 +188,18 @@ public class PatientServiceImpl implements PatientService {
         String userName = userService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
         patientAttendingPlan.setAttendingOfficer(attendingOfficer);
-        patientAttendingPlan.setOfficerRole(patientAttendingPlanDto.getRole());
+        Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).orElseThrow(()-> new EntityNotFoundException("Station not found"));
+        User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
+        patientAttendingPlan.setNextStation(nextStation);
+        patientAttendingPlan.setAssignedOfficer(assignedOfficer);
         patientAttendingPlan.setAssignedOfficer(userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer()));
-        patientAttendingPlan.setAssignedOfficerRole(patientAttendingPlanDto.getAssignedOfficerRole());
 
-        patientAttendingPlanRepo.save(patientAttendingPlan);
+        patientAttendingPlan = patientAttendingPlanRepo.save(patientAttendingPlan);
         return PatientAttendingPlanDto.builder()
             .id(patientAttendingPlan.getId())
+                .patientName(patientAttendingPlan.getPatientVisit().getPatient().getPatientName())
+                .nextStation(patientAttendingPlan.getNextStation().getName())
+                .assignedOfficer(patientAttendingPlan.getAssignedOfficer().getUsername())
             .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
             .attendingOfficerUserName(patientAttendingPlan.getAttendingOfficer().getUsername())
             .build();

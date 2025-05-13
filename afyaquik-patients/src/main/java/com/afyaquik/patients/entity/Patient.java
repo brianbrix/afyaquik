@@ -26,7 +26,7 @@ public class Patient {
     private String secondName;
     private String lastName;
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private Gender gender=Gender.MALE;
     private String dateOfBirth;
     private String nationalId;
     @Enumerated(EnumType.STRING)
@@ -39,4 +39,8 @@ public class Patient {
 
     @OneToMany
     private List<PatientVisit> patientVisit;
+
+    public String getPatientName() {
+        return firstName + " " + secondName + " " + lastName;
+    }
 }

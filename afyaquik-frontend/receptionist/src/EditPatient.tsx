@@ -61,6 +61,7 @@ const EditPatient = () => {
                 apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
                     .then(response => {
                         console.log('Data to be updated',response)
+                        window.location.href = `index.html#/patient/${id}/visits/create`;
 
                     })
                     .catch(err => console.error(err));

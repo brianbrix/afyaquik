@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'email' | 'date' | 'number' | 'select' | 'checkbox';
+export type FieldType = 'text' | 'email' | 'date' | 'number' | 'select' | 'checkbox' | 'wysiwyg';
 
 export interface FieldConfig {
     name: string;
@@ -15,4 +15,5 @@ export interface StepConfig {
     label: string
     listUrl?:string;
     fields: FieldConfig[];
+    onStepSubmit?: (stepData: any, id:number | undefined) => Promise<any>;
 }

@@ -114,9 +114,7 @@ public class PatientServiceImplTest {
         patientAttendingPlan = PatientAttendingPlan.builder()
                 .id(1L)
                 .attendingOfficer(user)
-                .officerRole("DOCTOR")
                 .assignedOfficer(user)
-                .assignedOfficerRole("NURSE")
                 .patientVisit(patientVisit)
                 .build();
 
@@ -329,9 +327,7 @@ public class PatientServiceImplTest {
         // Arrange
         PatientAttendingPlanDto planDto = PatientAttendingPlanDto.builder()
                 .patientVisitId(1L)
-                .role("DOCTOR")
                 .assignedOfficer("testuser")
-                .assignedOfficerRole("NURSE")
                 .build();
 
         when(patientVisitRepository.findById(1L)).thenReturn(Optional.of(patientVisit));
@@ -356,9 +352,7 @@ public class PatientServiceImplTest {
         // Arrange
         PatientAttendingPlanDto planDto = PatientAttendingPlanDto.builder()
                 .patientVisitId(999L)
-                .role("DOCTOR")
                 .assignedOfficer("testuser")
-                .assignedOfficerRole("NURSE")
                 .build();
 
         when(patientVisitRepository.findById(999L)).thenReturn(Optional.empty());
@@ -374,9 +368,7 @@ public class PatientServiceImplTest {
         // Arrange
         PatientAttendingPlanDto planDto = PatientAttendingPlanDto.builder()
                 .id(1L)
-                .role("DOCTOR")
                 .assignedOfficer("testuser")
-                .assignedOfficerRole("NURSE")
                 .build();
 
         when(patientAttendingPlanRepo.findById(1L)).thenReturn(Optional.of(patientAttendingPlan));
@@ -402,9 +394,7 @@ public class PatientServiceImplTest {
         // Arrange
         PatientAttendingPlanDto planDto = PatientAttendingPlanDto.builder()
                 .id(999L)
-                .role("DOCTOR")
                 .assignedOfficer("testuser")
-                .assignedOfficerRole("NURSE")
                 .build();
 
         when(patientAttendingPlanRepo.findById(999L)).thenReturn(Optional.empty());

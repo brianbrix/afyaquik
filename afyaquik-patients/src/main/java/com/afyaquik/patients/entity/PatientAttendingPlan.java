@@ -2,6 +2,7 @@ package com.afyaquik.patients.entity;
 
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.users.entity.Role;
+import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,13 +29,13 @@ public class PatientAttendingPlan {
     @JoinColumn(name = "attending_officer_id")
     private User attendingOfficer;
 
-    private String officerRole;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "next_station_id")
+    private Station nextStation;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_officer_id")
     private User assignedOfficer;
-
-    private String assignedOfficerRole;
 
 
     @CreationTimestamp

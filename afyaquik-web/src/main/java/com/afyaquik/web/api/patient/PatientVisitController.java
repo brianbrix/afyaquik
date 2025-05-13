@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PatientVisitController {
     private final PatientService patientService;
     private final PatientVisitService  patientVisitService;
-    @PostMapping("/{patientId}/create")
-    public ResponseEntity<PatientVisitDto> createVisit(@RequestBody PatientVisitDto  patientVisitDto, @PathVariable Long patientId) {
-        return ResponseEntity.ok(patientVisitService.createPatientVisit(patientVisitDto, patientId));
-    }
+
     @PutMapping("/update")
     public ResponseEntity<PatientVisitDto> updateVisit(@RequestBody PatientVisitDto  patientVisitDto) {
         return ResponseEntity.ok(patientVisitService.updatePatientVisit(patientVisitDto));

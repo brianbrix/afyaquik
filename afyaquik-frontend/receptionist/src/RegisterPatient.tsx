@@ -41,12 +41,13 @@ const RegisterPatient = () => {
 
         <StepForm
             config={formConfig}
-            onSubmit={(data) => {
+            onSubmit={(data,) => {
                 console.log('Submitted data:', data);
                 // @ts-ignore
                 apiRequest(`/patients`, { method:'POST' , body: data})
                     .then(response => {
                         console.log(response)
+                    window.location.href = `index.html#/patient/${response.id}/visits/create`;
                     })
                     .catch(err => console.error(err));
             }}

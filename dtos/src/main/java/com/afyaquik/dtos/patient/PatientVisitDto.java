@@ -1,5 +1,6 @@
 package com.afyaquik.dtos.patient;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,9 +8,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class PatientVisitDto {
     private Long id;
     private Long patientId;
+    private String patientName;
     private String visitType;
     private String summaryReasonForVisit;
     private LocalDateTime visitDate;
