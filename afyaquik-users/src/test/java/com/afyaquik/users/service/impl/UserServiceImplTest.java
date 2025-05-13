@@ -1,6 +1,6 @@
 package com.afyaquik.users.service.impl;
 
-import com.afyaquik.dtos.user.CreateUserRequest;
+import com.afyaquik.dtos.user.UserDto;
 import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
@@ -9,17 +9,12 @@ import com.afyaquik.users.repository.RolesRepository;
 import com.afyaquik.users.repository.UsersRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
@@ -52,7 +47,7 @@ public class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-    private CreateUserRequest createUserRequest;
+    private UserDto userDto;
     private User user;
     private Role role;
 
@@ -67,14 +62,14 @@ public class UserServiceImplTest {
         Set<String> roleNames = new HashSet<>();
         roleNames.add("ROLE_USER");
 
-        createUserRequest = new CreateUserRequest();
-        createUserRequest.setUsername("testuser");
-        createUserRequest.setPassword("password");
-        createUserRequest.setFirstName("Test");
-        createUserRequest.setLastName("User");
-        createUserRequest.setEmail("test@example.com");
-        createUserRequest.setEnabled(true);
-        createUserRequest.setRoles(roleNames);
+        userDto = new UserDto();
+        userDto.setUsername("testuser");
+        userDto.setPassword("password");
+        userDto.setFirstName("Test");
+        userDto.setLastName("User");
+        userDto.setEmail("test@example.com");
+        userDto.setEnabled(true);
+        userDto.setRoles(roleNames);
 
         Set<Role> roles = new HashSet<>();
         roles.add(role);
@@ -110,7 +105,7 @@ public class UserServiceImplTest {
         });
 
         // Act
-        UserResponse response = userService.createUser(createUserRequest);
+        UserResponse response = userService.createUser(userDto);
 
         // Assert
         assertNotNull(response);
@@ -137,7 +132,7 @@ public class UserServiceImplTest {
         when(usersRepository.existsByUsername("testuser")).thenReturn(true);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.createUser(createUserRequest));
+        assertThrows(IllegalArgumentException.class, () -> userService.createUser(userDto));
         verify(usersRepository).existsByUsername("testuser");
         verify(rolesRepository, never()).findByName(anyString());
         verify(usersRepository, never()).save(any(User.class));
@@ -154,7 +149,7 @@ public class UserServiceImplTest {
         when(rolesRepository.findByName("ROLE_USER")).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> userService.createUser(createUserRequest));
+        assertThrows(EntityNotFoundException.class, () -> userService.createUser(userDto));
         verify(usersRepository).existsByUsername("testuser");
         verify(rolesRepository).findByName("ROLE_USER");
         verify(usersRepository, never()).save(any(User.class));
@@ -243,7 +238,7 @@ public class UserServiceImplTest {
     @Test
     public void testUpdateUserDetails_Success() {
         // Arrange
-        CreateUserRequest updateRequest = new CreateUserRequest();
+        UserDto updateRequest = new UserDto();
         updateRequest.setUsername("updateduser");
         updateRequest.setFirstName("Updated");
         updateRequest.setLastName("User");
@@ -281,7 +276,7 @@ public class UserServiceImplTest {
         when(usersRepository.findById(999L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> userService.updateUserDetails(999L, createUserRequest));
+        assertThrows(EntityNotFoundException.class, () -> userService.updateUserDetails(999L, userDto));
         verify(usersRepository).findById(999L);
         verify(usersRepository, never()).save(any(User.class));
     }

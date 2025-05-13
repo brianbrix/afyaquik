@@ -18,6 +18,7 @@ const baseDataProvider = simpleRestProvider(apiUrl, httpClient);
 const resourceUrlMap: { [key: string]: string } = {
     users: 'users',
     roles: 'roles',
+    stations: 'stations',
     generalSettings: 'settings/general',
 };
 const dataProvider = {
@@ -25,6 +26,8 @@ const dataProvider = {
 
     getList: (resource: string, params: any) => {
         const endpoint = resourceUrlMap[resource];
+        console.log("Resource", resource);
+        console.log("Endpoint", endpoint);
         let url = `${apiUrl}/${endpoint}`;
 
         // Check if pagination param exists and whether it's explicitly disabled

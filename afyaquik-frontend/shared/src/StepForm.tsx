@@ -16,7 +16,6 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues }) 
         if (defaultValues) {
             reset(defaultValues);
         }
-        console.log("Default values", defaultValues);
     }, [defaultValues, reset]);
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
@@ -79,16 +78,16 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues }) 
         }
     });
 
-    console.log("list url ",currentStep.listUrl);
     return (
         <div className="container py-5">
-            {currentStep.listUrl && (
-                <Button variant="success" className="btn btn-success" onClick={() => window.location.href = `${currentStep.listUrl}`}>
-                    <i className="bi bi-arrow-left me-1"></i> Back To List
-                </Button>
-            )}
+
 
             <div className="row justify-content-center">
+                {currentStep.listUrl && (
+                    <Button variant="outline-info" className="btn btn-success" onClick={() => window.location.href = `${currentStep.listUrl}`}>
+                        <i className="bi bi-arrow-left me-1"></i> Back To List
+                    </Button>
+                )}
                 <div className="col-12 col-md-8 col-lg-6">
                     <form onSubmit={submitStep} className="card shadow-sm p-4 bg-white border-0 rounded-3">
                         <h4 className="mb-4 text-primary text-center fw-semibold">{currentStep.label}</h4>

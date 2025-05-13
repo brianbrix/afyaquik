@@ -2,13 +2,15 @@ package com.afyaquik.users.service.impl;
 
 
 import com.afyaquik.dtos.user.AssignRolesRequest;
-import com.afyaquik.dtos.user.CreateUserRequest;
+import com.afyaquik.dtos.user.UserDto;
 import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.entity.RevokedToken;
 import com.afyaquik.users.entity.Role;
+import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.RevokedTokenRepository;
 import com.afyaquik.users.repository.RolesRepository;
+import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.users.service.UserService;
 import jakarta.persistence.EntityManager;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,9 +43,10 @@ public class UserServiceImpl implements UserService {
     private final RevokedTokenRepository revokedTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final RolesRepository roleRepository;
+    private final StationRepository stationRepository;
     private final EntityManager entityManager;
     @Override
-    public UserResponse createUser(CreateUserRequest request) {
+    public UserResponse createUser(UserDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -80,6 +84,26 @@ public class UserServiceImpl implements UserService {
         }
         return authentication.getName();
     }
+    public Authentication getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        return authentication;
+    }
+    public List<String> getCurrentUserRoles() {
+        List<String> roles= getCurrentUser().getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        return roles;
+    }
+
+    public Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User userDetails = (User) authentication.getPrincipal();
+        return userDetails.getId();
+    }
 
     @Override
     @Deprecated(forRemoval = true)
@@ -94,6 +118,8 @@ public class UserServiceImpl implements UserService {
                             .lastName(user.getLastName())
                             .email(user.getEmail())
                             .enabled(user.isEnabled())
+                            .available(user.isAvailable())
+                            .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                             .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                             .build())
                     .collect(Collectors.toList());
@@ -107,7 +133,9 @@ public class UserServiceImpl implements UserService {
                         .lastName(user.getLastName())
                         .email(user.getEmail())
                         .enabled(user.isEnabled())
+                        .available(user.isEnabled())
                         .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                        .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -129,6 +157,8 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .enabled(user.isEnabled())
+                .available(user.isAvailable())
+                .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }
@@ -144,15 +174,18 @@ public class UserServiceImpl implements UserService {
                         .lastName(user.getLastName())
                         .email(user.getEmail())
                         .enabled(user.isEnabled())
+                        .available(user.isAvailable())
                         .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                        .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                         .build())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     @Override
-    public UserResponse updateUserDetails(Long userId, CreateUserRequest  request) {
+    public UserResponse updateUserDetails(Long userId, UserDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        cleanEditDetails(request);
         user.setFirstName(request.getFirstName());
         user.setSecondName(request.getSecondName());
         user.setLastName(request.getLastName());
@@ -160,9 +193,11 @@ public class UserServiceImpl implements UserService {
         user.setEnabled(request.getEnabled());
         user.setEmail(request.getEmail());
         user.setEnabled(request.getEnabled());
+        user.setAvailable(request.isAvailable());
         AssignRolesRequest assignRolesRequest= new AssignRolesRequest();
         assignRolesRequest.setRoles(request.getRoles());
         assignRoles(user, assignRolesRequest);
+        assignStations(user, request);
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -171,8 +206,32 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .enabled(user.isEnabled())
+                .available(user.isAvailable())
+                .enabled(user.isEnabled())
+                .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
+    }
+
+    /**
+     * This method is used to clean the edit details of the user.
+     * It is used to prevent the user from editing some of their own details.
+     * If the user is editing their own details, the user will be enabled and the SUPERADMIN will be removed. if they are not superadmin
+     * @param userDto
+     */
+    private void cleanEditDetails(UserDto userDto){
+        if (userDto.getUsername().equals(getCurrentUsername()))
+        {
+            userDto.setEnabled(true);
+            userDto.setUsername(userDto.getUsername());
+            if (!getCurrentUserRoles().contains("ROLE_SUPERADMIN")) {
+                userDto.getRoles().removeIf(x -> x.equals("ROLE_SUPERADMIN"));
+            }
+            else
+                {
+                userDto.getRoles().add("ROLE_SUPERADMIN");
+            }
+        }
     }
 
 
@@ -182,9 +241,20 @@ public class UserServiceImpl implements UserService {
                         .orElseThrow(() -> new EntityNotFoundException("Role not found: " + roleName)))
                 .collect(Collectors.toSet());
         user.setRoles(userRoles);
-        userRepository.save(user);
 
     }
+    private void assignStations(User user, UserDto request) {
+        if (request.getStations()!=null) {
+            Set<Station> userRoles = request.getStations().stream()
+                    .map(station -> stationRepository.findByName(station)
+                            .orElseThrow(() -> new EntityNotFoundException("Station not found: " + station)))
+                    .collect(Collectors.toSet());
+            user.setStations(userRoles);
+        }
+        userRepository.save(user);
+    }
+
+
 
     @Override
     public List<UserResponse> getUsersByRole(Long roleId) {
@@ -251,8 +321,11 @@ public class UserServiceImpl implements UserService {
                                 .firstName(user.getFirstName())
                                 .secondName(user.getSecondName())
                                 .lastName(user.getLastName())
+                                .enabled(user.isEnabled())
+                                .available(user.isAvailable())
                                 .email(user.getEmail())
                                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                                .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                                 .build())
                         .collect(Collectors.toList()),
                 PageRequest.of(pageNumber, pageSize),

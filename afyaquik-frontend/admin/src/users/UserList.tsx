@@ -1,4 +1,4 @@
-import { List, Datagrid, TextField, EmailField, EditButton } from 'react-admin';
+import { List, Datagrid, TextField, EmailField, EditButton, BooleanField } from 'react-admin';
 
 const UserList = () => (
     <List>
@@ -9,7 +9,7 @@ const UserList = () => (
             <TextField source="secondName" />
             <TextField source="lastName" />
             <EmailField source="email" />
-            <TextField source="roles" />
+            <BooleanField source="available" />
             <EditButton />
         </Datagrid>
     </List>

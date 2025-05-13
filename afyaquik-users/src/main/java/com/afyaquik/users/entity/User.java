@@ -2,9 +2,6 @@ package com.afyaquik.users.entity;
 import com.afyaquik.dtos.SuperEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,7 +48,20 @@ public class User extends SuperEntity {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_stations",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "station_id")
+    )
+    @Builder.Default
+    private Set<Station> stations = new HashSet<>();
+
+    private boolean available = true;
+
     @OneToOne
     @JoinColumn(name="contact_info_id")
     private ContactInfo contactInfo;
+
+
 }

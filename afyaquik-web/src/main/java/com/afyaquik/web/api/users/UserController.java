@@ -1,8 +1,7 @@
 package com.afyaquik.web.api.users;
 
 
-import com.afyaquik.dtos.user.AssignRolesRequest;
-import com.afyaquik.dtos.user.CreateUserRequest;
+import com.afyaquik.dtos.user.UserDto;
 import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +22,13 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserDto request) {
         return ResponseEntity.ok(userService.createUser(request));
     }
 
     @PutMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @RequestBody UserDto request) {
         return ResponseEntity.ok(userService.updateUserDetails(userId, request));
     }
     @GetMapping("/{userId}")

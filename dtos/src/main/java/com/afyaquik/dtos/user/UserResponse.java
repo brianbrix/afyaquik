@@ -19,5 +19,7 @@ public class UserResponse {
     private String lastName;
     private String email;
     private Boolean enabled;
+    private Boolean available;
     private Set<String> roles;
+    private Set<String> stations;
 }

@@ -9,7 +9,11 @@ const UserEdit = () => (
             <TextInput source="secondName" />
             <TextInput source="lastName" />
             <TextInput source="email" />
+            <BooleanInput source="available" />
             <ReferenceArrayInput source="roles" reference="roles">
+                <CheckboxGroupInput optionText="name" optionValue="name" />
+            </ReferenceArrayInput>
+            <ReferenceArrayInput source="stations" reference="stations">
                 <CheckboxGroupInput optionText="name" optionValue="name" />
             </ReferenceArrayInput>
             <BooleanInput source="enabled" label="Enabled" />
