@@ -29,8 +29,8 @@ public class JwtProviderServiceImplTest {
     public void setup() {
         username = "testuser";
         roles = new HashSet<>();
-        roles.add("ROLE_USER");
-        roles.add("ROLE_ADMIN");
+        roles.add("USER");
+        roles.add("ADMIN");
     }
 
     /**

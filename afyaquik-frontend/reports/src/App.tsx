@@ -5,7 +5,7 @@ import {AuthGuard, Header} from "@afyaquik/shared";
 
 function App() {
   return (
-      <AuthGuard requiredRoles={['ROLE_DOCTOR','ROLE_ADMIN','ROLE_NURSE']}>
+      <AuthGuard requiredRoles={['DOCTOR','ADMIN','NURSE']}>
         <Header />
     <div className="App">
       <header className="App-header">

@@ -5,14 +5,15 @@ import {HomePage} from "@afyaquik/shared";
 
 export default function App() {
   return (
+      <HashRouter>
       <AuthProvider>
-        <HashRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
-        </HashRouter>
       </AuthProvider>
+      </HashRouter>
+
   );
 }

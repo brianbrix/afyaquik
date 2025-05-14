@@ -30,7 +30,7 @@ public class UserRoleServiceImplTest {
 
     /**
      * Test case for creating a role successfully.
-     * Verifies that a role is created with the correct name and the ROLE_ prefix is added if missing.
+     * Verifies that a role is created with the correct name and the  prefix is added if missing.
      */
     @Test
     public void testCreateRole_Success() {
@@ -40,10 +40,10 @@ public class UserRoleServiceImplTest {
 
         Role savedRole = Role.builder()
                 .id(1L)
-                .name("ROLE_ADMIN")
+                .name("ADMIN")
                 .build();
 
-        when(rolesRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.empty());
+        when(rolesRepository.findByName("ADMIN")).thenReturn(Optional.empty());
         when(rolesRepository.save(any(Role.class))).thenReturn(savedRole);
 
         // Act
@@ -52,27 +52,27 @@ public class UserRoleServiceImplTest {
         // Assert
         assertNotNull(response);
         assertEquals(1L, response.getId());
-        assertEquals("ROLE_ADMIN", response.getName());
-        verify(rolesRepository).findByName("ROLE_ADMIN");
+        assertEquals("ADMIN", response.getName());
+        verify(rolesRepository).findByName("ADMIN");
         verify(rolesRepository).save(any(Role.class));
     }
 
     /**
-     * Test case for creating a role with a name that already has the ROLE_ prefix.
+     * Test case for creating a role with a name that already has the  prefix.
      * Verifies that the prefix is not duplicated.
      */
     @Test
     public void testCreateRole_WithRolePrefix() {
         // Arrange
         RoleRequest request = new RoleRequest();
-        request.setName("ROLE_ADMIN");
+        request.setName("ADMIN");
 
         Role savedRole = Role.builder()
                 .id(1L)
-                .name("ROLE_ADMIN")
+                .name("ADMIN")
                 .build();
 
-        when(rolesRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.empty());
+        when(rolesRepository.findByName("ADMIN")).thenReturn(Optional.empty());
         when(rolesRepository.save(any(Role.class))).thenReturn(savedRole);
 
         // Act
@@ -81,8 +81,8 @@ public class UserRoleServiceImplTest {
         // Assert
         assertNotNull(response);
         assertEquals(1L, response.getId());
-        assertEquals("ROLE_ADMIN", response.getName());
-        verify(rolesRepository).findByName("ROLE_ADMIN");
+        assertEquals("ADMIN", response.getName());
+        verify(rolesRepository).findByName("ADMIN");
         verify(rolesRepository).save(any(Role.class));
     }
 
@@ -98,14 +98,14 @@ public class UserRoleServiceImplTest {
 
         Role existingRole = Role.builder()
                 .id(1L)
-                .name("ROLE_ADMIN")
+                .name("ADMIN")
                 .build();
 
-        when(rolesRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.of(existingRole));
+        when(rolesRepository.findByName("ADMIN")).thenReturn(Optional.of(existingRole));
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> userRoleService.createRole(request));
-        verify(rolesRepository).findByName("ROLE_ADMIN");
+        verify(rolesRepository).findByName("ADMIN");
         verify(rolesRepository, never()).save(any(Role.class));
     }
 
@@ -127,7 +127,7 @@ public class UserRoleServiceImplTest {
 
     /**
      * Test case for updating a role successfully.
-     * Verifies that a role is updated with the correct name and the ROLE_ prefix is added if missing.
+     * Verifies that a role is updated with the correct name and the  prefix is added if missing.
      */
     @Test
     public void testUpdateRole_Success() {
@@ -138,7 +138,7 @@ public class UserRoleServiceImplTest {
 
         Role existingRole = Role.builder()
                 .id(roleId)
-                .name("ROLE_ADMIN")
+                .name("ADMIN")
                 .build();
 
         when(rolesRepository.findById(roleId)).thenReturn(Optional.of(existingRole));
@@ -150,7 +150,7 @@ public class UserRoleServiceImplTest {
         // Assert
         assertNotNull(response);
         assertEquals(roleId, response.getId());
-        assertEquals("ROLE_MODERATOR", response.getName());
+        assertEquals("MODERATOR", response.getName());
         verify(rolesRepository).findById(roleId);
         verify(rolesRepository).save(existingRole);
     }
@@ -184,7 +184,7 @@ public class UserRoleServiceImplTest {
         Long roleId = 1L;
         Role existingRole = Role.builder()
                 .id(roleId)
-                .name("ROLE_ADMIN")
+                .name("ADMIN")
                 .build();
 
         when(rolesRepository.findById(roleId)).thenReturn(Optional.of(existingRole));
@@ -256,8 +256,8 @@ public class UserRoleServiceImplTest {
     @Test
     public void testGetAllRoles() {
         // Arrange
-        Role role1 = Role.builder().id(1L).name("ROLE_ADMIN").build();
-        Role role2 = Role.builder().id(2L).name("ROLE_USER").build();
+        Role role1 = Role.builder().id(1L).name("ADMIN").build();
+        Role role2 = Role.builder().id(2L).name("USER").build();
         Set<Role> roles = new LinkedHashSet<>(Arrays.asList(role1, role2));//linkedhashset so that it is ordered
 
         doReturn(roles).when(rolesRepository).findAll();
@@ -269,9 +269,9 @@ public class UserRoleServiceImplTest {
         assertNotNull(responses);
         assertEquals(2, responses.size());
         assertEquals(1L, responses.get(0).getId());
-        assertEquals("ROLE_ADMIN", responses.get(0).getName());
+        assertEquals("ADMIN", responses.get(0).getName());
         assertEquals(2L, responses.get(1).getId());
-        assertEquals("ROLE_USER", responses.get(1).getName());
+        assertEquals("USER", responses.get(1).getName());
         verify(rolesRepository).findAll();
     }
 
@@ -283,7 +283,7 @@ public class UserRoleServiceImplTest {
     public void testGetRole_Success() {
         // Arrange
         Long roleId = 1L;
-        Role role = Role.builder().id(roleId).name("ROLE_ADMIN").build();
+        Role role = Role.builder().id(roleId).name("ADMIN").build();
 
         when(rolesRepository.findById(roleId)).thenReturn(Optional.of(role));
 
@@ -293,7 +293,7 @@ public class UserRoleServiceImplTest {
         // Assert
         assertNotNull(response);
         assertEquals(roleId, response.getId());
-        assertEquals("ROLE_ADMIN", response.getName());
+        assertEquals("ADMIN", response.getName());
         verify(rolesRepository).findById(roleId);
     }
 

@@ -1,8 +1,11 @@
 package com.afyaquik.patients.services.impl;
 
+import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
 import com.afyaquik.dtos.patient.PatientVisitDto;
+import com.afyaquik.dtos.patient.TriageReportDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientVisit;
+import com.afyaquik.patients.entity.TriageReport;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.patients.enums.VisitType;
 import com.afyaquik.patients.repository.PatientRepository;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -66,5 +70,52 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitDate(patientVisit.getVisitDate())
                 .visitType(patientVisit.getVisitType().name())
                 .build();
+    }
+
+
+    @Override
+    public PatientVisitDto getPatientVisitDetails(Long visitId, Set<String> detailsType) {
+        PatientVisit patientVisit = patientVisitRepository.findById(visitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        PatientVisitDto patientVisitDto =PatientVisitDto.builder()
+                .id(patientVisit.getId())
+                .patientId(patientVisit.getPatient().getId())
+                .patientName(patientVisit.getPatient().getPatientName())
+                .summaryReasonForVisit(patientVisit.getSummaryReasonForVisit())
+                .visitDate(patientVisit.getVisitDate())
+                .visitType(patientVisit.getVisitType().name())
+                .nextVisitDate(patientVisit.getNextVisitDate())
+                .visitStatus(patientVisit.getVisitStatus().name())
+                .build();
+                if(detailsType.contains("triageReport")){
+                    TriageReportDto reportDto = TriageReportDto.builder()
+                            .id(patientVisit.getTriageReport().getId())
+                            .bpReport(patientVisit.getTriageReport().getBpReport())
+                            .temperatureReport(patientVisit.getTriageReport().getTemperatureReport())
+                            .weightReport(patientVisit.getTriageReport().getWeightReport())
+                            .heightReport(patientVisit.getTriageReport().getHeightReport())
+                            .bmiReport(patientVisit.getTriageReport().getBmiReport())
+                            .respiratoryRateReport(patientVisit.getTriageReport().getRespiratoryRateReport())
+                            .oxygenSaturationReport(patientVisit.getTriageReport().getOxygenSaturationReport())
+                            .bloodSugarReport(patientVisit.getTriageReport().getBloodSugarReport())
+                            .complaintSummaryReport(patientVisit.getTriageReport().getComplaintSummaryReport())
+                            .build();
+                    patientVisitDto.setTriageReportDto(reportDto);
+
+                }
+               if (detailsType.contains("attendingPlan"))
+               {
+
+                   patientVisitDto.setAttendingPlan(patientVisit.getPatientAttendingPlan()!=null?
+                           patientVisit.getPatientAttendingPlan().stream().map(plan -> PatientAttendingPlanDto.builder()
+                                   .id(plan.getId())
+                                   .patientName(plan.getPatientVisit().getPatient().getPatientName())
+                                   .nextStation(plan.getNextStation().getName())
+                                   .assignedOfficer(plan.getAssignedOfficer().getUsername())
+                                   .patientVisitId(plan.getPatientVisit().getId())
+                                   .attendingOfficerUserName(plan.getAttendingOfficer().getUsername())
+                                   .build()).toList():null);
+               }
+               return patientVisitDto;
     }
 }

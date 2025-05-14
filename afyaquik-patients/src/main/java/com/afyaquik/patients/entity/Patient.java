@@ -1,5 +1,6 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.dtos.SuperEntity;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Patient {
+public class Patient extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

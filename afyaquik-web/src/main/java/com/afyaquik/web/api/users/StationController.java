@@ -21,18 +21,18 @@ public class StationController {
         return ResponseEntity.ok(userStationService.createStation(stationDto));
     }
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('SUPERADMIN','RECEPTIONIST')")
     public ResponseEntity<StationDto> getStation(@PathVariable Long id) {
         return ResponseEntity.ok(userStationService.getStation(id));
     }
     @GetMapping("/{id}/users")
-    @PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPERADMIN','RECEPTIONIST','ADMIN')")
     public ResponseEntity<Set<UserDto>> getStationUsers(@PathVariable Long id) {
         return ResponseEntity.ok(userStationService.getStationUsers(id));
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPERADMIN')")
-    public ResponseEntity<StationDto> updateRole(@PathVariable Long id,@RequestBody StationDto stationDto) {
+    public ResponseEntity<StationDto> updateStation(@PathVariable Long id,@RequestBody StationDto stationDto) {
         return ResponseEntity.ok(userStationService.updateStation(id, stationDto));
     }
     @DeleteMapping("/{id}")
@@ -42,7 +42,7 @@ public class StationController {
         return ResponseEntity.ok(null);
     }
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN','RECEPTIONIST')")
     public ResponseEntity<?> getAllStations() {
         Set<StationDto> roles = userStationService.getAllStations();
         return ResponseEntity.ok(roles);

@@ -1,10 +1,14 @@
 package com.afyaquik.dtos.patient;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PatientVisitNotesDto {
     private Long id;
     private Long patientVisitId;

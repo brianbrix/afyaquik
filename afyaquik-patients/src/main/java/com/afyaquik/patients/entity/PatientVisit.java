@@ -1,5 +1,6 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.dtos.SuperEntity;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.patients.enums.VisitType;
 import jakarta.persistence.*;
@@ -12,6 +13,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PatientVisit {
+public class PatientVisit extends SuperEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +32,6 @@ public class PatientVisit {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @CreatedBy
-    private User createdBy;
 
     @Enumerated(EnumType.STRING)
     private VisitType visitType;
@@ -41,15 +41,14 @@ public class PatientVisit {
     private LocalDateTime  visitDate;
     private LocalDateTime nextVisitDate;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "triage_report_id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "triage_report_id")
     private TriageReport triageReport;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "attending_plan_id", nullable = false)
-    private PatientAttendingPlan patientAttendingPlan;
+    @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PatientAttendingPlan> patientAttendingPlan= new ArrayList<>();
 
-    @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PatientVisitNotes> patientVisitNotes;
 
     @Enumerated(EnumType.STRING)

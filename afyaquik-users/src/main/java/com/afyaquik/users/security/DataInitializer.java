@@ -19,8 +19,12 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Role adminRole = roleRepository.findByName("ROLE_SUPERADMIN")
-                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_SUPERADMIN")));
+        Role adminRole = roleRepository.findByName("SUPERADMIN")
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setName("SUPERADMIN");
+                    return roleRepository.save(role);
+                });
 
         if (userRepository.findByUsername("afl").isEmpty()) {
             User admin = new User();

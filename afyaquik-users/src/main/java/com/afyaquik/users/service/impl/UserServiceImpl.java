@@ -224,12 +224,12 @@ public class UserServiceImpl implements UserService {
         {
             userDto.setEnabled(true);
             userDto.setUsername(userDto.getUsername());
-            if (!getCurrentUserRoles().contains("ROLE_SUPERADMIN")) {
-                userDto.getRoles().removeIf(x -> x.equals("ROLE_SUPERADMIN"));
+            if (!getCurrentUserRoles().contains("SUPERADMIN")) {
+                userDto.getRoles().removeIf(x -> x.equals("SUPERADMIN"));
             }
             else
                 {
-                userDto.getRoles().add("ROLE_SUPERADMIN");
+                userDto.getRoles().add("SUPERADMIN");
             }
         }
     }

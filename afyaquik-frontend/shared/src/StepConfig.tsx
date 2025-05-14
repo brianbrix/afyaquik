@@ -3,10 +3,12 @@ export type FieldType = 'text' | 'email' | 'date' | 'number' | 'select' | 'check
 export interface FieldConfig {
     name: string;
     label: string;
-    type: FieldType;
+    type?: FieldType;
     required?: boolean;
     hidden?: boolean;
     disabled?: boolean;
+    onChange?:any;
+    colSpan?:number,
     multiple?: boolean;//for select
     options?: { label: string; value: string | number }[];
 }

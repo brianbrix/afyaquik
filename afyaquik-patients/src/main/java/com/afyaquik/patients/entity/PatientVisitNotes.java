@@ -1,5 +1,6 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.dtos.SuperEntity;
 import com.afyaquik.users.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.data.annotation.CreatedBy;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PatientVisitNotes {
+public class PatientVisitNotes extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,10 +24,6 @@ public class PatientVisitNotes {
     @JoinColumn(name = "visit_id", nullable = false)
     private PatientVisit patientVisit;
 
-    @CreatedBy
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
 
     @Column(columnDefinition = "TEXT", length = 3000)
     private String notes;

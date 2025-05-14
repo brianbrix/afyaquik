@@ -165,7 +165,7 @@ public class PatientServiceImpl implements PatientService {
         User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
         patientAttendingPlan.setNextStation(nextStation);
         patientAttendingPlan.setAssignedOfficer(assignedOfficer);
-        patientVisit.setPatientAttendingPlan(patientAttendingPlan);
+        patientVisit.getPatientAttendingPlan().add(patientAttendingPlan);
         patientVisitRepository.save(patientVisit);
 
         return PatientAttendingPlanDto.builder()

@@ -1,61 +1,163 @@
-import React, { useState } from 'react';
-import { Table, Button, Modal } from 'react-bootstrap';
-import { useForm, Controller } from 'react-hook-form';
-import { FieldConfig } from './StepConfig';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Form } from 'react-bootstrap';
 import Papa from 'papaparse';
-
+import apiRequest from "./api";
+import {FieldConfig} from "./StepConfig";
 
 interface DataTableProps<T> {
     title: string;
-    columns: { header: string; accessor: string}[];
-    data: T[];
-    fields: FieldConfig[];
-    onAdd: (record: T) => void;
-    onEdit: (record: T) => void;
+    columns: { header: string; accessor: string, sortable?: boolean }[];
+    data?: T[];
+    editView?: string;
+    addView?: string;
+    detailsView?: string;
+    searchEndpoint?: string;
+    searchMethod?: string;
+    searchFields?: FieldConfig[];
+    searchEntity?: string;
+    defaultPageSize?: number;
 }
 
-function DataTable<T extends { id: number }>({ title, columns, data, fields, onAdd, onEdit }: DataTableProps<T>) {
-    const [showModal, setShowModal] = useState(false);
-    const [editingRecord, setEditingRecord] = useState<T | null>(null);
-    const { control, handleSubmit, reset } = useForm<T>();
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-
-    const totalPages = Math.ceil(data.length / pageSize);
-
-    const paginatedData = data.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize
-    );
-
-    const openAddModal = () => {
-        setEditingRecord(null);
-        reset();
-        setShowModal(true);
-    };
-
-    const openEditModal = (record: T) => {
-        setEditingRecord(record);
-        reset(record);
-        setShowModal(true);
-    };
-
-    const closeModal = () => {
-        setShowModal(false);
-    };
-
-    const onSubmit = (formData: T) => {
-        if (editingRecord) {
-            onEdit({ ...editingRecord, ...formData });
-        } else {
-            onAdd(formData);
+interface PaginatedResponse<T> {
+    results: {
+        content: T[];
+        page: {
+            totalElements: number;
+            totalPages: number;
+            number: number;
+            size: number;
         }
-        setShowModal(false);
+    }
+}
+
+
+function DataTable<T extends { id: number }>({
+                                                 title,
+                                                 columns,
+                                                 data: initialData = [],
+                                                 editView,
+                                                 addView,
+                                                 detailsView,
+                                                 searchEndpoint,
+                                                 searchMethod = 'POST',
+                                                 searchFields = [],
+                                                 searchEntity = 'patients',
+                                                 defaultPageSize = 10
+                                             }: DataTableProps<T>) {
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortField, setSortField] = useState<string | null>(null);
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(defaultPageSize);
+    const [data, setData] = useState<T[]>(initialData);
+    const [totalElements, setTotalElements] = useState(0);
+    const [isSearching, setIsSearching] = useState(false);
+    const [selectedFields, setSelectedFields] = useState<FieldConfig[]>(searchFields);
+    const [showFieldSelector, setShowFieldSelector] = useState(false);
+
+    const fetchData = async (page: number, size: number, sort?: string) => {
+        setIsSearching(true);
+        try {
+            const params = {
+                page,
+                size,
+                ...(sort && { sort })
+            };
+
+            let response;
+            if (searchMethod === 'GET') {
+                const queryParams = new URLSearchParams();
+                Object.entries(params).forEach(([key, value]) => {
+                    queryParams.append(key, String(value));
+                });
+
+                if (searchTerm) {
+                    queryParams.append('query', searchTerm);
+                    selectedFields.forEach(field => queryParams.append('fields', field.name));
+                }
+
+                response = await apiRequest(`${searchEndpoint}?${queryParams.toString()}`);
+            } else {
+                const requestBody = {
+                    ...params,
+                    searchEntity: searchEntity,
+                    ...(searchTerm && {
+                        query: searchTerm,
+                        searchFields: selectedFields.map(f=>f.name)
+                    })
+                };
+
+                response = await apiRequest(searchEndpoint+'', {
+                    method: 'POST',
+                    body: requestBody,
+                });
+            }
+
+            console.log("Response", response);
+            const result: PaginatedResponse<T> =  response;
+            setData(result.results.content);
+            setTotalElements(result.results.page.totalElements);
+            setCurrentPage(result.results.page.number);
+            setPageSize(result.results.page.size);
+            console.log(selectedFields.length , searchFields.length)
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    useEffect(() => {
+        if (searchEndpoint) {
+            const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
+            fetchData(currentPage, pageSize, sortParam);
+        } else {
+            // Client-side fallback
+            let sortedData = [...initialData];
+
+            if (sortField) {
+                sortedData.sort((a, b) => {
+                    const valA = a[sortField as keyof T];
+                    const valB = b[sortField as keyof T];
+                    return sortDirection === 'asc'
+                        ? (valA > valB ? 1 : -1)
+                        : (valA < valB ? 1 : -1);
+                });
+            }
+
+            setData(sortedData.slice(currentPage * pageSize, (currentPage + 1) * pageSize));
+            setTotalElements(initialData.length);
+        }
+    }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields]);
+
+    const handleSort = (field: string) => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+        setCurrentPage(0); // Reset to first page when sorting changes
+    };
+
+    const handleFieldToggle = (field: FieldConfig) => {
+        const newFields = selectedFields.includes(field)
+            ? selectedFields.filter(f => f !== field)
+            : [...selectedFields, field];
+        console.log("Fields",newFields)
+        setSelectedFields(newFields);
+        setCurrentPage(0); // Reset to first page when search fields change
+    };
+
+    const toggleSelectAllFields = () => {
+        setSelectedFields(selectedFields.length === searchFields.length ? [] : [...searchFields]);
+        setCurrentPage(0);
     };
 
     const downloadCSV = () => {
-        const csvData = data.map(record => {
+        const csvData = (searchEndpoint ? initialData : data).map(record => {
             const row: any = {};
             columns.forEach(col => {
                 row[col.header] = record[col.accessor as keyof T];
@@ -64,7 +166,6 @@ function DataTable<T extends { id: number }>({ title, columns, data, fields, onA
         });
 
         const csv = Papa.unparse(csvData);
-
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -75,88 +176,146 @@ function DataTable<T extends { id: number }>({ title, columns, data, fields, onA
         document.body.removeChild(link);
     };
 
-    const renderField = (field: FieldConfig) => {
-        return (
-            <div key={field.name} className="mb-3">
-                <label className="form-label fw-semibold">
-                    {field.label}{field.required && <span className="text-danger"> *</span>}
-                </label>
-                <Controller
-                    name={field.name as any}
-                    control={control}
-                    rules={{ required: field.required ? `${field.label} is required` : false }}
-                    render={({ field: controllerField }) => {
-                        if (field.type === 'select' && field.options) {
-                            return (
-                                <select
-                                    {...controllerField}
-                                    className="form-select"
-                                >
-                                    <option value="">Select...</option>
-                                    {field.options.map(opt => (
-                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                    ))}
-                                </select>
-                            );
-                        } else {
-                            return (
-                                <input
-                                    {...controllerField}
-                                    type={field.type}
-                                    className="form-control"
-                                />
-                            );
-                        }
-                    }}
-                />
-            </div>
-        );
-    };
-
     return (
-        <>
-            <div className="container my-4">
-
+        <div className="container my-4">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="text-primary fw-semibold m-0">{title}</h5>
                 <div>
                     <Button variant="success" className="me-2" onClick={downloadCSV}>
                         <i className="bi bi-download me-1"></i> Download CSV
                     </Button>
-                    <Button variant="primary" className="btn btn-primary" onClick={() => window.location.href = 'index.html#/add'}>
-                        <i className="bi bi-plus-circle me-1"></i> Add Record
-                    </Button>
-
+                    {addView && (
+                        <Button variant="primary" onClick={() => window.location.href = addView}>
+                            <i className="bi bi-plus-circle me-1"></i> Add Record
+                        </Button>
+                    )}
                 </div>
             </div>
+
+            {/* Search and Field Selection */}
+            {(searchEndpoint || searchFields.length > 0) && (
+                <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                    <div className="position-relative w-50">
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            {searchFields.length > 0 && (
+                                <Button
+                                    variant="outline-secondary"
+                                    onClick={() => setShowFieldSelector(!showFieldSelector)}
+                                >
+                                    <i className={`bi bi-${showFieldSelector ? 'chevron-up' : 'chevron-down'}`}></i> Filter by
+                                </Button>
+                            )}
+                        </div>
+                        {isSearching && (
+                            <div className="position-absolute top-50 end-0 translate-middle-y me-2">
+                                <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Field Selection Dropdown */}
+            {showFieldSelector && searchFields.length > 0 && (
+                <div className="bg-white p-3 mb-3 border rounded shadow-sm">
+                    <div className="mb-2">
+                        <Form.Check
+                            type="checkbox"
+                            id="select-all-fields"
+                            label="Select All"
+                            checked={selectedFields.length === searchFields.length}
+                            onChange={toggleSelectAllFields}
+                        />
+                    </div>
+                    <div className="d-flex flex-wrap gap-3">
+                        {searchFields.map(field => (
+                            <Form.Check
+                                key={field.name}
+                                type="checkbox"
+                                id={`field-${field.name}`}
+                                label={field.label}
+                                checked={selectedFields.includes(field)}
+                                onChange={() => handleFieldToggle(field)}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <Table bordered hover responsive className="table-sm align-middle">
                 <thead className="table-light">
                 <tr>
-                    {columns.map(col => <th key={col.accessor as string}>{col.header}</th>)}
-                    <th>Actions</th>
+                    {columns.map(col => (
+                        <th
+                            key={col.accessor}
+                            className="py-3 ps-4"
+                            style={{ cursor: col.sortable !== false ? 'pointer' : 'default' }}
+                            onClick={() => col.sortable !== false && handleSort(col.accessor)}
+                        >
+                            {col.header}
+                            {sortField === col.accessor && (
+                                sortDirection === 'asc' ? ' 🔼' : ' 🔽'
+                            )}
+                        </th>
+                    ))}
+                    {(editView || detailsView) && <th>Actions</th>}
                 </tr>
                 </thead>
                 <tbody>
-                {paginatedData.length === 0 ? (
-                    <tr><td colSpan={columns.length + 1} className="text-center">No records found</td></tr>
-                ) : data.map(record => (
-                    <tr key={record.id}>
-                        {columns.map(col => <td key={col.accessor as string}>{record[col.accessor as keyof T] as any}</td>)}
-                        <td>
-                            <Button variant="primary" className="btn btn-primary" onClick={() => window.location.href = `index.html#/edit/${record.id}`}>
-                                <i className="bi bi-pencil"></i> Edit
-                            </Button>
+                {data.length === 0 ? (
+                    <tr>
+                        <td colSpan={columns.length + ((editView || detailsView) ? 1 : 0)} className="text-center">
+                            No records found
                         </td>
                     </tr>
-                ))}
+                ) : (
+                    data.map(record => (
+                        <tr key={record.id}>
+                            {columns.map(col => (
+                                <td key={`${record.id}-${col.accessor}`}>
+                                    {record[col.accessor as keyof T] as any}
+                                </td>
+                            ))}
+                            {(editView || detailsView) && (
+                                <td>
+                                    {detailsView && (
+                                        <Button
+                                            variant="secondary"
+                                            className="me-2"
+                                            onClick={() => window.location.href = detailsView.replace("#id", String(record.id))}
+                                        >
+                                            <i className="bi bi-eye"></i> Details
+                                        </Button>
+                                    )}
+                                    {editView && (
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => window.location.href = editView.replace("#id", String(record.id))}
+                                        >
+                                            <i className="bi bi-pencil"></i> Edit
+                                        </Button>
+                                    )}
+                                </td>
+                            )}
+                        </tr>
+                    ))
+                )}
                 </tbody>
             </Table>
 
             <div className="d-flex justify-content-between align-items-center mt-3">
                 <div>
                     <small className="text-muted">
-                        Showing {paginatedData.length} of {data.length} records
+                        Showing {data.length} of {totalElements} records
                     </small>
                 </div>
 
@@ -167,7 +326,7 @@ function DataTable<T extends { id: number }>({ title, columns, data, fields, onA
                         value={pageSize}
                         onChange={(e) => {
                             setPageSize(Number(e.target.value));
-                            setCurrentPage(1);
+                            setCurrentPage(0);
                         }}
                     >
                         {[5, 10, 20, 50].map(size => (
@@ -177,20 +336,44 @@ function DataTable<T extends { id: number }>({ title, columns, data, fields, onA
 
                     <nav>
                         <ul className="pagination pagination-sm mb-0">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(p => p - 1)}>
+                            <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={() => setCurrentPage(p => p - 1)}
+                                    disabled={currentPage === 0}
+                                >
                                     Prev
                                 </button>
                             </li>
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                <li key={page} className={`page-item ${page === currentPage ? 'active' : ''}`}>
-                                    <button className="page-link" onClick={() => setCurrentPage(page)}>
-                                        {page}
-                                    </button>
-                                </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(p => p + 1)}>
+                            {Array.from({ length: Math.min(5, Math.ceil(totalElements / pageSize)) }, (_, i) => {
+                                // Show pages around current page
+                                let pageNum = i;
+                                if (currentPage >= 3 && currentPage < Math.ceil(totalElements / pageSize) - 3) {
+                                    pageNum = currentPage - 2 + i;
+                                } else if (currentPage >= Math.ceil(totalElements / pageSize) - 3) {
+                                    pageNum = Math.max(0, Math.ceil(totalElements / pageSize) - 5) + i;
+                                }
+                                return (
+                                    <li
+                                        key={pageNum}
+                                        className={`page-item ${pageNum === currentPage ? 'active' : ''}`}
+                                    >
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setCurrentPage(pageNum)}
+                                            disabled={pageNum >= Math.ceil(totalElements / pageSize)}
+                                        >
+                                            {pageNum + 1}
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                            <li className={`page-item ${currentPage >= Math.ceil(totalElements / pageSize) - 1 ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={() => setCurrentPage(p => p + 1)}
+                                    disabled={currentPage >= Math.ceil(totalElements / pageSize) - 1}
+                                >
                                     Next
                                 </button>
                             </li>
@@ -198,23 +381,7 @@ function DataTable<T extends { id: number }>({ title, columns, data, fields, onA
                     </nav>
                 </div>
             </div>
-
-            <Modal show={showModal} onHide={closeModal} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>{editingRecord ? 'Edit Record' : 'Add Record'}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        {fields.map(renderField)}
-                        <div className="d-flex justify-content-end">
-                            <Button variant="secondary" onClick={closeModal} className="me-2">Cancel</Button>
-                            <Button variant="primary" type="submit">{editingRecord ? 'Update' : 'Save'}</Button>
-                        </div>
-                    </form>
-                </Modal.Body>
-            </Modal>
-            </div>
-        </>
+        </div>
     );
 }
 

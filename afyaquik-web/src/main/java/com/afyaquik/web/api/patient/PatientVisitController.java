@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/patient/visits")
 @RequiredArgsConstructor
@@ -16,6 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class PatientVisitController {
     private final PatientService patientService;
     private final PatientVisitService  patientVisitService;
+
+    @GetMapping("/{patientId}")
+    public ResponseEntity<PatientVisitDto> getPatientVisitDetails(@PathVariable Long patientId, @RequestParam Set<String> detailsType) {
+        return ResponseEntity.ok(patientVisitService.getPatientVisitDetails(patientId, detailsType));
+    }
 
     @PutMapping("/update")
     public ResponseEntity<PatientVisitDto> updateVisit(@RequestBody PatientVisitDto  patientVisitDto) {
@@ -29,9 +36,6 @@ public class PatientVisitController {
     public ResponseEntity<?> updateAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
         return ResponseEntity.ok(patientService.updatePatientAttendingPlan(planDto));
     }
-    @GetMapping("/{patientId}")
-    public ResponseEntity<?> getVisits(@PathVariable Long  patientId) {
-        return ResponseEntity.ok(patientService.getPatientVisits(patientId));
-    }
+
 
 }

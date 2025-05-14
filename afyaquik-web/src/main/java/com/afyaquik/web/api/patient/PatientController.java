@@ -9,10 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST')")
 public class PatientController {
     private final PatientService patientService;
     private final PatientVisitService patientVisitService;
@@ -26,12 +27,16 @@ public class PatientController {
         return ResponseEntity.ok(patientVisitService.createPatientVisit(patientVisitDto, patientId));
     }
 
+    @GetMapping("/{patientId}/visits")
+    public ResponseEntity<List<PatientVisitDto>> getVisits(@PathVariable Long  patientId) {
+        return ResponseEntity.ok(patientService.getPatientVisits(patientId));
+    }
     @GetMapping("/{id}")
     public ResponseEntity<PatientDto> getPatient(@PathVariable Long id) {
         return ResponseEntity.ok(patientService.getPatient(id));
     }
     @PostMapping("/search")
-    public ResponseEntity<?> searchPatient(@RequestBody PatientDto patientDto) {
+    public ResponseEntity<List<PatientDto>> searchPatient(@RequestBody PatientDto patientDto) {
         return ResponseEntity.ok(patientService.filterPatients(patientDto));
     }
     @PutMapping("/{id}/update")

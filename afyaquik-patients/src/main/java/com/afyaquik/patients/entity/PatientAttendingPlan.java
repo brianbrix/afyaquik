@@ -1,5 +1,6 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.dtos.SuperEntity;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.Station;
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PatientAttendingPlan {
+public class PatientAttendingPlan extends SuperEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +42,9 @@ public class PatientAttendingPlan {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @OneToOne(mappedBy = "patientAttendingPlan")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "visit_id", nullable = false)
     private PatientVisit patientVisit;
 
 }

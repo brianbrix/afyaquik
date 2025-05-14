@@ -56,11 +56,11 @@ public class UserServiceImplTest {
         // Setup common test data
         role = Role.builder()
                 .id(1L)
-                .name("ROLE_USER")
+                .name("USER")
                 .build();
 
         Set<String> roleNames = new HashSet<>();
-        roleNames.add("ROLE_USER");
+        roleNames.add("USER");
 
         userDto = new UserDto();
         userDto.setUsername("testuser");
@@ -94,7 +94,7 @@ public class UserServiceImplTest {
     public void testCreateUser_Success() {
         // Arrange
         when(usersRepository.existsByUsername(anyString())).thenReturn(false);
-        when(rolesRepository.findByName("ROLE_USER")).thenReturn(Optional.of(role));
+        when(rolesRepository.findByName("USER")).thenReturn(Optional.of(role));
         when(passwordEncoder.encode(anyString())).thenReturn("hashedpassword");
 
         // Mock the save method to set the ID and return the user
@@ -114,10 +114,10 @@ public class UserServiceImplTest {
         assertEquals("Test", response.getFirstName());
         assertEquals("User", response.getLastName());
         assertEquals("test@example.com", response.getEmail());
-        assertTrue(response.getRoles().contains("ROLE_USER"));
+        assertTrue(response.getRoles().contains("USER"));
 
         verify(usersRepository).existsByUsername("testuser");
-        verify(rolesRepository).findByName("ROLE_USER");
+        verify(rolesRepository).findByName("USER");
         verify(passwordEncoder).encode("password");
         verify(usersRepository).save(any(User.class));
     }
@@ -146,12 +146,12 @@ public class UserServiceImplTest {
     public void testCreateUser_RoleNotFound() {
         // Arrange
         when(usersRepository.existsByUsername(anyString())).thenReturn(false);
-        when(rolesRepository.findByName("ROLE_USER")).thenReturn(Optional.empty());
+        when(rolesRepository.findByName("USER")).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> userService.createUser(userDto));
         verify(usersRepository).existsByUsername("testuser");
-        verify(rolesRepository).findByName("ROLE_USER");
+        verify(rolesRepository).findByName("USER");
         verify(usersRepository, never()).save(any(User.class));
     }
 
@@ -174,7 +174,7 @@ public class UserServiceImplTest {
         assertEquals("Test", response.getFirstName());
         assertEquals("User", response.getLastName());
         assertEquals("test@example.com", response.getEmail());
-        assertTrue(response.getRoles().contains("ROLE_USER"));
+        assertTrue(response.getRoles().contains("USER"));
 
         verify(usersRepository).findByUsername("testuser");
     }
@@ -212,7 +212,7 @@ public class UserServiceImplTest {
         assertEquals("Test", response.getFirstName());
         assertEquals("User", response.getLastName());
         assertEquals("test@example.com", response.getEmail());
-        assertTrue(response.getRoles().contains("ROLE_USER"));
+        assertTrue(response.getRoles().contains("USER"));
 
         verify(usersRepository).findById(1L);
     }
@@ -244,15 +244,15 @@ public class UserServiceImplTest {
         updateRequest.setLastName("User");
         updateRequest.setEmail("updated@example.com");
         updateRequest.setEnabled(true);
-        updateRequest.setRoles(Set.of("ROLE_ADMIN"));
+        updateRequest.setRoles(Set.of("ADMIN"));
 
         Role adminRole = Role.builder()
                 .id(2L)
-                .name("ROLE_ADMIN")
+                .name("ADMIN")
                 .build();
 
         when(usersRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(rolesRepository.findByName("ROLE_ADMIN")).thenReturn(Optional.of(adminRole));
+        when(rolesRepository.findByName("ADMIN")).thenReturn(Optional.of(adminRole));
         when(usersRepository.save(any(User.class))).thenReturn(user);
 
         // Act
@@ -262,7 +262,7 @@ public class UserServiceImplTest {
         assertNotNull(response);
         assertEquals(1L, response.getId());
         verify(usersRepository).findById(1L);
-        verify(rolesRepository).findByName("ROLE_ADMIN");
+        verify(rolesRepository).findByName("ADMIN");
         verify(usersRepository).save(any(User.class));
     }
 
