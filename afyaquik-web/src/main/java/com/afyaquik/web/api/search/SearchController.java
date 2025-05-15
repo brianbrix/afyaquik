@@ -16,12 +16,25 @@ import org.springframework.web.bind.annotation.*;
 public class SearchController {
     private final SearchService searchService;
     @PostMapping
-    public ResponseEntity<SearchResponseDto> search(
-            @RequestBody SearchDto searchDto) {
+    public ResponseEntity<SearchResponseDto> search(@RequestBody SearchDto searchDto) {
 
-        Pageable pageable = searchDto.getSort() != null ?
-                PageRequest.of(searchDto.getPage(), searchDto.getSize(), Sort.by(searchDto.getSort())) :
-                PageRequest.of(searchDto.getPage(), searchDto.getSize());
+        Pageable pageable;
+        if (searchDto.getSort() != null && !searchDto.getSort().isBlank()) {
+            String[] sortParts = searchDto.getSort().split(",");
+            if (sortParts.length == 2) {
+                String sortField = sortParts[0].trim();
+                String sortDirection = sortParts[1].trim().toLowerCase();
+                Sort sort = sortDirection.equals("desc")
+                        ? Sort.by(Sort.Order.desc(sortField))
+                        : Sort.by(Sort.Order.asc(sortField));
+
+                pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize(), sort);
+            } else {
+                pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize());
+            }
+        } else {
+            pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize());
+        }
 
         SearchResponseDto response = searchService.search(searchDto, pageable);
         return ResponseEntity.ok(response);

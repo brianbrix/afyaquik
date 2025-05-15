@@ -55,7 +55,7 @@ public class PatientServiceImplTest {
     private Patient patient;
     private PatientDto patientDto;
     private PatientVisit patientVisit;
-    private PatientAttendingPlan patientAttendingPlan;
+    private List<PatientAttendingPlan> patientAttendingPlan;
     private User user;
 
     @BeforeEach
@@ -111,12 +111,12 @@ public class PatientServiceImplTest {
                 .visitStatus(VisitStatus.RECEPTION)
                 .build();
 
-        patientAttendingPlan = PatientAttendingPlan.builder()
+        patientAttendingPlan = List.of(PatientAttendingPlan.builder()
                 .id(1L)
                 .attendingOfficer(user)
                 .assignedOfficer(user)
                 .patientVisit(patientVisit)
-                .build();
+                .build());
 
         patientVisit.setPatientAttendingPlan(patientAttendingPlan);
         patient.setPatientVisit(List.of(patientVisit));
@@ -370,11 +370,11 @@ public class PatientServiceImplTest {
                 .id(1L)
                 .assignedOfficer("testuser")
                 .build();
-
-        when(patientAttendingPlanRepo.findById(1L)).thenReturn(Optional.of(patientAttendingPlan));
+        when(patientAttendingPlanRepo.findById(1L)).thenReturn(Optional.of(patientAttendingPlan.get(0)));
         when(userService.getCurrentUsername()).thenReturn("testuser");
         when(userService.findByUsername("testuser")).thenReturn(user);
-        when(patientAttendingPlanRepo.save(any(PatientAttendingPlan.class))).thenReturn(patientAttendingPlan);
+        when(patientAttendingPlanRepo.save(any(PatientAttendingPlan.class))).thenReturn(patientAttendingPlan.get(0));
+
 
         // Act
         PatientAttendingPlanDto result = patientService.updatePatientAttendingPlan(planDto);

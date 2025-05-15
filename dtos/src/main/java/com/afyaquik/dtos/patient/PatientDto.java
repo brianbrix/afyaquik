@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,6 +19,7 @@ public class PatientDto {
         private String lastName;
         private String gender;
         private String dateOfBirth;
+        private LocalDateTime createdAt;
         private String nationalId;
         private String maritalStatus;
         private ContactInfo contactInfo;

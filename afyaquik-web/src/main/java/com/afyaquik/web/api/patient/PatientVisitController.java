@@ -20,7 +20,7 @@ public class PatientVisitController {
     private final PatientVisitService  patientVisitService;
 
     @GetMapping("/{patientId}")
-    public ResponseEntity<PatientVisitDto> getPatientVisitDetails(@PathVariable Long patientId, @RequestParam Set<String> detailsType) {
+    public ResponseEntity<PatientVisitDto> getPatientVisitDetails(@PathVariable Long patientId, @RequestParam(required = false) Set<String> detailsType) {
         return ResponseEntity.ok(patientVisitService.getPatientVisitDetails(patientId, detailsType));
     }
 

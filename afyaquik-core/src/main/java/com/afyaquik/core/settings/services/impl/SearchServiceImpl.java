@@ -1,29 +1,39 @@
 package com.afyaquik.core.settings.services.impl;
 
+import com.afyaquik.core.mappers.EntityMapper;
+import com.afyaquik.core.mappers.MapperRegistry;
 import com.afyaquik.core.settings.services.SearchService;
 import com.afyaquik.dtos.search.SearchDto;
 import com.afyaquik.dtos.search.SearchResponseDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private final MapperRegistry mapperRegistry;
 
     @Override
     public SearchResponseDto search(SearchDto searchDto, Pageable pageable) {
@@ -93,7 +103,7 @@ public class SearchServiceImpl implements SearchService {
 
             Class<?> finalResponseType = responseType;
             List<?> dtos = entities.stream()
-                    .map(entity -> mapToDto(entity, finalResponseType))
+                    .map(entity -> mapToDto(entity, searchDto.getSearchEntity()))
                     .collect(Collectors.toList());
 
             // Count query
@@ -101,7 +111,7 @@ public class SearchServiceImpl implements SearchService {
             Root<?> countRoot = countQuery.from(entityClass);
             countQuery.select(cb.count(countRoot));
 
-// Rebuild predicates for the countRoot
+            // Rebuild predicates for the countRoot
             List<Predicate> countPredicates = buildPredicates(searchDto, cb, countRoot);
 
             if (!countPredicates.isEmpty()) {
@@ -117,15 +127,12 @@ public class SearchServiceImpl implements SearchService {
             throw new IllegalArgumentException("Entity not found: " + searchDto.getSearchEntity());
         }
     }
-    private Object mapToDto(Object entity, Class<?> dtoClass) {
-        // You can use BeanUtils, ModelMapper, or custom logic
-        try {
-            Object dto = dtoClass.getDeclaredConstructor().newInstance();
-            BeanUtils.copyProperties(entity, dto);
-            return dto;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to map entity to DTO", e);
+    private Object mapToDto(Object entity, String entityName) {
+        EntityMapper<Object, Object> mapper = mapperRegistry.getMapper(entityName);
+        if (mapper == null) {
+            throw new IllegalArgumentException("No mapper registered for entity: " + entityName);
         }
+        return mapper.toDto(entity);
     }
     private List<Predicate> buildPredicates(SearchDto searchDto, CriteriaBuilder cb, Root<?> root) {
         List<Predicate> predicates = new ArrayList<>();
@@ -140,8 +147,20 @@ public class SearchServiceImpl implements SearchService {
 
         for (String field : searchDto.getSearchFields()) {
             try {
-                Path<String> path = resolvePath(root, field);
-                predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + searchTerm + "%"));
+                Path<?> path = resolvePath(root, field);
+
+                Class<?> javaType = path.getJavaType();
+
+                if (javaType.equals(String.class)) {
+                    predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + searchTerm + "%"));
+                } else if (javaType.equals(java.util.Date.class) || javaType.equals(java.sql.Timestamp.class)) {
+                    LocalDateTime parsedDate = parseLocalDateTime(searchTerm);
+                    if (parsedDate != null) {
+                        predicates.add(cb.equal(path.as(LocalDateTime.class), parsedDate));
+                    }
+                } else {
+                    predicates.add(cb.like(path.as(String.class), "%" + searchTerm + "%"));
+                }
             } catch (IllegalArgumentException e) {
 
                 log.error("Field not found: {}", field);
@@ -150,6 +169,14 @@ public class SearchServiceImpl implements SearchService {
         }
 
         return predicates;
+    }
+
+    private LocalDateTime parseLocalDateTime(String input) {
+        try {
+            return LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")

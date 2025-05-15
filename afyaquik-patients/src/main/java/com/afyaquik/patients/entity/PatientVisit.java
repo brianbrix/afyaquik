@@ -52,7 +52,7 @@ public class PatientVisit extends SuperEntity {
     private List<PatientVisitNotes> patientVisitNotes;
 
     @Enumerated(EnumType.STRING)
-    private VisitStatus visitStatus;
+    private VisitStatus visitStatus=VisitStatus.DOCTOR;
 
 
 

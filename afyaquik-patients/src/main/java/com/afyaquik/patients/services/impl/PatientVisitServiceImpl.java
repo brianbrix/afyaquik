@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -85,8 +86,9 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitDate(patientVisit.getVisitDate())
                 .visitType(patientVisit.getVisitType().name())
                 .nextVisitDate(patientVisit.getNextVisitDate())
-                .visitStatus(patientVisit.getVisitStatus().name())
+                .visitStatus(patientVisit.getVisitStatus()!=null?patientVisit.getVisitStatus().name():null)
                 .build();
+                detailsType = detailsType==null?new HashSet<>():detailsType;
                 if(detailsType.contains("triageReport")){
                     TriageReportDto reportDto = TriageReportDto.builder()
                             .id(patientVisit.getTriageReport().getId())

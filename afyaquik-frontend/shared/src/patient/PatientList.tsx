@@ -6,10 +6,11 @@ import DataTable from "../DataTable";
 
 
 const columns = [
+    { header: '#', accessor: 'id' },
     { header: 'First Name', accessor: 'firstName' },
     { header: 'Last Name', accessor: 'lastName' },
-    { header: 'Phone', accessor: 'contactInfo.phone' },
-    { header: 'Id', accessor: 'nationalId' }
+    { header: 'When created', accessor: 'createdAt' },
+    { header: 'Phone', accessor: 'contactInfo.phone' }
 ];
 
 const PatientList = () => {
