@@ -26,6 +26,7 @@ const PatientVisitList: React.FC<PatientVisitListProps> = ({patientId}) => {
             })
             .catch(err => console.error(err));
     }, []);
+    const patientName = localStorage.getItem('patientName');
     const searchFields =[
         {
             name: 'createdAt',
@@ -50,15 +51,15 @@ const PatientVisitList: React.FC<PatientVisitListProps> = ({patientId}) => {
     return (
 
         <DataTable
-            title="Visits by "
+            title={`Visits by ${patientName}`}
             columns={columns}
             data={patientVisits}
             editView={"index.html#/patient/visits/#id/edit"}
             addView={`index.html#/patient/${patientId}/visits/add`}
             searchFields={searchFields}
-            searchEntity={'visits'}
-            searchMethod={'POST'}
-            searchEndpoint={'/search'}
+            // searchEntity={'visits'}
+            // searchMethod={'POST'}
+            // searchEndpoint={'/search'}
         />);
 }
 export default PatientVisitList;

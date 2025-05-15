@@ -193,7 +193,7 @@ function DataTable<T extends { id: number }>({
             </div>
 
             {/* Search and Field Selection */}
-            {(searchEndpoint || searchFields.length > 0) && (
+            {(searchEndpoint) && (
                 <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
                     <div className="position-relative w-50">
                         <div className="input-group">
@@ -225,7 +225,7 @@ function DataTable<T extends { id: number }>({
             )}
 
             {/* Field Selection Dropdown */}
-            {showFieldSelector && searchFields.length > 0 && (
+            {showFieldSelector && searchFields.length > 0 && searchEndpoint && (
                 <div className="bg-white p-3 mb-3 border rounded shadow-sm">
                     <div className="mb-2">
                         <Form.Check

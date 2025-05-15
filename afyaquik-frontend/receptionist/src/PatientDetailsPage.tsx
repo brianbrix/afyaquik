@@ -1,12 +1,24 @@
 import {useParams} from "react-router-dom";
 import {DetailsPage, PatientAssign, PatientVisitList} from "@afyaquik/shared";
 import ReceptionPatientVisitList from "./ReceptionPatientVisitList";
+import {Button} from "react-bootstrap";
+import React from "react";
 
 const PatientDetailsPage = () => {
     let  params = useParams();
     const id = Number(params.id);
     console.log("Patient ID", id)
     const endpoint = `/patients/${id}`;
+    const back = function (){
+        return (  <Button
+            variant="outline-primary"
+            className="btn btn-info mb-4"
+            onClick={() => window.location.href = "index.html"}
+        >
+            <i className="bi bi-arrow-left me-1"></i> Back To Patient List
+        </Button>)
+    }
+
     const fields=[
         { label: "First Name", accessor: "firstName" },
         { label: "Last Name", accessor: "lastName" },
@@ -17,9 +29,10 @@ const PatientDetailsPage = () => {
         {label: "Email", accessor: "contactInfo.email"},
         { label: "Phone", accessor: "contactInfo.phone" }
     ]
+    const topComponents = [back()]
 
     return (
-        <DetailsPage endpoint={endpoint} fields={fields}
+        <DetailsPage endpoint={endpoint} fields={fields} topComponents={topComponents}
         listRender={<ReceptionPatientVisitList/>}
         />
     )

@@ -1,6 +1,16 @@
 import {apiRequest, StepConfig, StepForm} from "@afyaquik/shared";
+import {Button} from "react-bootstrap";
+import React from "react";
 
-
+export const backtoList = function (){
+    return (  <Button
+        variant="outline-info"
+        className="btn btn-success mb-4"
+        onClick={() => window.location.href = "index.html"}
+    >
+        <i className="bi bi-arrow-left me-1"></i> Back To List
+    </Button>)
+}
 const formConfig: StepConfig[] = [
     {
         label: 'New Patient Info',
@@ -22,7 +32,7 @@ const formConfig: StepConfig[] = [
                     { label: 'Separated', value: 'SEPARATED' }
                 ] },
         ],
-        listUrl: 'index.html'
+        topComponents: [backtoList()]
     },
     {
         label: 'Contact Info',
@@ -32,7 +42,7 @@ const formConfig: StepConfig[] = [
             { name: 'contactInfo.email', label: 'Email', type: 'email' , colSpan:6 },
             { name: 'contactInfo.address', label: 'Address', type: 'text', colSpan:6  }
         ],
-        listUrl: 'index.html'
+        topComponents: [backtoList()]
     }
 ];
 const RegisterPatient = () => {

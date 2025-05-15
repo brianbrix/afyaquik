@@ -1,6 +1,7 @@
 import {apiRequest, StepConfig, StepForm} from "@afyaquik/shared";
 import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
+import {backtoList} from "./RegisterPatient";
 
 
 const formConfig: StepConfig[] = [
@@ -25,7 +26,7 @@ const formConfig: StepConfig[] = [
                     { label: 'Separated', value: 'SEPARATED' }
                 ] },
         ],
-        listUrl: 'index.html'
+        topComponents: [backtoList()]
     },
     {
         label: 'Contact Info',
@@ -35,7 +36,7 @@ const formConfig: StepConfig[] = [
             { name: 'contactInfo.email', label: 'Email', type: 'email', colSpan:6  },
             { name: 'contactInfo.address', label: 'Address', type: 'text', colSpan:6  }
         ],
-        listUrl: 'index.html'
+        topComponents: [backtoList()]
     }
 ];
 

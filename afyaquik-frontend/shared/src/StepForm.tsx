@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {FieldConfig, StepConfig} from "./StepConfig";
 import DraftEditor from "./DraftEditor";
-import {Button} from "react-bootstrap";
+import {Button, Col, Row} from "react-bootstrap";
 import {useParams} from "react-router-dom";
 
 interface StepFormProps {
@@ -11,6 +11,7 @@ interface StepFormProps {
     defaultValues?: any;
     idFromParent?: number;
     submitButtonLabel?: string;
+
 }
 
 const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel }) => {
@@ -42,18 +43,22 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                     render={({ field: controllerField }) => {
                         const isInvalid = errors[field.name];
                         if (field.type === 'select' && field.options) {
+                            const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+                                const value = field.multiple
+                                    ? Array.from(e.target.selectedOptions, opt => opt.value)
+                                    : e.target.value;
+
+                                controllerField.onChange(value);
+                                field.onChange?.(value);
+                            };
+
                             return (
                                 <select
                                     disabled={field.disabled}
                                     multiple={field.multiple}
                                     {...controllerField}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        controllerField.onChange(value);
-                                        if (field.onChange) {
-                                            field.onChange(value);
-                                        }
-                                    }}
+                                    value={controllerField.value || (field.multiple ? [] : '')}
+                                    onChange={handleSelectChange}
                                     className={`form-select ${isInvalid ? 'is-invalid' : ''}`}
                                 >
                                     {!field.multiple && <option value="">Select...</option>}
@@ -117,15 +122,17 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
         <div className="container-fluid py-5" style={{ maxWidth: '1200px' }}>
             <div className="row justify-content-center">
                 <div className="col-12">
-                    {currentStep.listUrl && (
-                        <Button
-                            variant="outline-info"
-                            className="btn btn-success mb-4"
-                            onClick={() => window.location.href = `${currentStep.listUrl}`}
-                        >
-                            <i className="bi bi-arrow-left me-1"></i> Back To List
-                        </Button>
+
+                    {currentStep.topComponents && currentStep.topComponents.length > 0 &&(
+                        <Row className="g-3">
+                            {currentStep.topComponents.map((component, idx) => (
+                                <Col key={idx} md={12}>
+                                    {component}
+                                </Col>
+                            ))}
+                        </Row>
                     )}
+
 
                     <form onSubmit={submitStep} className="card shadow-sm p-4 bg-white border-0 rounded-3">
                         <h4 className="mb-4 text-primary text-center fw-semibold">{currentStep.label}</h4>
@@ -159,7 +166,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                 >
                                     {isLastStep ? (
                                         <>
-                                            <i className="bi bi-check-circle me-1"></i>{submitButtonLabel || `Submit ${currentStep.label}`} Save Patient Record
+                                            <i className="bi bi-check-circle me-1"></i>{submitButtonLabel || `Submit ${currentStep.label}`}
                                         </>
                                     ) : (
                                         <>

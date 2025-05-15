@@ -2,9 +2,12 @@ import { StepConfig } from "../StepConfig";
 import StepForm from "../StepForm";
 import apiRequest from "../api";
 import React, { useEffect, useState } from "react";
+import {Button} from "react-bootstrap";
 interface PatientAssignProps {
     visitId?: number;
 }
+
+
 const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
     const [stations, setStations] = useState<{ label: string; value: string }[]>([]);
     const [officers, setOfficers] = useState<{ label: string; value: string }[]>([]);
@@ -13,12 +16,21 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
     useEffect(() => {
         apiRequest("/stations", { method: "GET" })
             .then((data) => {
-                const stationOptions = data.map((s: any) => ({ label: s.name, value: s.name }));
+                const stationOptions = data.map((s: any) => ({ label: s.name, value: s.id }));
                 setStations(stationOptions);
             })
             .catch(console.error);
     }, []);
 
+    const back = function (){
+        return (  <Button
+            variant="outline-info"
+            className="btn btn-success mb-4"
+            onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/edit`}
+        >
+            <i className="bi bi-arrow-left me-1"></i> Back to Summary
+        </Button>)
+    }
     // Fetch officers when station changes
     useEffect(() => {
         if (!selectedStation) return;

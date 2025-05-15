@@ -42,6 +42,16 @@ public class Patient extends SuperEntity {
     private List<PatientVisit> patientVisit;
 
     public String getPatientName() {
-        return firstName + " " + secondName + " " + lastName;
+        StringBuilder stringBuilder = new StringBuilder();
+        if (firstName != null) {
+            stringBuilder.append(firstName);
+        }
+        if (secondName != null) {
+            stringBuilder.append(" ").append(secondName);
+        }
+        if (lastName != null) {
+            stringBuilder.append(" ").append(lastName);
+        }
+        return stringBuilder.toString().trim();
     }
 }
