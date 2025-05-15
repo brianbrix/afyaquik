@@ -17,8 +17,7 @@ const authProvider = {
             });
     },
     logout: () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRoles');
+        localStorage.clear()
         return Promise.resolve();
     },
     checkAuth: () =>

@@ -1,5 +1,6 @@
-package com.afyaquik.core.mappers;
+package com.afyaquik.patients.mappers;
 
+import com.afyaquik.core.mappers.EntityMapper;
 import com.afyaquik.dtos.patient.PatientDto;
 import com.afyaquik.patients.entity.Patient;
 import org.mapstruct.Mapper;

@@ -5,6 +5,7 @@ import com.afyaquik.dtos.patient.PatientVisitDto;
 import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.services.PatientVisitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,9 @@ public class PatientVisitController {
     private final PatientService patientService;
     private final PatientVisitService  patientVisitService;
 
-    @GetMapping("/{patientId}")
-    public ResponseEntity<PatientVisitDto> getPatientVisitDetails(@PathVariable Long patientId, @RequestParam(required = false) Set<String> detailsType) {
-        return ResponseEntity.ok(patientVisitService.getPatientVisitDetails(patientId, detailsType));
+    @GetMapping("/{visitId}")
+    public ResponseEntity<PatientVisitDto> getPatientVisitDetails(@PathVariable Long visitId, @RequestParam(required = false) Set<String> detailsType, Pageable pageable) {
+        return ResponseEntity.ok(patientVisitService.getPatientVisitDetails(visitId, detailsType));
     }
 
     @PutMapping("/update")

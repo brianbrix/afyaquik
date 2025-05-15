@@ -1,31 +1,28 @@
 package com.afyaquik.patients.services.impl;
 
+import com.afyaquik.patients.mappers.PatientVisitMapper;
 import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
 import com.afyaquik.dtos.patient.PatientDto;
 import com.afyaquik.dtos.patient.PatientVisitDto;
-import com.afyaquik.dtos.patient.TriageReportDto;
+import com.afyaquik.dtos.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientAttendingPlan;
 import com.afyaquik.patients.entity.PatientVisit;
-import com.afyaquik.patients.entity.TriageReport;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
-import com.afyaquik.patients.enums.VisitStatus;
-import com.afyaquik.patients.enums.VisitType;
 import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;
-import com.afyaquik.patients.repository.TriageReportRepository;
 import com.afyaquik.patients.services.PatientService;
-import com.afyaquik.patients.utils.PatientSpecifications;
 import com.afyaquik.users.entity.ContactInfo;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.StationRepository;
-import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.users.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +34,7 @@ public class PatientServiceImpl implements PatientService {
     private final StationRepository stationRepository;
     private final PatientAttendingPlanRepo  patientAttendingPlanRepo;
     private final UserService userService;
+    private final PatientVisitMapper patientVisitMapper;
 
     private static PatientDto buildPatientDto(Patient patient) {
         PatientDto patientDto = PatientDto.builder()
@@ -95,7 +93,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientDto getPatient(Long id) {
-        return patientRepository.findById(id).map(PatientServiceImpl::buildPatientDto).orElseThrow(()->new EntityNotFoundException("Patient not found"));
+        return patientRepository.findByIdWithVisits(id).map(PatientServiceImpl::buildPatientDto).orElseThrow(()->new EntityNotFoundException("Patient not found"));
     }
 
     @Override
@@ -133,20 +131,19 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public List<PatientDto> filterPatients(PatientDto dto) {
-        List<Patient> patients = patientRepository.findAll(PatientSpecifications.filterByPatientDto(dto));
-        return patients.stream().map(PatientServiceImpl::buildPatientDto).toList();
+//        List<Patient> patients = patientRepository.findAll(PatientSpecifications.filterByPatientDto(dto));
+        return null;
     }
 
     @Override
-    public List<PatientVisitDto> getPatientVisits(Long patientId) {
-        Patient patient = patientRepository.findById(patientId).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
-        return patient.getPatientVisit().stream().map(visit -> PatientVisitDto.builder()
-                .id(visit.getId())
-                .patientId(visit.getPatient().getId())
-                .summaryReasonForVisit(visit.getSummaryReasonForVisit())
-                .visitDate(visit.getVisitDate())
-                .visitType(visit.getVisitType().name())
-                .build()).toList();
+    public ListFetchDto<PatientVisitDto> getPatientVisits(Pageable pageable, Long patientId) {
+        Patient patient = patientRepository.findByIdWithVisits(patientId).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+        Page<PatientVisit> patientVisits = patientVisitRepository.findAllByPatient(pageable, patient);
+
+        return ListFetchDto.<PatientVisitDto>builder()
+                .results(patientVisits.map(patientVisitMapper::toDto))
+                .build();
+
     }
 
 
@@ -161,7 +158,8 @@ public class PatientServiceImpl implements PatientService {
         String userName = userService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
         patientAttendingPlan.setAttendingOfficer(attendingOfficer);
-        Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).orElseThrow(()-> new EntityNotFoundException("Station not found"));
+        Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).
+                orElseThrow(()-> new EntityNotFoundException("Station not found"));
         User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
         patientAttendingPlan.setNextStation(nextStation);
         patientAttendingPlan.setAssignedOfficer(assignedOfficer);

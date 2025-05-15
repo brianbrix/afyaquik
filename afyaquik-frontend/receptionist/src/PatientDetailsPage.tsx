@@ -12,7 +12,7 @@ const PatientDetailsPage = () => {
     const back = function (){
         return (  <Button
             variant="outline-primary"
-            className="btn btn-info mb-4"
+            className="btn btn-success mb-4"
             onClick={() => window.location.href = "index.html"}
         >
             <i className="bi bi-arrow-left me-1"></i> Back To Patient List

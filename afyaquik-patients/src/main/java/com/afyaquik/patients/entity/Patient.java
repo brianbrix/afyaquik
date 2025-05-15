@@ -4,17 +4,16 @@ import com.afyaquik.dtos.SuperEntity;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.FetchType;
+import lombok.*;
 import com.afyaquik.users.entity.ContactInfo;
 
 import java.util.List;
 
 @Entity
 @Table(name = "patients")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -38,7 +37,7 @@ public class Patient extends SuperEntity {
     @JoinColumn(name = "contact_info_id")
     private ContactInfo contactInfo;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "patient")
     private List<PatientVisit> patientVisit;
 
     public String getPatientName() {

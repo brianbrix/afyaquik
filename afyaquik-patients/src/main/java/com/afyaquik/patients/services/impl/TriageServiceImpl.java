@@ -1,83 +1,83 @@
 package com.afyaquik.patients.services.impl;
 
+import com.afyaquik.dtos.patient.TriageItemDto;
 import com.afyaquik.dtos.patient.TriageReportDto;
+import com.afyaquik.dtos.patient.TriageReportItemDto;
+import com.afyaquik.dtos.search.ListFetchDto;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.entity.TriageReport;
+import com.afyaquik.patients.entity.TriageReportItem;
+import com.afyaquik.patients.mappers.TriageReportItemMapper;
 import com.afyaquik.patients.repository.PatientVisitRepo;
+import com.afyaquik.patients.repository.TriageItemRepository;
+import com.afyaquik.patients.repository.TriageReportItemRepository;
 import com.afyaquik.patients.repository.TriageReportRepository;
 import com.afyaquik.patients.services.TriageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class TriageServiceImpl implements TriageService {
     private final PatientVisitRepo patientVisitRepository;
     private final TriageReportRepository triageReportRepository;
+    private final TriageReportItemRepository triageReportItemRepository;
+    private final TriageItemRepository triageItemRepository;
+    private final TriageReportItemMapper triageReportItemMapper;
+
     @Override
-    public TriageReportDto createTriageReport(TriageReportDto triageReportDto) {
-        PatientVisit patientVisit = patientVisitRepository.findById(triageReportDto.getPatientVisitId())
+    public TriageReportDto updateTriageReport(Long visitId, List<TriageReportItemDto> triageReportItemDtos) {
+        PatientVisit patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
-        TriageReport triageReport = TriageReport.builder()
-                .patientVisit(patientVisit)
-                .bpReport(triageReportDto.getBpReport())
-                .temperatureReport(triageReportDto.getTemperatureReport())
-                .pulseReport(triageReportDto.getPulseReport())
-                .weightReport(triageReportDto.getWeightReport())
-                .heightReport(triageReportDto.getHeightReport())
-                .bmiReport(triageReportDto.getBmiReport())
-                .respiratoryRateReport(triageReportDto.getRespiratoryRateReport())
-                .oxygenSaturationReport(triageReportDto.getOxygenSaturationReport())
-                .bloodSugarReport(triageReportDto.getBloodSugarReport())
-                .complaintSummaryReport(triageReportDto.getComplaintSummaryReport())
-                .build();
-        patientVisit.setTriageReport(triageReport);
-        patientVisitRepository.save(patientVisit);
+        TriageReport triageReport = new TriageReport();
+        if (patientVisit.getTriageReport() != null) {
+            triageReport = patientVisit.getTriageReport();
+        }
+        for (TriageReportItemDto triageReportItemDto : triageReportItemDtos) {
+            TriageReportItem triageReportItem = new TriageReportItem();
+            triageReportItem.setTriageItem(triageItemRepository.
+                    findByName(triageReportItemDto.getName()).orElseThrow(() ->
+                            new EntityNotFoundException("Triage item not found")));
+            triageReportItem.setItemSummary(triageReportItemDto.getValue());
+            triageReportItem.setTriageReport(triageReport);
+            triageReport.getTriageReportItems().add(triageReportItem);
+        }
+        triageReport = triageReportRepository.save(triageReport);
+
         return TriageReportDto.builder()
                 .id(triageReport.getId())
-                .patientVisitId(triageReport.getPatientVisit().getId())
-                .bpReport(triageReport.getBpReport())
-                .temperatureReport(triageReport.getTemperatureReport())
-                .pulseReport(triageReport.getPulseReport())
-                .weightReport(triageReport.getWeightReport())
-                .heightReport(triageReport.getHeightReport())
-                .bmiReport(triageReport.getBmiReport())
-                .respiratoryRateReport(triageReport.getRespiratoryRateReport())
-                .oxygenSaturationReport(triageReport.getOxygenSaturationReport())
-                .bloodSugarReport(triageReport.getBloodSugarReport())
-                .complaintSummaryReport(triageReport.getComplaintSummaryReport())
+                .patientVisitId(patientVisit.getId())
+                .triageReportItems(triageReport.getTriageReportItems().stream().map(triageReportItem ->
+                        TriageReportItemDto.builder()
+                                .name(triageReportItem.getTriageItem().getName())
+                                .value(triageReportItem.getItemSummary())
+                                .build()).toList())
                 .build();
     }
 
     @Override
-    public TriageReportDto updateTriageReport(TriageReportDto triageReportDto) {
-        TriageReport  triageReport = triageReportRepository.findById(triageReportDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Triage report not found"));
-        triageReport.setBpReport(triageReportDto.getBpReport());
-        triageReport.setTemperatureReport(triageReportDto.getTemperatureReport());
-        triageReport.setPulseReport(triageReportDto.getPulseReport());
-        triageReport.setWeightReport(triageReportDto.getWeightReport());
-        triageReport.setHeightReport(triageReportDto.getHeightReport());
-        triageReport.setBmiReport(triageReportDto.getBmiReport());
-        triageReport.setRespiratoryRateReport(triageReportDto.getRespiratoryRateReport());
-        triageReport.setOxygenSaturationReport(triageReportDto.getOxygenSaturationReport());
-        triageReport.setBloodSugarReport(triageReportDto.getBloodSugarReport());
-        triageReport.setComplaintSummaryReport(triageReportDto.getComplaintSummaryReport());
-        triageReportRepository.save(triageReport);
-        return TriageReportDto.builder()
-                .id(triageReport.getId())
-                .patientVisitId(triageReport.getPatientVisit().getId())
-                .bpReport(triageReport.getBpReport())
-                .temperatureReport(triageReport.getTemperatureReport())
-                .pulseReport(triageReport.getPulseReport())
-                .weightReport(triageReport.getWeightReport())
-                .heightReport(triageReport.getHeightReport())
-                .bmiReport(triageReport.getBmiReport())
-                .respiratoryRateReport(triageReport.getRespiratoryRateReport())
-                .oxygenSaturationReport(triageReport.getOxygenSaturationReport())
-                .bloodSugarReport(triageReport.getBloodSugarReport())
-                .complaintSummaryReport(triageReport.getComplaintSummaryReport())
-                .build();
+    public ListFetchDto<TriageReportItemDto> getTriageReportItemsForVisit(Long visitId, Pageable pageable) {
+        PatientVisit patientVisit = patientVisitRepository.findById(visitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        if (patientVisit.getTriageReport() != null) {
+            ListFetchDto.<TriageReportItemDto>builder()
+                    .results( triageReportItemRepository.findAllByTriageReport(pageable, patientVisit.getTriageReport()).map(
+                            triageReportItemMapper::toDto
+                    ))
+                    .build();
+
+        }
+        return new ListFetchDto<>();
     }
+
 }
+
+
+
+
+

@@ -1,19 +1,16 @@
 package com.afyaquik.dtos.patient;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TriageReportDto {
+public class TriageItemDto {
     private Long id;
-    private Long patientVisitId;
-    List<TriageReportItemDto> triageReportItems;
+    private String name;
+    private String description;
 }

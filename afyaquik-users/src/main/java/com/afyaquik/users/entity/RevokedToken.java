@@ -3,12 +3,15 @@ package com.afyaquik.users.entity;
 import com.afyaquik.dtos.SuperEntity;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "revoked_tokens")
-@Data
+@Getter
+@Setter
 public class RevokedToken extends SuperEntity {
 
     @Id

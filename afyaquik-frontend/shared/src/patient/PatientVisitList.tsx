@@ -58,8 +58,8 @@ const PatientVisitList: React.FC<PatientVisitListProps> = ({patientId}) => {
             addView={`index.html#/patient/${patientId}/visits/add`}
             searchFields={searchFields}
             // searchEntity={'visits'}
-            // searchMethod={'POST'}
-            // searchEndpoint={'/search'}
+            requestMethod={'GET'}
+            dataEndpoint={`/patients/${patientId}/visits`}
         />);
 }
 export default PatientVisitList;

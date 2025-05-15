@@ -48,10 +48,11 @@ const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId}) => {
             data={plans}
             addView={`index.html#/patient/visits/${visitId}/assign`}
             detailsView={"index.html#/patient/#id/details"}
+            isSearchable={false}
             // searchFields={searchFields}
             // searchEntity={'patients'}
-            // searchMethod={'POST'}
-            // searchEndpoint={'/search'}
+            requestMethod={'GET'}
+            dataEndpoint={'/search'}
         />);
 }
 export default AttendingPlanList;

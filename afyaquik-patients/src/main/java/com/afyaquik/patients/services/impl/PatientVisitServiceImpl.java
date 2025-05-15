@@ -5,7 +5,6 @@ import com.afyaquik.dtos.patient.PatientVisitDto;
 import com.afyaquik.dtos.patient.TriageReportDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientVisit;
-import com.afyaquik.patients.entity.TriageReport;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.patients.enums.VisitType;
 import com.afyaquik.patients.repository.PatientRepository;
@@ -89,25 +88,8 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitStatus(patientVisit.getVisitStatus()!=null?patientVisit.getVisitStatus().name():null)
                 .build();
                 detailsType = detailsType==null?new HashSet<>():detailsType;
-                if(detailsType.contains("triageReport")){
-                    TriageReportDto reportDto = TriageReportDto.builder()
-                            .id(patientVisit.getTriageReport().getId())
-                            .bpReport(patientVisit.getTriageReport().getBpReport())
-                            .temperatureReport(patientVisit.getTriageReport().getTemperatureReport())
-                            .weightReport(patientVisit.getTriageReport().getWeightReport())
-                            .heightReport(patientVisit.getTriageReport().getHeightReport())
-                            .bmiReport(patientVisit.getTriageReport().getBmiReport())
-                            .respiratoryRateReport(patientVisit.getTriageReport().getRespiratoryRateReport())
-                            .oxygenSaturationReport(patientVisit.getTriageReport().getOxygenSaturationReport())
-                            .bloodSugarReport(patientVisit.getTriageReport().getBloodSugarReport())
-                            .complaintSummaryReport(patientVisit.getTriageReport().getComplaintSummaryReport())
-                            .build();
-                    patientVisitDto.setTriageReportDto(reportDto);
-
-                }
                if (detailsType.contains("attendingPlan"))
                {
-
                    patientVisitDto.setAttendingPlan(patientVisit.getPatientAttendingPlan()!=null?
                            patientVisit.getPatientAttendingPlan().stream().map(plan -> PatientAttendingPlanDto.builder()
                                    .id(plan.getId())

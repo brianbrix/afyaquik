@@ -3,6 +3,8 @@ package com.afyaquik.patients.services.impl;
 import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
 import com.afyaquik.dtos.patient.PatientDto;
 import com.afyaquik.dtos.patient.PatientVisitDto;
+import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.dtos.search.SearchResponseDto;
 import com.afyaquik.dtos.user.ContactInfo;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientAttendingPlan;
@@ -23,6 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
@@ -282,7 +286,7 @@ public class PatientServiceImplTest {
                 .firstName("John")
                 .build();
 
-        when(patientRepository.findAll(any(Specification.class))).thenReturn(List.of(patient));
+        when(patientRepository.findAll()).thenReturn(List.of(patient));
 
         // Act
         List<PatientDto> results = patientService.filterPatients(filterDto);
@@ -292,7 +296,7 @@ public class PatientServiceImplTest {
         assertEquals(1, results.size());
         assertEquals("John", results.get(0).getFirstName());
 
-        verify(patientRepository).findAll(any(Specification.class));
+        verify(patientRepository).findAll();
     }
 
     @Test
@@ -301,13 +305,13 @@ public class PatientServiceImplTest {
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
 
         // Act
-        List<PatientVisitDto> results = patientService.getPatientVisits(1L);
+        ListFetchDto<PatientVisitDto> results = patientService.getPatientVisits(Pageable.ofSize(10), 1L);
 
         // Assert
         assertNotNull(results);
-        assertEquals(1, results.size());
-        assertEquals(1L, results.get(0).getId());
-        assertEquals("Test visit", results.get(0).getSummaryReasonForVisit());
+        assertEquals(1, results.getResults().getContent().size());
+        assertEquals(1L, results.getResults().getContent().get(0).getId());
+        assertEquals("Test visit", results.getResults().getContent().get(0).getSummaryReasonForVisit());
 
         verify(patientRepository).findById(1L);
     }
@@ -318,7 +322,7 @@ public class PatientServiceImplTest {
         when(patientRepository.findById(999L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> patientService.getPatientVisits(999L));
+        assertThrows(EntityNotFoundException.class, () -> patientService.getPatientVisits(Pageable.ofSize(10),  999L));
         verify(patientRepository).findById(999L);
     }
 

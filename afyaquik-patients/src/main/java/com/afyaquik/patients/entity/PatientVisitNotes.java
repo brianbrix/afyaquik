@@ -3,15 +3,13 @@ package com.afyaquik.patients.entity;
 import com.afyaquik.dtos.SuperEntity;
 import com.afyaquik.users.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 @Entity
 @Table(name = "patient_visit_notes")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

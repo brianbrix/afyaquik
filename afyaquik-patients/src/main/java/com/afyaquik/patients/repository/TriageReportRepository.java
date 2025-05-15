@@ -1,6 +1,7 @@
 package com.afyaquik.patients.repository;
 
 import com.afyaquik.patients.entity.TriageReport;
+import com.afyaquik.patients.entity.TriageReportItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

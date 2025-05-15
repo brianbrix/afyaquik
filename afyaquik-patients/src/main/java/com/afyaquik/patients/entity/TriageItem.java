@@ -7,20 +7,19 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "triage_report_items")
+@Table(name = "triage_items")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TriageReport extends SuperEntity {
+public class TriageItem extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
+    private String description;
 
-    @OneToMany(mappedBy = "triageReport", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "triageItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TriageReportItem> triageReportItems;
-
-    @OneToOne(mappedBy = "triageReport")
-    private PatientVisit patientVisit;
 }

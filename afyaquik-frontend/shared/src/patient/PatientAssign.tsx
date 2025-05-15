@@ -16,7 +16,7 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
     useEffect(() => {
         apiRequest("/stations", { method: "GET" })
             .then((data) => {
-                const stationOptions = data.map((s: any) => ({ label: s.name, value: s.id }));
+                const stationOptions = data.map((s: any) => ({ label: s.name, value: s.name }));
                 setStations(stationOptions);
             })
             .catch(console.error);
@@ -60,7 +60,7 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
                     label: "Next Station",
                     type: "select",
                     options: stations, colSpan:6 ,
-                    onChange: (val: string) => {
+                    onChange: (val: any) => {
                         setSelectedStation(val);
                     },
                     required:true

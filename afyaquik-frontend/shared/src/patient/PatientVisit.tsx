@@ -17,7 +17,7 @@ export const patientName = function (id: number)
     return (
         <Card className="shadow-sm">
             <Card.Header className="bg-primary text-white">
-                <h5 className="mb-0">${patientName}</h5>
+                <h5 className="mb-0">{patientName}</h5>
             </Card.Header>
         </Card>
     )

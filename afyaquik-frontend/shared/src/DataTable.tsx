@@ -11,11 +11,12 @@ interface DataTableProps<T> {
     editView?: string;
     addView?: string;
     detailsView?: string;
-    searchEndpoint?: string;
-    searchMethod?: string;
+    dataEndpoint?: string;
+    requestMethod?: string;
     searchFields?: FieldConfig[];
     searchEntity?: string;
     defaultPageSize?: number;
+    isSearchable?: boolean;
 }
 
 interface PaginatedResponse<T> {
@@ -38,11 +39,12 @@ function DataTable<T extends { id: number }>({
                                                  editView,
                                                  addView,
                                                  detailsView,
-                                                 searchEndpoint,
-                                                 searchMethod = 'POST',
+                                                 dataEndpoint,
+                                                 requestMethod,
                                                  searchFields = [],
                                                  searchEntity = 'patients',
-                                                 defaultPageSize = 10
+                                                 defaultPageSize = 10,
+                                                 isSearchable
                                              }: DataTableProps<T>) {
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -66,7 +68,8 @@ function DataTable<T extends { id: number }>({
             };
 
             let response;
-            if (searchMethod === 'GET') {
+            console.log("Request Method", requestMethod);
+            if (requestMethod === 'GET') {
                 const queryParams = new URLSearchParams();
                 Object.entries(params).forEach(([key, value]) => {
                     queryParams.append(key, String(value));
@@ -77,7 +80,7 @@ function DataTable<T extends { id: number }>({
                     selectedFields.forEach(field => queryParams.append('fields', field.name));
                 }
 
-                response = await apiRequest(`${searchEndpoint}?${queryParams.toString()}`);
+                response = await apiRequest(`${dataEndpoint}?${queryParams.toString()}`);
             } else {
                 const requestBody = {
                     ...params,
@@ -88,7 +91,7 @@ function DataTable<T extends { id: number }>({
                     })
                 };
 
-                response = await apiRequest(searchEndpoint+'', {
+                response = await apiRequest(dataEndpoint+'', {
                     method: 'POST',
                     body: requestBody,
                 });
@@ -100,7 +103,6 @@ function DataTable<T extends { id: number }>({
             setTotalElements(result.results.page.totalElements);
             setCurrentPage(result.results.page.number);
             setPageSize(result.results.page.size);
-            console.log(selectedFields.length , searchFields.length)
 
         } catch (error) {
             console.error('Fetch error:', error);
@@ -110,26 +112,8 @@ function DataTable<T extends { id: number }>({
     };
 
     useEffect(() => {
-        if (searchEndpoint) {
-            const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
-            fetchData(currentPage, pageSize, sortParam);
-        } else {
-            // Client-side fallback
-            let sortedData = [...initialData];
-
-            if (sortField) {
-                sortedData.sort((a, b) => {
-                    const valA = a[sortField as keyof T];
-                    const valB = b[sortField as keyof T];
-                    return sortDirection === 'asc'
-                        ? (valA > valB ? 1 : -1)
-                        : (valA < valB ? 1 : -1);
-                });
-            }
-
-            setData(sortedData.slice(currentPage * pageSize, (currentPage + 1) * pageSize));
-            setTotalElements(initialData.length);
-        }
+        const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
+        fetchData(currentPage, pageSize, sortParam);
     }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields]);
 
     const handleSort = (field: string) => {
@@ -157,7 +141,7 @@ function DataTable<T extends { id: number }>({
     };
 
     const downloadCSV = () => {
-        const csvData = (searchEndpoint ? initialData : data).map(record => {
+        const csvData = (dataEndpoint ? initialData : data).map(record => {
             const row: any = {};
             columns.forEach(col => {
                 row[col.header] = record[col.accessor as keyof T];
@@ -193,7 +177,7 @@ function DataTable<T extends { id: number }>({
             </div>
 
             {/* Search and Field Selection */}
-            {(searchEndpoint) && (
+            {(isSearchable) && (
                 <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
                     <div className="position-relative w-50">
                         <div className="input-group">
@@ -225,7 +209,7 @@ function DataTable<T extends { id: number }>({
             )}
 
             {/* Field Selection Dropdown */}
-            {showFieldSelector && searchFields.length > 0 && searchEndpoint && (
+            {showFieldSelector && searchFields.length > 0 && isSearchable && (
                 <div className="bg-white p-3 mb-3 border rounded shadow-sm">
                     <div className="mb-2">
                         <Form.Check

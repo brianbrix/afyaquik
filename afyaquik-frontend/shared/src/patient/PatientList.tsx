@@ -53,8 +53,9 @@ const PatientList = () => {
             detailsView={"index.html#/patient/#id/details"}
             searchFields={searchFields}
             searchEntity={'patients'}
-            searchMethod={'POST'}
-            searchEndpoint={'/search'}
+            requestMethod={'POST'}
+            isSearchable={true}
+            dataEndpoint={'/search'}
         />);
 }
 export default PatientList;
