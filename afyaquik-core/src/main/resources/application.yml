@@ -1,0 +1,9 @@
+spring:
+  liquibase:
+    enabled: false
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

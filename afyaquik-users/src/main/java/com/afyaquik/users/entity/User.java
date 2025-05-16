@@ -1,20 +1,20 @@
 package com.afyaquik.users.entity;
+import com.afyaquik.dtos.SuperEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+@Inheritance(strategy = InheritanceType.JOINED)
+public class User extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,13 +40,6 @@ public class User {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private String createdAt;
-
-    @UpdateTimestamp
-    private String updatedAt;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -55,4 +48,21 @@ public class User {
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_stations",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "station_id")
+    )
+    @Builder.Default
+    private Set<Station> stations = new HashSet<>();
+
+    private boolean available = true;
+
+    @OneToOne
+    @JoinColumn(name="contact_info_id")
+    private ContactInfo contactInfo;
+
+
 }

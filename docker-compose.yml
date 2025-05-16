@@ -17,15 +17,15 @@ services:
     ports:
       - "3002:3000"
 
-  consultations-frontend:
+  doctor-frontend:
     build:
-      context: ./afyaquik-frontend/consultations
+      context: ./afyaquik-frontend/doctor
     ports:
       - "3003:3000"
 
-  appointments-frontend:
+  receptionist-frontend:
     build:
-      context: ./afyaquik-frontend/appointments
+      context: ./afyaquik-frontend/receptionist
     ports:
       - "3004:3000"
 

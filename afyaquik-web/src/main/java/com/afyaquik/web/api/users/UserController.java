@@ -1,18 +1,19 @@
 package com.afyaquik.web.api.users;
 
-import com.afyaquik.users.dto.AssignRolesRequest;
-import com.afyaquik.users.dto.CreateUserRequest;
-import com.afyaquik.users.dto.UserResponse;
-import com.afyaquik.users.entity.Role;
-import com.afyaquik.users.entity.User;
+
+import com.afyaquik.dtos.user.UserDto;
+import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,34 +21,57 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/register")
-    public UserResponse createUser(@RequestBody CreateUserRequest request) {
-        return userService.createUser(request);
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<UserResponse> createUser(@Validated @RequestBody UserDto request) {
+        return ResponseEntity.ok(userService.createUser(request));
+    }
+
+    @PutMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @RequestBody UserDto request) {
+        return ResponseEntity.ok(userService.updateUserDetails(userId, request));
+    }
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.fetchById(userId));
     }
 
     @GetMapping
-    public List<UserResponse> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<?> getAllUsers( @RequestParam(required = false) List<Long> ids,
+                                          @RequestParam(required = false) String sortBy,
+                                          @RequestParam(required = false, defaultValue = "asc") String sortDir,
+                                          @RequestParam(required = false) String rangeField,
+                                          @RequestParam(required = false) Integer rangeMin,
+                                          @RequestParam(required = false) Integer rangeMax,
+                                          @RequestParam(required = false, defaultValue = "0") Integer page,
+                                          @RequestParam(required = false, defaultValue = "10") Integer size ) {
+
+        Page<UserResponse> users = userService.getFilteredUsers(ids, sortBy, sortDir, rangeField, rangeMin, rangeMax, page, size);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "users " + (page * size) + "-" + ((page * size) + users.getNumberOfElements() - 1) + "/" + users.getTotalElements());
+        headers.add("Access-Control-Expose-Headers","Content-Range");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(users);
+    }
+    @GetMapping("/byrole")
+    public ResponseEntity<?> getAllUsersByRole(@RequestParam Long roleId) {
+        return ResponseEntity.ok(userService.getUsersByRole(roleId));
     }
 
-    @PutMapping("/{userId}/roles")
-    public UserResponse assignRoles(@PathVariable Long userId, @RequestBody AssignRolesRequest request) {
-        return userService.assignRoles(userId, request);
-    }
+
+//    @PutMapping("/{userId}/roles")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
+//    public ResponseEntity<?> assignRoles(@PathVariable Long userId, @RequestBody AssignRolesRequest request) {
+//        return ResponseEntity.ok(userService.assignRoles(userId, request));
+//
+//    }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
-        User user = userService.findByUsername(username);
-        UserResponse response = UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .firstName(user.getFirstName())
-                .secondName(user.getSecondName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.fetchByUsername(username));
     }
 }

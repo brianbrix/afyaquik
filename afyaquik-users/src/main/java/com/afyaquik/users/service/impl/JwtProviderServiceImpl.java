@@ -1,55 +1,57 @@
 package com.afyaquik.users.service.impl;
 
 import com.afyaquik.users.service.JwtProviderService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class JwtProviderServiceImpl implements JwtProviderService {
     private final String jwtSecret = "MySuperSecretKeyForJWTGenerationThatIsLongEnough"; //TODO: to store in env
     private final long jwtExpirationMs = 86400000;//TODO: make configurable
-    private final Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    private final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
     @Override
     public String generateToken(String username, Set<String> roles) {
         return Jwts.builder()
-                .setSubject(username)
+                .subject(username)
                 .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 
     @Override
     public String getUserNameFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+
+        return Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
     @Override
     public Set<String> getRolesFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return ((Set<?>) claims.get("roles"))
+                .parseSignedClaims(token)
+                .getPayload();
+        List<?> roles = (List<?>) claims.get("roles");
+        return roles
                 .stream()
                 .map(Object::toString)
                 .collect(Collectors.toSet());
@@ -58,7 +60,7 @@ public class JwtProviderServiceImpl implements JwtProviderService {
     @Override
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Unable to validate token", e);
