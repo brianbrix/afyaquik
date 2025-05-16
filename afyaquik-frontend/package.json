@@ -2,12 +2,9 @@
   "private": true,
   "workspaces": [
     "shared",
-    "admin",
     "auth",
-    "doctor",
-    "receptionist",
-    "nurse",
-    "reports"
+    "admin",
+    "receptionist"
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^2.7.0",

@@ -1,7 +1,7 @@
 import {apiRequest, StepConfig, StepForm} from "@afyaquik/shared";
 import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import {backtoList} from "./RegisterPatient";
+import {backtoList} from "./PatientRegisterForm";
 
 
 const formConfig: StepConfig[] = [
@@ -41,7 +41,7 @@ const formConfig: StepConfig[] = [
 ];
 
 
-const EditPatient = () => {
+const PatientEditForm = () => {
     let  params = useParams();
     const id = params.id;
     console.log('id', id)
@@ -69,4 +69,4 @@ const EditPatient = () => {
             submitButtonLabel={'Update Patient'}
         />);
 }
-export default EditPatient;
+export default PatientEditForm;

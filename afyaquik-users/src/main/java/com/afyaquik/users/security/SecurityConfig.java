@@ -1,9 +1,8 @@
-package com.afyaquik.core.config.security;
+package com.afyaquik.users.security;
 
 
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
-import com.afyaquik.users.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

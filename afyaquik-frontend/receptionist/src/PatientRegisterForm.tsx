@@ -45,7 +45,7 @@ const formConfig: StepConfig[] = [
         topComponents: [backtoList()]
     }
 ];
-const RegisterPatient = () => {
+const PatientRegisterForm = () => {
 
     return (
 
@@ -65,4 +65,4 @@ const RegisterPatient = () => {
             submitButtonLabel={'Register Patient'}
         />);
 }
-export default RegisterPatient;
+export default PatientRegisterForm;

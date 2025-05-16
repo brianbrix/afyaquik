@@ -12,8 +12,17 @@ const authProvider = {
                 }
                 return response.json();
             })
-            .then(({ token }) => {
-                localStorage.setItem('authToken', token);
+            .then((response ) => {
+                localStorage.setItem('authToken', response);
+                fetch('/api/users/me', {
+                    headers: { 'Authorization': `Bearer ${response.token}` }
+                }).then(
+                    rolesResponse => rolesResponse.json()
+                    .then(rolesData => {
+                        localStorage.setItem('userRoles', JSON.stringify(rolesData.roles));
+                    })
+                )
+
             });
     },
     logout: () => {

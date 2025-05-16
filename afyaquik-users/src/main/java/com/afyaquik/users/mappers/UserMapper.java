@@ -1,5 +1,6 @@
-package com.afyaquik.core.mappers;
+package com.afyaquik.users.mappers;
 
+import com.afyaquik.core.mappers.EntityMapper;
 import com.afyaquik.dtos.user.UserDto;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.Station;
@@ -10,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public interface UserMapper extends EntityMapper<User, UserDto>{
+public interface UserMapper extends EntityMapper<User, UserDto> {
     @Override
     UserDto toDto(User user);
 

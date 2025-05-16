@@ -19,6 +19,7 @@ public interface UsersRepository extends CrudRepository<User, Long> {
     List<User> findAll();
     List<User> findAllByIdIn(List<Long> ids);
     boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 
     List<User> findByRolesIn(Collection<Role> roles);
     Set<User> findByStationsIn(Set<Station> stations);

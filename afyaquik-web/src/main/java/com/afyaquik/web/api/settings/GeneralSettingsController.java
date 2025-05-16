@@ -3,6 +3,7 @@ package com.afyaquik.web.api.settings;
 import com.afyaquik.core.settings.services.GeneralSettingsService;
 import com.afyaquik.dtos.settings.GeneralSettingsDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,24 +23,27 @@ public class GeneralSettingsController {
     }
 
     @PostMapping("/general")
-    public List<GeneralSettingsDto> createGeneralSettings(List<GeneralSettingsDto> generalSettingsDto) {
-        return generalSettingsService.createGeneralSettingsMultiple(generalSettingsDto);
+    public ResponseEntity<GeneralSettingsDto> createGeneralSettings(GeneralSettingsDto generalSettingsDto) {
+        return ResponseEntity.ok(generalSettingsService.createGeneralSettings(generalSettingsDto));
     }
-    @PostMapping("/general/update")
-    public List<GeneralSettingsDto> updateGeneralSettings(List<GeneralSettingsDto> generalSettingsDto) {
-        return generalSettingsService.updateMultipleSettings(generalSettingsDto);
+    @PutMapping("/general/update/{id}")
+    public ResponseEntity<GeneralSettingsDto> updateGeneralSettings(@PathVariable Long id, @RequestBody GeneralSettingsDto generalSettingsDto) {
+        return ResponseEntity.ok(generalSettingsService.updateGeneralSettings(id, generalSettingsDto));
     }
-    @PostMapping("/general/delete")
-    public GeneralSettingsDto deleteGeneralSettings(String key) {
-        return generalSettingsService.deleteGeneralSettingsByKey(key);
+
+    @DeleteMapping("/general/{id}")
+    public ResponseEntity<?> deleteGeneralSettings(@PathVariable Long  id) {
+         generalSettingsService.deleteGeneralSettings(id);
+         return ResponseEntity.ok().build();
     }
-    @GetMapping("/general/{key}")
-    public GeneralSettingsDto getGeneralSettingsByKey(@PathVariable String key) {
-        return generalSettingsService.getGeneralSettingsByKey(key);
+    @GetMapping("/general/{id}")
+    public ResponseEntity<GeneralSettingsDto> getGeneralSettings(@PathVariable Long id) {
+        return ResponseEntity.ok(generalSettingsService.getGeneralSettings(id));
     }
     @PostMapping("/general/{key}")
     public GeneralSettingsDto updateGeneralSettingsByKey(@PathVariable String key, @org.springframework.web.bind.annotation.RequestBody GeneralSettingsDto generalSettingsDto) {
         return generalSettingsService.updateGeneralSettingsByKey(key, generalSettingsDto);
     }
+
 
 }

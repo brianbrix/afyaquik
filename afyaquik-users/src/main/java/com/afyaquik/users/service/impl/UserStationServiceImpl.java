@@ -51,9 +51,9 @@ public class UserStationServiceImpl implements UserStationService {
     }
 
     @Override
-    public Set<UserDto> getStationUsers(Long stationId) {
+    public Set<UserDto> getStationUsers(String name) {
         Set<Station> stations = new HashSet<>();
-        Station station = stationRepository.findById(stationId).orElseThrow(() -> new EntityNotFoundException("Station not found"));
+        Station station = stationRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Station not found"));
         stations.add(station);
         Set<User> users = usersRepository.findByStationsIn(stations);
         return users.stream().map(user -> UserDto.builder().id(user.getId()).username(user.getUsername()).firstName(user.getFirstName()).lastName(user.getLastName()).secondName(user.getSecondName()).email(user.getEmail()).enabled(user.isEnabled()).roles(user.getRoles().stream().map(Role::getName).collect(java.util.stream.Collectors.toSet())).build()).collect(java.util.stream.Collectors.toSet());

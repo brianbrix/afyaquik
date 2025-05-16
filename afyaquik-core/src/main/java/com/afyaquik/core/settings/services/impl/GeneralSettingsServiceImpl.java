@@ -36,6 +36,19 @@ public class GeneralSettingsServiceImpl implements GeneralSettingsService {
     }
 
     @Override
+    public GeneralSettingsDto updateGeneralSettings(Long id, GeneralSettingsDto generalSettingsDto) {
+        GeneralSettings generalSettings=generalSettingsRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Setting not found for  id: "+id));
+        generalSettings.setSettingValue(generalSettingsDto.getSettingValue());
+        generalSettings = generalSettingsRepository.save(generalSettings);
+        return GeneralSettingsDto.builder()
+                .id(generalSettings.getId())
+                .settingKey(generalSettings.getSettingKey())
+                .settingValue(generalSettings.getSettingValue())
+                .build();
+
+    }
+
+    @Override
     public GeneralSettingsDto createGeneralSettings(GeneralSettingsDto generalSettingsDto) {
         GeneralSettings  generalSettings = new GeneralSettings();
         generalSettings.setSettingKey(generalSettingsDto.getSettingKey());
@@ -48,10 +61,6 @@ public class GeneralSettingsServiceImpl implements GeneralSettingsService {
                 .build();
     }
 
-    @Override
-    public List<GeneralSettingsDto> createGeneralSettingsMultiple(List<GeneralSettingsDto> generalSettingsDtoList) {
-        return generalSettingsDtoList.stream().map(this::createGeneralSettings).toList();
-    }
 
     @Override
     public GeneralSettingsDto getGeneralSettingsByKey(String key) {
@@ -60,6 +69,21 @@ public class GeneralSettingsServiceImpl implements GeneralSettingsService {
                 .settingKey(generalSettings.getSettingKey())
                 .settingValue(generalSettings.getSettingValue())
                 .build()).orElseThrow(()-> new EntityNotFoundException("Setting not found for  key: "+key));
+    }
+
+    @Override
+    public GeneralSettingsDto getGeneralSettings(Long id) {
+        return generalSettingsRepository.findById(id).map(generalSettings -> GeneralSettingsDto.builder()
+                .id(generalSettings.getId())
+                .settingKey(generalSettings.getSettingKey())
+                .settingValue(generalSettings.getSettingValue())
+                .build()).orElseThrow(()-> new EntityNotFoundException("Setting not found for  id: "+id));
+    }
+
+    @Override
+    public void deleteGeneralSettings(Long id) {
+        generalSettingsRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Setting not found for  id: "+id));
+        generalSettingsRepository.deleteById(id);
     }
 
     @Override

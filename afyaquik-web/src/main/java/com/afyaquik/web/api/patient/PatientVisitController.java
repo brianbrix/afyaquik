@@ -2,6 +2,7 @@ package com.afyaquik.web.api.patient;
 
 import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
 import com.afyaquik.dtos.patient.PatientVisitDto;
+import com.afyaquik.dtos.search.ListFetchDto;
 import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.services.PatientVisitService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,11 @@ public class PatientVisitController {
     @GetMapping("/{visitId}")
     public ResponseEntity<PatientVisitDto> getPatientVisitDetails(@PathVariable Long visitId, @RequestParam(required = false) Set<String> detailsType, Pageable pageable) {
         return ResponseEntity.ok(patientVisitService.getPatientVisitDetails(visitId, detailsType));
+    }
+
+    @GetMapping("/{visitId}/plan")
+    public ResponseEntity<ListFetchDto<PatientAttendingPlanDto>> getPatientVisitAttendingPlan(@PathVariable Long visitId , Pageable pageable) {
+        return ResponseEntity.ok(patientVisitService.getVisitAttendingPlan(visitId, pageable));
     }
 
     @PutMapping("/update")

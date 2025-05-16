@@ -4,13 +4,13 @@ const UserCreate = () => (
     <Create>
         <SimpleForm>
             <TextInput source="username" />
-            <TextInput source="firstName" />
+            <TextInput source="firstName" required={true} />
             <TextInput source="secondName" />
-            <TextInput source="lastName" />
+            <TextInput source="lastName" required={true} />
             <ReferenceArrayInput source="roles" reference="roles">
                 <CheckboxGroupInput optionText="name" optionValue="name" />
             </ReferenceArrayInput>
-            <TextInput source="email" />
+            <TextInput source="email" required={true}/>
             <TextInput source="password" type="password" />
             <BooleanInput source="enabled" label="Enabled" />
         </SimpleForm>

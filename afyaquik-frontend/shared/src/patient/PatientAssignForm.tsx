@@ -8,7 +8,7 @@ interface PatientAssignProps {
 }
 
 
-const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
+const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
     const [stations, setStations] = useState<{ label: string; value: string }[]>([]);
     const [officers, setOfficers] = useState<{ label: string; value: string }[]>([]);
     const [selectedStation, setSelectedStation] = useState<string | undefined>(undefined);
@@ -26,7 +26,7 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
         return (  <Button
             variant="outline-info"
             className="btn btn-success mb-4"
-            onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/edit`}
+            onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/details`}
         >
             <i className="bi bi-arrow-left me-1"></i> Back to Summary
         </Button>)
@@ -72,7 +72,9 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
                     type: "select",
                     options: officers, colSpan:6,required:true
                 }
-            ]
+            ],
+
+            topComponents:[back()]
         }
     ];
 
@@ -82,7 +84,10 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
             onSubmit={(data) => {
                 console.log("Submitting data:", data);
                 apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data })
-                    .then((response) => console.log(response))
+                    .then((response) => {
+                        console.log(response)
+                        window.location.href = `index.html#/patient/visits/${visitId}/details`
+                    })
                     .catch((err) => console.error(err));
             }}
             idFromParent={visitId}
@@ -94,4 +99,4 @@ const PatientAssign:React.FC<PatientAssignProps>  = ({visitId}) => {
     );
 };
 
-export default PatientAssign;
+export default PatientAssignForm;

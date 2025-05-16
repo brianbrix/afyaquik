@@ -2,7 +2,7 @@ import {useParams} from "react-router-dom";
 import { StepConfig } from "../StepConfig";
 import  StepForm  from "../StepForm";
 import React from "react";
-import {Card} from "react-bootstrap";
+import {Button, Card} from "react-bootstrap";
 interface PatientVisitProps {
     formConfig: StepConfig[];
     onSubmit: (data: any) => void;
@@ -22,13 +22,14 @@ export const patientName = function (id: number)
         </Card>
     )
 }
-const PatientVisit: React.FC<PatientVisitProps> = ({formConfig, onSubmit, idFromParent, defaultValues}) => {
+
+
+
+const PatientVisitForm: React.FC<PatientVisitProps> = ({formConfig, onSubmit, idFromParent, defaultValues}) => {
     // let  params = useParams();
     // const id = Number(params.id);
     console.log(' Id',idFromParent)
-    formConfig.map((step) => {
-        step.topComponents = [patientName(idFromParent)];
-    });
+
     return (
         <>
             <StepForm
@@ -38,4 +39,4 @@ const PatientVisit: React.FC<PatientVisitProps> = ({formConfig, onSubmit, idFrom
             defaultValues={defaultValues}
             submitButtonLabel={'Add visit'}/></>);
 }
-export default PatientVisit;
+export default PatientVisitForm;

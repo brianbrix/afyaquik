@@ -1,6 +1,7 @@
-package com.afyaquik.core.mappers;
+package com.afyaquik.users.mappers;
 
 
+import com.afyaquik.core.mappers.EntityMapper;
 import com.afyaquik.dtos.user.RoleResponse;
 import com.afyaquik.users.entity.Role;
 

@@ -3,15 +3,19 @@ package com.afyaquik.patients.services.impl;
 import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
 import com.afyaquik.dtos.patient.PatientVisitDto;
 import com.afyaquik.dtos.patient.TriageReportDto;
+import com.afyaquik.dtos.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.patients.enums.VisitType;
+import com.afyaquik.patients.mappers.PatientAttendingPlanMapper;
+import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.patients.services.PatientVisitService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,6 +27,8 @@ import java.util.Set;
 public class PatientVisitServiceImpl implements PatientVisitService {
     private final PatientRepository patientRepository;
     private final PatientVisitRepo patientVisitRepository;
+    private final PatientAttendingPlanRepo  patientAttendingPlanRepo;
+    private final PatientAttendingPlanMapper  patientAttendingPlanMapper;
     @Override
     public PatientVisitDto createPatientVisit(PatientVisitDto patientVisitDto, Long patientId) {
 
@@ -101,5 +107,16 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                                    .build()).toList():null);
                }
                return patientVisitDto;
+    }
+
+    @Override
+    public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlan(Long visitId, Pageable pageable) {
+        PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        return ListFetchDto.<PatientAttendingPlanDto>builder()
+                .results(
+                        patientAttendingPlanRepo.findAllByPatientVisitId(patientVisit.getId(), pageable).map(patientAttendingPlanMapper::toDto)
+                )
+                .build();
     }
 }

@@ -20,6 +20,7 @@ import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.users.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +59,7 @@ public class PatientServiceImpl implements PatientService {
         }
         return patientDto;
     }
-
+    @Transactional
     @Override
     public PatientDto createPatient(PatientDto dto) {
         Patient patient = new Patient();
@@ -95,7 +96,7 @@ public class PatientServiceImpl implements PatientService {
     public PatientDto getPatient(Long id) {
         return patientRepository.findByIdWithVisits(id).map(PatientServiceImpl::buildPatientDto).orElseThrow(()->new EntityNotFoundException("Patient not found"));
     }
-
+    @Transactional
     @Override
     public PatientDto updatePatient(PatientDto patientDto) {
         Patient patient = patientRepository.findById(patientDto.getId()).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
@@ -146,7 +147,7 @@ public class PatientServiceImpl implements PatientService {
 
     }
 
-
+    @Transactional
     @Override
     public PatientAttendingPlanDto createPatientAttendingPlan(PatientAttendingPlanDto patientAttendingPlanDto) {
         PatientVisit  patientVisit = patientVisitRepository.findById(patientAttendingPlanDto.getPatientVisitId())
@@ -177,6 +178,7 @@ public class PatientServiceImpl implements PatientService {
 
     }
 
+    @Transactional
     @Override
     public PatientAttendingPlanDto updatePatientAttendingPlan(PatientAttendingPlanDto patientAttendingPlanDto) {
        PatientAttendingPlan  patientAttendingPlan = patientAttendingPlanRepo.findById(patientAttendingPlanDto.getId())

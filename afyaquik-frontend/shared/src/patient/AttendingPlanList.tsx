@@ -10,7 +10,7 @@ interface AttendingPlanListProps {
 const columns = [
     { header: '#', accessor: 'id' },
     { header: 'Patient Name', accessor: 'patientName' },
-    { header: 'Attending Officer', accessor: 'attendingOfficer' },
+    { header: 'Attending Officer', accessor: 'attendingOfficerUserName' },
     { header: 'Assigned Officer', accessor: 'assignedOfficer' },
     { header: 'Next Station', accessor: 'nextStation' }
 ];
@@ -18,27 +18,13 @@ const columns = [
 const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId}) => {
     const [plans, setPlans] = useState([]);
     useEffect(() => {
-        apiRequest(`/patient/visits/${visitId}?detailsType=attendingPlan`, { method: 'GET' })
+        apiRequest(`/patient/visits/${visitId}/plan`, { method: 'GET' })
             .then(data => {
                 setPlans(data);
             })
             .catch(err => console.error(err));
     }, []);
-    const searchFields:FieldConfig[] =[
-        {
-            name: "attendingOfficerUserName",
-            label: "Attending Officer",
-        },
-        {
-            name: "assignedOfficer",
-            label: "Assigned Officer",
-        },
-        {
-            name: "nextStation",
-            label: "Next Station",
-        }
 
-    ]
 
     return (
 
@@ -52,7 +38,7 @@ const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId}) => {
             // searchFields={searchFields}
             // searchEntity={'patients'}
             requestMethod={'GET'}
-            dataEndpoint={'/search'}
+            dataEndpoint={`/patient/visits/${visitId}/plan`}
         />);
 }
 export default AttendingPlanList;

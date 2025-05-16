@@ -1,7 +1,7 @@
 import { Create, SimpleForm, TextInput, ReferenceArrayInput, CheckboxGroupInput,BooleanInput } from 'react-admin';
 
 const SettingsCreate = () => (
-    <Create>
+    <Create resource={"generalSettings"}>
         <SimpleForm>
             <TextInput source="settingKey" />
             <TextInput source="settingValue" />

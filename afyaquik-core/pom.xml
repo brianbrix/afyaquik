@@ -28,10 +28,9 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-
         <dependency>
             <groupId>com.afyaquik</groupId>
-            <artifactId>afyaquik-users</artifactId>
+            <artifactId>dtos</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

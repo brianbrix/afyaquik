@@ -1,15 +1,18 @@
 package com.afyaquik.web.exception;
 
+import com.afyaquik.core.exceptions.DuplicateValueException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -24,8 +27,7 @@ public class GlobalExceptionHandler {
         log.warn("Resource not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+                ex.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -36,8 +38,7 @@ public class GlobalExceptionHandler {
         log.warn("Resource already exists: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+                ex.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -46,8 +47,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
-                "You do not have permission to access this resource.",
-                LocalDateTime.now()
+                "You do not have permission to access this resource."
         );
         log.warn("Access denied: {}", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -57,11 +57,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+                ex.getMessage()
         );
         return new  ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
+
     // Handle all other exceptions (fallback)
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
@@ -75,18 +76,29 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
-        String errorMsg = ex.getBindingResult().getFieldErrors()
+        String errorMsg = ex.getBindingResult().getAllErrors()
                 .stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
         log.warn("Validation failed: {}", errorMsg);
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                errorMsg,
-                LocalDateTime.now()
+                errorMsg
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(DuplicateValueException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateValueException(DuplicateValueException ex) {
+        log.warn("Duplicate value: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+
 
 
 
@@ -98,10 +110,10 @@ public class GlobalExceptionHandler {
         private String message;
         private LocalDateTime timestamp;
 
-        public ErrorResponse(int status, String message, LocalDateTime timestamp) {
+        public ErrorResponse(int status, String message) {
             this.status = status;
             this.message = message;
-            this.timestamp = timestamp;
+            this.timestamp = LocalDateTime.now();
         }
 
     }

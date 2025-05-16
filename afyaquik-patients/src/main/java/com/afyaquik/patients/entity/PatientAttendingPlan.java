@@ -12,7 +12,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "patient_visit_plans")
+@Table(
+        name = "patient_visit_plans",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"assigned_officer_id", "next_station_id", "visit_id"}
+        )
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,20 +34,17 @@ public class PatientAttendingPlan extends SuperEntity {
     private User attendingOfficer;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "next_station_id")
+    @JoinColumn(name = "next_station_id", nullable = false)
     private Station nextStation;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_officer_id")
+    @JoinColumn(name = "assigned_officer_id", nullable = false)
     private User assignedOfficer;
-
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "visit_id", nullable = false)
     private PatientVisit patientVisit;
-
 }

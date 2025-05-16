@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import {DetailsPage, PatientAssign, PatientVisitList} from "@afyaquik/shared";
+import {DetailsPage} from "@afyaquik/shared";
 import ReceptionPatientVisitList from "./ReceptionPatientVisitList";
 import {Button} from "react-bootstrap";
 import React from "react";
@@ -32,7 +32,7 @@ const PatientDetailsPage = () => {
     const topComponents = [back()]
 
     return (
-        <DetailsPage endpoint={endpoint} fields={fields} topComponents={topComponents}
+        <DetailsPage title={"Patient Details"} endpoint={endpoint} fields={fields} topComponents={topComponents}
         listRender={<ReceptionPatientVisitList/>}
         />
     )

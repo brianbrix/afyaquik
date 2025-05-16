@@ -1,6 +1,7 @@
 package com.afyaquik.users.service.impl;
 
 
+import com.afyaquik.core.exceptions.DuplicateValueException;
 import com.afyaquik.dtos.user.AssignRolesRequest;
 import com.afyaquik.dtos.user.UserDto;
 import com.afyaquik.dtos.user.UserResponse;
@@ -48,7 +49,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse createUser(UserDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new DuplicateValueException("Username already exists");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateValueException("Email already exists");
         }
 
         Set<Role> userRoles = request.getRoles().stream()
@@ -224,7 +228,7 @@ public class UserServiceImpl implements UserService {
         {
             userDto.setEnabled(true);
             userDto.setUsername(userDto.getUsername());
-            if (!getCurrentUserRoles().contains("SUPERADMIN")) {
+            if (!getCurrentUserRoles().contains("ROLE_SUPERADMIN")) {
                 userDto.getRoles().removeIf(x -> x.equals("SUPERADMIN"));
             }
             else

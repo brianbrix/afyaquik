@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +23,11 @@ public class PatientController {
     private final PatientVisitService patientVisitService;
 
     @PostMapping
-    public ResponseEntity<PatientDto> createPatient(@RequestBody PatientDto patientDto) {
+    public ResponseEntity<PatientDto> createPatient(@Validated @RequestBody PatientDto patientDto) {
         return ResponseEntity.ok(patientService.createPatient(patientDto));
     }
     @PostMapping("/{patientId}/visits/create")
-    public ResponseEntity<PatientVisitDto> createVisit(@RequestBody PatientVisitDto  patientVisitDto, @PathVariable Long patientId) {
+    public ResponseEntity<PatientVisitDto> createVisit(@Validated @RequestBody PatientVisitDto  patientVisitDto, @PathVariable Long patientId) {
         return ResponseEntity.ok(patientVisitService.createPatientVisit(patientVisitDto, patientId));
     }
 

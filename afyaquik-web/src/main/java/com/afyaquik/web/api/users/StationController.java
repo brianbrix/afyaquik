@@ -25,10 +25,10 @@ public class StationController {
     public ResponseEntity<StationDto> getStation(@PathVariable Long id) {
         return ResponseEntity.ok(userStationService.getStation(id));
     }
-    @GetMapping("/{id}/users")
+    @GetMapping("/{name}/users")
     @PreAuthorize("hasAnyRole('SUPERADMIN','RECEPTIONIST','ADMIN')")
-    public ResponseEntity<Set<UserDto>> getStationUsers(@PathVariable Long id) {
-        return ResponseEntity.ok(userStationService.getStationUsers(id));
+    public ResponseEntity<Set<UserDto>> getStationUsers(@PathVariable String name) {
+        return ResponseEntity.ok(userStationService.getStationUsers(name));
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPERADMIN')")

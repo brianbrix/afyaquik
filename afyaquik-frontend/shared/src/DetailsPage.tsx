@@ -5,11 +5,12 @@ import {Card, Col, Row, Spinner} from 'react-bootstrap';
 interface DetailsPageProps {
     fields: { label: string; accessor: string }[];
     endpoint: string;
+    title?:string;
     listRender?: React.ReactNode;
     topComponents?: React.ReactNode[];
 }
 
-const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,listRender,topComponents }) => {
+const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,listRender,topComponents }) => {
     const [record, setRecord] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -18,7 +19,10 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,listRender,t
             .then(response=>{
                 if (endpoint.startsWith('/patients/'))
                 {
-                    localStorage.setItem("patientName", response.firstName +" "+response.lastName);
+                    let patientName = response.firstName;
+                    if (response.lastName)
+                        patientName += " "+response.lastName;
+                    localStorage.setItem("patientName", patientName);
                 }
                 setRecord(response);
             })
@@ -42,7 +46,7 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,listRender,t
             )}
             <Card className="shadow-sm">
                 <Card.Header className="bg-primary text-white">
-                    <h5 className="mb-0">Details</h5>
+                    <h5 className="mb-0">{title?title:"Details"}</h5>
                 </Card.Header>
                 <Card.Body>
                     <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">

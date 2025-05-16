@@ -10,6 +10,6 @@ public interface UserStationService {
     StationDto updateStation(Long id, StationDto stationDto);
     void deleteStation(Long id);
     StationDto getStation(Long id);
-    Set<UserDto> getStationUsers(Long stationId);
+    Set<UserDto> getStationUsers(String stationName);
     Set<StationDto> getAllStations();
 }

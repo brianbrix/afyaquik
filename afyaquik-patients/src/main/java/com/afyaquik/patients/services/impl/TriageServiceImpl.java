@@ -1,12 +1,15 @@
 package com.afyaquik.patients.services.impl;
 
+import com.afyaquik.core.exceptions.DuplicateValueException;
 import com.afyaquik.dtos.patient.TriageItemDto;
 import com.afyaquik.dtos.patient.TriageReportDto;
 import com.afyaquik.dtos.patient.TriageReportItemDto;
 import com.afyaquik.dtos.search.ListFetchDto;
 import com.afyaquik.patients.entity.PatientVisit;
+import com.afyaquik.patients.entity.TriageItem;
 import com.afyaquik.patients.entity.TriageReport;
 import com.afyaquik.patients.entity.TriageReportItem;
+import com.afyaquik.patients.mappers.TriageItemMapper;
 import com.afyaquik.patients.mappers.TriageReportItemMapper;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.patients.repository.TriageItemRepository;
@@ -29,6 +32,7 @@ public class TriageServiceImpl implements TriageService {
     private final TriageReportItemRepository triageReportItemRepository;
     private final TriageItemRepository triageItemRepository;
     private final TriageReportItemMapper triageReportItemMapper;
+    private final TriageItemMapper triageItemMapper;
 
     @Override
     public TriageReportDto updateTriageReport(Long visitId, List<TriageReportItemDto> triageReportItemDtos) {
@@ -52,11 +56,7 @@ public class TriageServiceImpl implements TriageService {
         return TriageReportDto.builder()
                 .id(triageReport.getId())
                 .patientVisitId(patientVisit.getId())
-                .triageReportItems(triageReport.getTriageReportItems().stream().map(triageReportItem ->
-                        TriageReportItemDto.builder()
-                                .name(triageReportItem.getTriageItem().getName())
-                                .value(triageReportItem.getItemSummary())
-                                .build()).toList())
+                .triageReportItems(triageReport.getTriageReportItems().stream().map(triageReportItemMapper::toDto).toList())
                 .build();
     }
 
@@ -73,6 +73,44 @@ public class TriageServiceImpl implements TriageService {
 
         }
         return new ListFetchDto<>();
+    }
+
+    @Override
+    public List<TriageItemDto> getTriageItems() {
+        return triageItemRepository.findAll().stream().map(triageItemMapper::toDto).toList();
+    }
+
+    @Override
+    public TriageItemDto createTriageItem(TriageItemDto triageItemDto) {
+        triageItemRepository.findByName(triageItemDto.getName()).ifPresent(x->{
+            throw new DuplicateValueException("Triage item already exists");
+        });
+        TriageItem triageItem = triageItemMapper.toEntity(triageItemDto);
+        triageItem = triageItemRepository.save(triageItem);
+        return triageItemMapper.toDto(triageItem);
+    }
+
+    @Override
+    public TriageItemDto updateTriageItem(Long id, TriageItemDto triageItemDto) {
+        TriageItem triageItem = triageItemRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Triage item not found"));
+        triageItem.setName(triageItemDto.getName());
+        triageItem.setDescription(triageItemDto.getDescription());
+        triageItem = triageItemRepository.save(triageItem);
+        return triageItemMapper.toDto(triageItem);
+    }
+
+    @Override
+    public void deleteTriageItem(Long id) {
+        triageItemRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Triage item not found"));
+        triageItemRepository.deleteById(id);
+    }
+
+    @Override
+    public TriageItemDto getTriageItem(Long itemId) {
+        return triageItemMapper.toDto(triageItemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Triage item not found")));
+
     }
 
 }

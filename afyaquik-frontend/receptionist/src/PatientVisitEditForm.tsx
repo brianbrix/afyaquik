@@ -1,6 +1,7 @@
-import {apiRequest, PatientVisit, StepConfig, StepForm} from "@afyaquik/shared";
+import {apiRequest, PatientVisitForm, StepConfig} from "@afyaquik/shared";
 import {useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
+import {Button} from "react-bootstrap";
 
 
 const formConfig: StepConfig[] = [
@@ -21,12 +22,33 @@ const formConfig: StepConfig[] = [
     }
 
 ];
+const components = function (visitId:any){
+    return (
+        <div className="d-flex justify-content-between">
+            <Button
+                variant="outline-info"
+                onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/details`}
+            >
+                Got to Visit Details
+            </Button>
+            <Button
+                variant="outline-success"
+                onClick={() => window.location.href = `index.html`}
+            >
+                Go to Patients List
+            </Button>
+        </div>
+    )
+}
 
 
-const EditVisit = () => {
+const PatientVisitEditForm = () => {
     let  params = useParams();
     const id = Number(params.id);
     console.log('Visit ID', id)
+    formConfig.map((step) => {
+        step.topComponents = [components(id)];
+    });
     const [defaultValues, setDefaultValues] = useState([]);
     useEffect(() => {
         apiRequest(`/patient/visits/${id}`, { method: 'GET' })
@@ -37,7 +59,7 @@ const EditVisit = () => {
             .catch(err => console.error(err));
     }, []);
     return (
-        <PatientVisit formConfig={formConfig}
+        <PatientVisitForm formConfig={formConfig}
                       onSubmit={(data) => {
                           console.log('Submitted data:', data);
                           apiRequest(`/patients/visits/update`, { method:'PUT' , body: data})
@@ -52,4 +74,4 @@ const EditVisit = () => {
         />
     );
 }
-export default EditVisit;
+export default PatientVisitEditForm;

@@ -1,14 +1,14 @@
 import React from 'react';
 import './App.css';
-import {AuthGuard, Header, HomePage, PatientList, PatientVisit} from "@afyaquik/shared";
-import RegisterPatient from "./RegisterPatient";
+import {AuthGuard, Header,  } from "@afyaquik/shared";
+import PatientRegisterForm from "./PatientRegisterForm";
 import {HashRouter, Route, Routes} from "react-router-dom";
-import EditPatient from "./EditPatient";
-import ReceptionPatientVisit from "./ReceptionPatientVisit";
-import ReceptionPatientAssign from "./ReceptionPatientAssign";
+import PatientEditForm from "./PatientEditForm";
+import ReceptionPatientVisitForm from "./ReceptionPatientVisitForm";
+import ReceptionPatientAssignForm from "./ReceptionPatientAssignForm";
 import ReceptionPatientList from "./ReceptionPatientList";
 import PatientDetailsPage from "./PatientDetailsPage";
-import EditVisit from "./EditVisit";
+import PatientVisitEditForm from "./PatientVisitEditForm";
 import PatientVisitDetailsPage from "./PatientVisitDetailsPage";
 
 function App() {
@@ -19,13 +19,13 @@ function App() {
         <div className="container my-4">
         <Routes>
           <Route path="" element={<ReceptionPatientList />} />
-          <Route path="/patient/add" element={<RegisterPatient />} />
-          <Route path="/patient/:id/edit" element={<EditPatient />} />
+          <Route path="/patient/add" element={<PatientRegisterForm />} />
+          <Route path="/patient/:id/edit" element={<PatientEditForm />} />
           <Route path="/patient/:id/details" element={<PatientDetailsPage />} />
-          <Route path="/patient/:id/visits/add" element={<ReceptionPatientVisit />} />
-          <Route path="/patient/visits/:id/edit" element={<EditVisit />} />
+          <Route path="/patient/:id/visits/add" element={<ReceptionPatientVisitForm />} />
+          <Route path="/patient/visits/:id/edit" element={<PatientVisitEditForm />} />
           <Route path="/patient/visits/:id/details" element={<PatientVisitDetailsPage />} />
-          <Route path="/patient/visits/:id/assign" element={<ReceptionPatientAssign />} />
+          <Route path="/patient/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
         </Routes>
         </div>
       </AuthGuard>
