@@ -1,0 +1,26 @@
+$primary: #7db9f3;
+
+@import '~bootstrap/scss/bootstrap';
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  color: white;
+  z-index: 9999;
+  animation: fadeInOut 3s forwards;
+}
+
+.toast-success { background-color: #adf4be; }
+.toast-error   { background-color: #f38e98; }
+.toast-info    { background-color: #8ce2ef; }
+.toast-warning { background-color: #f8dd8a; color: #212529; }
+
+@keyframes fadeInOut {
+  0%   { opacity: 0; transform: translateY(-20px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-20px); }
+}

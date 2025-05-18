@@ -1,6 +1,7 @@
 package com.afyaquik.users.security;
 
 
+import com.afyaquik.core.exceptions.LoginException;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.users.service.JwtProviderService;
@@ -9,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +24,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private final JwtProviderService tokenProvider;
     private final UsersRepository userRepository;
 
@@ -32,25 +33,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-            if (tokenProvider.validateToken(token)) {
-                String username = tokenProvider.getUserNameFromToken(token);
-                User user = userRepository.findByUsername(username).orElse(null);
+        String token = null;
 
-                if (user != null && user.isEnabled()) {
-                    Set<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                            .collect(Collectors.toSet());
-
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(username, null, authorities);
-
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if ("authToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
                 }
+            }
+        }
+
+        if (token != null && tokenProvider.validateToken(token)) {
+            String username = tokenProvider.getUserNameFromToken(token);
+            User user = userRepository.findByUsername(username).orElse(null);
+
+            if (user != null && user.isEnabled()) {
+                Set<SimpleGrantedAuthority> authorities = user.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                        .collect(Collectors.toSet());
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 

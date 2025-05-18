@@ -10,6 +10,7 @@
     <artifactId>afyaquik-patients</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>afyaquik-patients</name>
+    <packaging>jar</packaging>
     <description>afyaquik-patients</description>
     <url/>
     <licenses>
@@ -28,8 +29,35 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.afyaquik</groupId>
+            <artifactId>afyaquik-users</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.afyaquik</groupId>
+            <artifactId>afyaquik-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.afyaquik</groupId>
+            <artifactId>dtos</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.afyaquik</groupId>
+                <artifactId>afyaquik</artifactId>
+                <version>${project.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <resources>
@@ -41,12 +69,6 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
     </build>
 
 </project>
