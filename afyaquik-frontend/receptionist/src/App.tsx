@@ -10,6 +10,7 @@ import ReceptionPatientList from "./ReceptionPatientList";
 import PatientDetailsPage from "./PatientDetailsPage";
 import PatientVisitEditForm from "./PatientVisitEditForm";
 import PatientVisitDetailsPage from "./PatientVisitDetailsPage";
+import HomePage from "./HomePage";
 
 function App() {
   return (
@@ -17,10 +18,12 @@ function App() {
         <ToastProvider>
 
         <AuthGuard requiredRoles={['RECEPTIONIST']}>
-        <Header />
+        <Header homeUrl="/client/receptionist/index.html" />
         <div className="container my-4">
         <Routes>
-          <Route path="" element={<ReceptionPatientList />} />
+          <Route path="" element={<HomePage />} />
+          <Route path="/patients" element={<ReceptionPatientList />} />
+          <Route path="/appointments" element={<ReceptionPatientList />} />
           <Route path="/patient/add" element={<PatientRegisterForm />} />
           <Route path="/patient/:id/edit" element={<PatientEditForm />} />
           <Route path="/patient/:id/details" element={<PatientDetailsPage />} />

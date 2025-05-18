@@ -19,7 +19,7 @@ export default function LoginPage() {
         setLoading(true);
         setError(null);
 
-        // try {
+        try {
             const result = await authService.login(username, password);
             console.log("Result", result);
             setLoading(false);
@@ -37,11 +37,11 @@ export default function LoginPage() {
             } else {
                 setError('Invalid username or password.');
             }
-        // } catch (err) {
-        //     console.log("Error", error)
-        //     setLoading(false);
-        //     setError('An unexpected error occurred. Please try again.');
-        // }
+        } catch (err) {
+            console.log("Error", error)
+            setLoading(false);
+            setError('An unexpected error occurred. Please try again.');
+        }
     };
 
     return (

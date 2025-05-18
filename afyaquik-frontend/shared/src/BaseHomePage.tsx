@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from "./Header";
 
-interface Module {
+export interface AfyaQuikModule {
     name: string;
     path: string;
     description: string;
@@ -9,13 +9,7 @@ interface Module {
     requiredRoles: string[];
 }
 
-const modules: Module[] = [
-    { name: 'Admin Dashboard', path: '/client/admin/index.html', description: 'Manage users, roles and settings', icon: 'bi-gear-fill', requiredRoles: ['ADMIN','SUPERADMIN'] },
-    { name: 'Doctor Dashboard', path: '/client/doctor/index.html', description: 'Handle patient doctor and records', icon: 'bi-clipboard2-pulse-fill', requiredRoles: ['DOCTOR'] },
-    { name: 'Nurse Dashboard', path: '/client/nurse/index.html', description: 'Handle patient nurse and records', icon: 'bi-clipboard2-pulse-fill', requiredRoles: ['NURSE'] },
-    { name: 'Receptionist Dashboard', path: '/client/receptionist/index.html', description: 'Schedule and manage receptionist', icon: 'bi-calendar-check-fill', requiredRoles: ['RECEPTIONIST'] },
-    { name: 'Reports Dashboard', path: '/client/reports/index.html', description: 'View and export system reports', icon: 'bi-bar-chart-fill', requiredRoles: ['REPORTS'] },
-];
+
 const hasRole = (roles: string[]): boolean => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (!isLoggedIn) {
@@ -26,8 +20,12 @@ const hasRole = (roles: string[]): boolean => {
     return roles.some(role => userRoles.includes(role));
 };
 
-const HomePage = () => {
-    const handleNavigation = (mod: Module) => {
+interface BaseHomePageProps {
+    modules: AfyaQuikModule[];
+}
+
+export const BaseHomePage: React.FC<BaseHomePageProps> = ({modules}) => {
+    const handleNavigation = (mod: AfyaQuikModule) => {
         if (hasRole(mod.requiredRoles)) {
             window.location.href = mod.path;
         } else {
@@ -37,7 +35,6 @@ const HomePage = () => {
 
     return (
         <>
-            <Header/>
             <div className="container py-5">
                 <h2 className="text-center mb-4 text-primary">AfyaQuik System Modules</h2>
                 <div className="row row-cols-1 row-cols-md-2 g-4">
@@ -68,4 +65,3 @@ const HomePage = () => {
         </>
     );
 };
-export default HomePage;

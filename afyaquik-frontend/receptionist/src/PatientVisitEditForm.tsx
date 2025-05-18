@@ -62,7 +62,7 @@ const PatientVisitEditForm = () => {
         <PatientVisitForm formConfig={formConfig}
                       onSubmit={(data) => {
                           console.log('Submitted data:', data);
-                          apiRequest(`/patients/visits/update`, { method:'PUT' , body: data})
+                          apiRequest(`/patient/visits/update`, { method:'PUT' , body: data})
                               .then(response => {
                                   console.log(response)
                                   window.location.href = `index.html#/patient/visits/${response.id}/details`;
