@@ -59,6 +59,7 @@ return (
                   }}
                   idFromParent={id}
                   defaultValues={{}}
+                      submitButtonLabel={'Create Visit'}
     />
 )
 }

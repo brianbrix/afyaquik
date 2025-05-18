@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.search;
 
-import com.afyaquik.core.settings.services.SearchService;
+import com.afyaquik.core.services.SearchService;
 import com.afyaquik.dtos.search.SearchDto;
 import com.afyaquik.dtos.search.SearchResponseDto;
 import lombok.RequiredArgsConstructor;

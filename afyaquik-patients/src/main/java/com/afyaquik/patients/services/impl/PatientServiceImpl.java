@@ -163,6 +163,10 @@ public class PatientServiceImpl implements PatientService {
         Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).
                 orElseThrow(()-> new EntityNotFoundException("Station not found"));
         User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
+        if (!assignedOfficer.isAvailable())
+        {
+            throw new IllegalArgumentException("Assigned officer is not available");
+        }
        var plan = patientAttendingPlanRepo.findByAssignedOfficerAndNextStationAndPatientVisit(assignedOfficer,nextStation,patientVisit);
        if (plan.isPresent())
        {

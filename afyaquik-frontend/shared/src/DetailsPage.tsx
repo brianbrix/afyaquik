@@ -3,7 +3,7 @@ import apiRequest from './api';
 import {Card, Col, Row, Spinner} from 'react-bootstrap';
 
 interface DetailsPageProps {
-    fields: { label: string; accessor: string }[];
+    fields: { label: string; accessor: string; type?: string}[];
     endpoint: string;
     title?:string;
     listRender?: React.ReactNode;
@@ -46,22 +46,31 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,listRe
             )}
             <Card className="shadow-sm">
                 <Card.Header className="bg-primary text-white">
-                    <h5 className="mb-0">{title?title:"Details"}</h5>
+                    <h5 className="mb-0">{title ? title : "Details"}</h5>
                 </Card.Header>
                 <Card.Body>
                     <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
-                        {fields.map(({ label, accessor }) => (
-                            <div key={accessor} className="col">
-                                <div className="p-2 border rounded h-100">
-                                    <div className="text-truncate" title={label}>
-                                        <strong>{label}:</strong>
-                                    </div>
-                                    <div className="text-truncate" title={resolveValue(record, accessor)}>
-                                        {resolveValue(record, accessor)}
+                        {fields.map(({ label, accessor, type }) => {
+                            const value = resolveValue(record, accessor);
+                            const isWysiwyg = type === 'wysiwyg';
+
+                            return (
+                                <div key={accessor} className="col">
+                                    <div className="p-2 border rounded h-100">
+                                        <div className="text-truncate" title={label}>
+                                            <strong>{label}:</strong>
+                                        </div>
+                                        {isWysiwyg ? (
+                                            <div dangerouslySetInnerHTML={{ __html: value || '' }} />
+                                        ) : (
+                                            <div className="text-truncate" title={value}>
+                                                {value}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </Card.Body>
             </Card>

@@ -16,6 +16,7 @@
     <modules>
         <module>dtos</module>
         <module>afyaquik-core</module>
+        <module>afyaquik-appointments</module>
         <module>afyaquik-users</module>
         <module>afyaquik-receptionist</module>
         <module>afyaquik-web</module>

@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.settings;
 
-import com.afyaquik.core.settings.services.GeneralSettingsService;
+import com.afyaquik.core.services.GeneralSettingsService;
 import com.afyaquik.dtos.settings.GeneralSettingsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

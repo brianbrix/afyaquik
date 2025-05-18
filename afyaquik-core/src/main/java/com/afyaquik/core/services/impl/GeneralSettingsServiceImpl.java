@@ -1,8 +1,8 @@
-package com.afyaquik.core.settings.services.impl;
+package com.afyaquik.core.services.impl;
 
 import com.afyaquik.core.repository.GeneralSettingsRepository;
 import com.afyaquik.core.settings.entity.GeneralSettings;
-import com.afyaquik.core.settings.services.GeneralSettingsService;
+import com.afyaquik.core.services.GeneralSettingsService;
 import com.afyaquik.dtos.settings.GeneralSettingsDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

@@ -32,7 +32,7 @@ const PatientVisitDetailsPage = () => {
         { label: "Patient Name", accessor: "patientName" },
         { label: "Visit Type", accessor: "visitType" },
         {label: "Visit Date", accessor: "visitDate"},
-        {label: "Reason for Visit", accessor: "summaryReasonForVisit"},
+        {label: "Reason for Visit", accessor: "summaryReasonForVisit", type:'wysiwyg'},
         {label: "Next Visit Date", accessor: "nextVisitDate"}
     ]
 

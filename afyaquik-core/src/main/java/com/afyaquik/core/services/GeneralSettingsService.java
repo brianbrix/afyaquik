@@ -1,4 +1,4 @@
-package com.afyaquik.core.settings.services;
+package com.afyaquik.core.services;
 
 import com.afyaquik.dtos.settings.GeneralSettingsDto;
 

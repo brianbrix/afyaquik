@@ -9,10 +9,18 @@ import org.mapstruct.Mapper;
 public interface PatientAttendingPlanMapper extends EntityMapper<PatientAttendingPlan, PatientAttendingPlanDto> {
 
     default PatientAttendingPlanDto  toDto(PatientAttendingPlan entity) {
+        StringBuilder patientName = new StringBuilder();
+        patientName.append(entity.getPatientVisit().getPatient().getFirstName());
+        if (entity.getPatientVisit().getPatient().getSecondName() != null) {
+            patientName.append(" ").append(entity.getPatientVisit().getPatient().getSecondName());
+        }
+        if (entity.getPatientVisit().getPatient().getLastName() != null) {
+            patientName.append(" ").append(entity.getPatientVisit().getPatient().getLastName());
+        }
         return PatientAttendingPlanDto.builder()
                 .id(entity.getId())
                 .patientVisitId(entity.getPatientVisit().getId())
-                .patientName(entity.getPatientVisit().getPatient().getFirstName() + " " + entity.getPatientVisit().getPatient().getLastName())
+                .patientName(patientName.toString())
                 .attendingOfficerUserName(entity.getAttendingOfficer().getUsername())
                 .assignedOfficer(entity.getAssignedOfficer().getUsername())
                 .nextStation(entity.getNextStation().getName())

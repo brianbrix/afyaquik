@@ -71,6 +71,7 @@ const PatientVisitEditForm = () => {
                       }}
                       idFromParent={id}
                       defaultValues={defaultValues}
+                          submitButtonLabel={'Update Visit Info'}
         />
     );
 }
