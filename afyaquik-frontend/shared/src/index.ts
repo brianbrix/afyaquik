@@ -5,6 +5,7 @@ export { default as HomePage } from './HomePage';
 export { default as StepForm } from './StepForm';
 export { default as DataTable } from './DataTable';
 export { default as DetailsPage } from './DetailsPage';
+export { ToastProvider, useToast } from './ToastContext';
 export {default as apiRequest } from  './api';
 export {default as PatientList} from './patient/PatientList'
 export {default as PatientVisitForm} from './patient/PatientVisitForm'

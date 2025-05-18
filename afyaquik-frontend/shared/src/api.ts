@@ -1,25 +1,20 @@
+
 export interface ApiOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     body?: any;
     token?: string;
 }
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
-function getToken() {
-    return localStorage.getItem('authToken');
-}
-export default async function apiRequest<T = any>(endpoint: string, options: ApiOptions = {}): Promise<T> {
+export default async function apiRequest<T = any>(endpoint: string, options: ApiOptions = {}, showToast?:any): Promise<T> {
     const { method = 'GET', body } = options;
     const url = `${BASE_URL}${endpoint}`;
-    const token = options.token ?? getToken();
 
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
+        'credentials': 'include',
     };
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
 
     const response = await fetch(url, {
         method,
@@ -28,6 +23,13 @@ export default async function apiRequest<T = any>(endpoint: string, options: Api
     });
 
     if (!response.ok) {
+        if(response.status === 400 && showToast ){
+            response.json().then(
+                (data) => {
+                    showToast(data.message, 'error');
+                }
+            )
+        }
         const errorText = await response.text();
         throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
     }

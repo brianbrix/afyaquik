@@ -19,6 +19,7 @@ import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.users.service.UserService;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -162,6 +163,12 @@ public class PatientServiceImpl implements PatientService {
         Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).
                 orElseThrow(()-> new EntityNotFoundException("Station not found"));
         User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
+       var plan = patientAttendingPlanRepo.findByAssignedOfficerAndNextStationAndPatientVisit(assignedOfficer,nextStation,patientVisit);
+       if (plan.isPresent())
+       {
+           throw new EntityExistsException("You cannot assign the same station and officer to one patient visit.");
+
+       }
         patientAttendingPlan.setNextStation(nextStation);
         patientAttendingPlan.setAssignedOfficer(assignedOfficer);
         patientVisit.getPatientAttendingPlan().add(patientAttendingPlan);

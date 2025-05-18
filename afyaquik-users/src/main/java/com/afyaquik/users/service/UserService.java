@@ -4,7 +4,10 @@ package com.afyaquik.users.service;
 import com.afyaquik.dtos.user.UserDto;
 import com.afyaquik.dtos.user.UserResponse;
 import com.afyaquik.users.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 
@@ -12,6 +15,8 @@ public interface UserService {
     UserResponse createUser(UserDto request);
     List<UserResponse> getAllUsers(List<Long> ids);
     User findByUsername(String username);
+    HttpHeaders login(String username, String password);
+    void logout(HttpServletRequest request, HttpServletResponse response);
     UserResponse fetchByUsername(String username);
     UserResponse fetchById(Long userId);
     UserResponse updateUserDetails(Long userId, UserDto request);
@@ -28,6 +33,5 @@ public interface UserService {
             Integer size
     );
     List<UserResponse> getUsersByRoles(List<Long> roleIds);
-    void logoutUser(String authHeader);
     String getCurrentUsername();
 }

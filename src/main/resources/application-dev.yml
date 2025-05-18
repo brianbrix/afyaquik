@@ -1,4 +1,7 @@
 spring:
+  web:
+    resources:
+      static-locations: classpath:/static/,file:./src/main/resources/static/
   datasource:
     url: jdbc:postgresql://localhost:5433/afyaquik #TODo: store in env
     username: postgres

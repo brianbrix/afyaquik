@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PatientVisitRepo extends JpaRepository<PatientVisit, Long>{
     Page<PatientVisit> findAllByPatient(Pageable pageable, Patient patient);
+
 }

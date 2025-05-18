@@ -3,6 +3,7 @@ import StepForm from "../StepForm";
 import apiRequest from "../api";
 import React, { useEffect, useState } from "react";
 import {Button} from "react-bootstrap";
+import {useToast} from "../ToastContext";
 interface PatientAssignProps {
     visitId?: number;
 }
@@ -12,6 +13,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
     const [stations, setStations] = useState<{ label: string; value: string }[]>([]);
     const [officers, setOfficers] = useState<{ label: string; value: string }[]>([]);
     const [selectedStation, setSelectedStation] = useState<string | undefined>(undefined);
+    const { showToast } = useToast();
 
     useEffect(() => {
         apiRequest("/stations", { method: "GET" })
@@ -83,7 +85,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log("Submitting data:", data);
-                apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data })
+                apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data }, showToast)
                     .then((response) => {
                         console.log(response)
                         window.location.href = `index.html#/patient/visits/${visitId}/details`

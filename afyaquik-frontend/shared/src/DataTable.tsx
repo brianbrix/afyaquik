@@ -141,7 +141,7 @@ function DataTable<T extends { id: number }>({
     };
 
     const downloadCSV = () => {
-        const csvData = (dataEndpoint ? initialData : data).map(record => {
+        const csvData = (data).map(record => {
             const row: any = {};
             columns.forEach(col => {
                 row[col.header] = record[col.accessor as keyof T];

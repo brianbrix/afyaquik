@@ -1,6 +1,8 @@
+import {apiRequest} from "@afyaquik/shared";
+
 const authProvider = {
     login: ({ username, password }: any) => {
-        const request = new Request('http://localhost:8080/api/auth/login', {
+        const request = new Request('/api/auth/login', {
             method: 'POST',
             body: JSON.stringify({ username, password }),
             headers: new Headers({ 'Content-Type': 'application/json' }),
@@ -10,15 +12,13 @@ const authProvider = {
                 if (response.status < 200 || response.status >= 300) {
                     throw new Error(response.statusText);
                 }
+                localStorage.setItem('isLoggedIn', String(true));
                 return response.json();
             })
             .then((response ) => {
-                localStorage.setItem('authToken', response);
-                fetch('/api/users/me', {
-                    headers: { 'Authorization': `Bearer ${response.token}` }
-                }).then(
+                apiRequest('/api/users/me').then(
                     rolesResponse => rolesResponse.json()
-                    .then(rolesData => {
+                    .then((rolesData: { roles: any; }) => {
                         localStorage.setItem('userRoles', JSON.stringify(rolesData.roles));
                     })
                 )
@@ -26,14 +26,20 @@ const authProvider = {
             });
     },
     logout: () => {
-        localStorage.clear()
+        apiRequest('/auth/logout',{
+            method: 'POST',
+            body: JSON.stringify({})
+        }).then(() => {
+            console.log("Logged out");
+            localStorage.clear();
+        });
         return Promise.resolve();
     },
     checkAuth: () =>
-        localStorage.getItem('authToken') ? Promise.resolve() : Promise.reject(),
+        localStorage.getItem('isLoggedIn') ? Promise.resolve() : Promise.reject(),
     checkError: (error: any) => {
         if (error.status === 401 || error.status === 403) {
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('isLoggedIn');
             return Promise.reject();
         }
         return Promise.resolve();

@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/.well-known/**").permitAll()
                         .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/static/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/client/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
@@ -91,6 +92,8 @@ public class SecurityConfig {
             );
         };
     }
+
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

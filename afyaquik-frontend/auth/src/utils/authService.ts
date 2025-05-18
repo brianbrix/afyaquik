@@ -1,31 +1,40 @@
+import {apiRequest} from "@afyaquik/shared";
+
+const data = {
+    roles: undefined,
+    isLoggedIn: false
+};
 export const authService = {
+
     login: async (username: string, password: string) => {
         const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
         });
-        const data = await response.json();
         if (response.ok) {
-            const rolesResponse = await fetch('/api/users/me', {
-                headers: { 'Authorization': `Bearer ${data.token}` }
-            });
-            const rolesData = await rolesResponse.json();
-            if (rolesResponse.ok) {
-                data.roles = rolesData.roles;
-            }
+            data.isLoggedIn = true;
+            const rolesData = await apiRequest('/users/me');
+            data.roles = rolesData.roles;
+
             localStorage.setItem('userRoles', JSON.stringify(data.roles));
-            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('isLoggedIn', String(true));
         }
         return data;
     },
     logout: () => {
-        localStorage.removeItem('authToken');
+        apiRequest('/auth/logout',{
+            method: 'POST',
+            body: JSON.stringify({})
+        }).then(() => {
+            console.log("Logged out");
+            localStorage.clear();
+        });
     },
     getToken: () => {
-        return localStorage.getItem('authToken');
+        return localStorage.getItem('isLoggedIn');
     },
     isLoggedIn: () => {
-        return !!localStorage.getItem('authToken');
+        return data.isLoggedIn;
     }
 };

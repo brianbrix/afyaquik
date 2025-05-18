@@ -17,12 +17,12 @@ const modules: Module[] = [
     { name: 'Reports Dashboard', path: '/client/reports/index.html', description: 'View and export system reports', icon: 'bi-bar-chart-fill', requiredRoles: ['REPORTS'] },
 ];
 const hasRole = (roles: string[]): boolean => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
         return true;
     }
     const userRoles = JSON.parse(localStorage.getItem('userRoles') || '[]');
-    console.log("ROles", roles, roles)
+    console.log("ROles", roles, userRoles)
     return roles.some(role => userRoles.includes(role));
 };
 

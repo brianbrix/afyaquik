@@ -5,7 +5,7 @@ interface AuthGuardProps {
     requiredRoles?: string[];
 }
 const isAuthenticated = () => {
-    return !!localStorage.getItem('authToken');
+    return !!localStorage.getItem('isLoggedIn');
 };
 const userHasAnyRole = (requiredRoles: string[]): boolean => {
     const roles = JSON.parse(localStorage.getItem('userRoles') || '[]');

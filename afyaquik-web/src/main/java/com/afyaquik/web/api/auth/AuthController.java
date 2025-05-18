@@ -5,7 +5,12 @@ import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.service.JwtProviderService;
 import com.afyaquik.users.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,7 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,26 +29,13 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")//TODO: specify origins
 public class AuthController {
     private final UserService userService;
-    private final JwtProviderService jwtProvider;
-    private final AuthenticationManager authenticationManager;
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User user = userService.findByUsername(request.getUsername());
-
-        String token = jwtProvider.generateToken(user.getUsername(),
-                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-
-        return ResponseEntity.ok(Collections.singletonMap("token", token));
+        return new ResponseEntity<>(Map.of("isLoggedIn", true),userService.login(request.getUsername(), request.getPassword()), HttpStatus.OK);
     }
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
-        userService.logoutUser(authHeader);
-        return ResponseEntity.ok("Successfully logged out.");
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        userService.logout(request,response);
+        return ResponseEntity.ok(Map.of("message","Successfully logged out."));
     }
 }

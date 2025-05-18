@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {AuthGuard, Header,  } from "@afyaquik/shared";
+import {AuthGuard, Header, ToastProvider,} from "@afyaquik/shared";
 import PatientRegisterForm from "./PatientRegisterForm";
 import {HashRouter, Route, Routes} from "react-router-dom";
 import PatientEditForm from "./PatientEditForm";
@@ -14,7 +14,9 @@ import PatientVisitDetailsPage from "./PatientVisitDetailsPage";
 function App() {
   return (
       <HashRouter>
-      <AuthGuard requiredRoles={['RECEPTIONIST']}>
+        <ToastProvider>
+
+        <AuthGuard requiredRoles={['RECEPTIONIST']}>
         <Header />
         <div className="container my-4">
         <Routes>
@@ -29,6 +31,7 @@ function App() {
         </Routes>
         </div>
       </AuthGuard>
+        </ToastProvider>
 </HashRouter>
 
 

@@ -13,6 +13,7 @@ import com.afyaquik.users.repository.RevokedTokenRepository;
 import com.afyaquik.users.repository.RolesRepository;
 import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.users.repository.UsersRepository;
+import com.afyaquik.users.service.JwtProviderService;
 import com.afyaquik.users.service.UserService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,16 +22,24 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +55,8 @@ public class UserServiceImpl implements UserService {
     private final RolesRepository roleRepository;
     private final StationRepository stationRepository;
     private final EntityManager entityManager;
+    private final JwtProviderService jwtProvider;
+    private final AuthenticationManager authenticationManager;
     @Override
     public UserResponse createUser(UserDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -148,6 +159,63 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
+    }
+
+    @Override
+    public HttpHeaders login(String username, String password) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User user = findByUsername(username);
+        String token = jwtProvider.generateToken(user.getUsername(),
+                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+        ResponseCookie cookie = ResponseCookie.from("authToken", token)
+                .httpOnly(true)
+                .secure(false) // Use true in production (with HTTPS)
+                .path("/")
+                .maxAge(Duration.ofDays(1))
+                .sameSite("Strict")
+                .build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        return headers;
+    }
+
+    @Override
+    public void   logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("authToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // (Optional) Audit or blacklist the token
+        if (token != null) {
+            RevokedToken revokedToken = new RevokedToken();
+            revokedToken.setToken(token);
+            revokedToken.setRevokedAt(Instant.now());
+            revokedTokenRepository.save(revokedToken);
+        }
+        else
+        {
+            throw new IllegalArgumentException("Token not found");
+        }
+
+        ResponseCookie cookie = ResponseCookie.from("authToken", "")
+                .httpOnly(true)
+                .secure(false) // use HTTPS in production
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     @Override
@@ -356,20 +424,6 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void logoutUser(String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            RevokedToken revokedToken = new RevokedToken();
-            revokedToken.setToken(token);
-            revokedToken.setRevokedAt(Instant.now());
-            revokedTokenRepository.save(revokedToken);
-        }
-        else
-            {
-            throw new IllegalArgumentException("Invalid token.");
-        }
-    }
 
 
 }

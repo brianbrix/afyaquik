@@ -1,11 +1,17 @@
 import React from 'react';
+import apiRequest from "./api";
 
 const Header = () => {
 
     const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRoles');
-        window.location.href = '/client/auth/index.html#/login';
+        apiRequest('/auth/logout',{
+            method: 'POST',
+            body: JSON.stringify({})
+        }).then(() => {
+            console.log("Logged out");
+            localStorage.clear();
+            window.location.href = '/client/auth/index.html#/login';
+        });
     };
 
     return (
