@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps>  = ({homeUrl}) => {
                     <i className="bi-box-arrow-right me-1"></i> Logout
                 </button>
             ) : (
-                <button className="btn btn-outline-light text-primary ms-auto" onClick={handleLogin}>
+                <button className="btn btn-light text-primary ms-auto" onClick={handleLogin}>
                     <i className="bi-box-arrow-in-right me-1"></i> Login
                 </button>
             )}
