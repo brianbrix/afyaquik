@@ -1,16 +1,16 @@
 package com.afyaquik.patients.services.impl;
 
 import com.afyaquik.utils.exceptions.DuplicateValueException;
-import com.afyaquik.dtos.patient.TriageItemDto;
-import com.afyaquik.dtos.patient.TriageReportDto;
-import com.afyaquik.dtos.patient.TriageReportItemDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.patients.dto.TriageItemDto;
+import com.afyaquik.patients.dto.TriageReportDto;
+import com.afyaquik.patients.dto.TriageReportItemDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.entity.TriageItem;
 import com.afyaquik.patients.entity.TriageReport;
 import com.afyaquik.patients.entity.TriageReportItem;
-import com.afyaquik.patients.mappers.TriageItemMapper;
-import com.afyaquik.patients.mappers.TriageReportItemMapper;
+import com.afyaquik.utils.mappers.patients.TriageItemMapper;
+import com.afyaquik.utils.mappers.patients.TriageReportItemMapper;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.patients.repository.TriageItemRepository;
 import com.afyaquik.patients.repository.TriageReportItemRepository;

@@ -1,7 +1,7 @@
 package com.afyaquik.web.api.users;
 
-import com.afyaquik.dtos.user.RoleRequest;
-import com.afyaquik.dtos.user.RoleResponse;
+import com.afyaquik.users.dto.RoleRequest;
+import com.afyaquik.users.dto.RoleResponse;
 import com.afyaquik.users.service.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

@@ -1,8 +1,8 @@
 package com.afyaquik.web.api.patient;
 
-import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
-import com.afyaquik.dtos.patient.PatientVisitDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.services.PatientVisitService;
 import lombok.RequiredArgsConstructor;

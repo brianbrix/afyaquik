@@ -1,6 +1,6 @@
 package com.afyaquik.patients.utils;
 
-import com.afyaquik.dtos.patient.PatientDto;
+import com.afyaquik.patients.dto.PatientDto;
 import com.afyaquik.patients.entity.Patient;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;

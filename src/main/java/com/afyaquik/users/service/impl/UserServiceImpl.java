@@ -2,9 +2,9 @@ package com.afyaquik.users.service.impl;
 
 
 import com.afyaquik.utils.exceptions.DuplicateValueException;
-import com.afyaquik.dtos.user.AssignRolesRequest;
-import com.afyaquik.dtos.user.UserDto;
-import com.afyaquik.dtos.user.UserResponse;
+import com.afyaquik.users.dto.AssignRolesRequest;
+import com.afyaquik.users.dto.UserDto;
+import com.afyaquik.users.dto.UserResponse;
 import com.afyaquik.users.entity.RevokedToken;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.Station;

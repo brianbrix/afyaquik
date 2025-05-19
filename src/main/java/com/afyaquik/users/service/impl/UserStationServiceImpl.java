@@ -1,7 +1,7 @@
 package com.afyaquik.users.service.impl;
 
-import com.afyaquik.dtos.user.StationDto;
-import com.afyaquik.dtos.user.UserDto;
+import com.afyaquik.users.dto.StationDto;
+import com.afyaquik.users.dto.UserDto;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;

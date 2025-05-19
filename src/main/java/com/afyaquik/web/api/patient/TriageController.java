@@ -1,9 +1,9 @@
 package com.afyaquik.web.api.patient;
 
-import com.afyaquik.dtos.patient.TriageItemDto;
-import com.afyaquik.dtos.patient.TriageReportDto;
-import com.afyaquik.dtos.patient.TriageReportItemDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.patients.dto.TriageItemDto;
+import com.afyaquik.patients.dto.TriageReportDto;
+import com.afyaquik.patients.dto.TriageReportItemDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.services.TriageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

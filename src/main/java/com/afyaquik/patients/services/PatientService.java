@@ -1,9 +1,9 @@
 package com.afyaquik.patients.services;
 
-import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
-import com.afyaquik.dtos.patient.PatientDto;
-import com.afyaquik.dtos.patient.PatientVisitDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientDto;
+import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

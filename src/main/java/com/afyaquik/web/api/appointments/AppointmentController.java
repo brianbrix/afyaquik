@@ -1,8 +1,8 @@
 package com.afyaquik.web.api.appointments;
 
 import com.afyaquik.appointments.services.AppointmentService;
-import com.afyaquik.dtos.appointments.AppointmentDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.appointments.dto.AppointmentDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

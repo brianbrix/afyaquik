@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.users;
 
-import com.afyaquik.dtos.user.department.DepartmentDto;
+import com.afyaquik.users.dto.department.DepartmentDto;
 import com.afyaquik.users.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.auth;
 
-import com.afyaquik.dtos.user.LoginRequest;
+import com.afyaquik.users.dto.LoginRequest;
 import com.afyaquik.users.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

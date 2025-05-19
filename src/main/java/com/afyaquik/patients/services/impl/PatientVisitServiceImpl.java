@@ -1,13 +1,13 @@
 package com.afyaquik.patients.services.impl;
 
-import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
-import com.afyaquik.dtos.patient.PatientVisitDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.patients.enums.VisitType;
-import com.afyaquik.patients.mappers.PatientAttendingPlanMapper;
+import com.afyaquik.utils.mappers.patients.PatientAttendingPlanMapper;
 import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;

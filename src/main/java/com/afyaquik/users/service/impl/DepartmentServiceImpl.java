@@ -1,6 +1,6 @@
 package com.afyaquik.users.service.impl;
 
-import com.afyaquik.dtos.user.department.DepartmentDto;
+import com.afyaquik.users.dto.department.DepartmentDto;
 import com.afyaquik.users.entity.Department;
 import com.afyaquik.users.repository.DepartmentRepository;
 import com.afyaquik.users.service.DepartmentService;

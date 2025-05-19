@@ -4,7 +4,7 @@ package com.afyaquik.appointments.mappers;
 import com.afyaquik.appointments.entity.Appointment;
 import com.afyaquik.appointments.enums.AppointmentStatus;
 import com.afyaquik.utils.mappers.EntityMapper;
-import com.afyaquik.dtos.appointments.AppointmentDto;
+import com.afyaquik.appointments.dto.AppointmentDto;
 import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper extends EntityMapper<Appointment, AppointmentDto> {

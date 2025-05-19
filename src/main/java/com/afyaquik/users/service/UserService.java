@@ -1,8 +1,8 @@
 package com.afyaquik.users.service;
 
 
-import com.afyaquik.dtos.user.UserDto;
-import com.afyaquik.dtos.user.UserResponse;
+import com.afyaquik.users.dto.UserDto;
+import com.afyaquik.users.dto.UserResponse;
 import com.afyaquik.users.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

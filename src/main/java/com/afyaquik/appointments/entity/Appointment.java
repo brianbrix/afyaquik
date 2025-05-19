@@ -1,7 +1,7 @@
 package com.afyaquik.appointments.entity;
 
 import com.afyaquik.appointments.enums.AppointmentStatus;
-import com.afyaquik.dtos.SuperEntity;
+import com.afyaquik.utils.SuperEntity;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.users.entity.User;
 import jakarta.persistence.*;

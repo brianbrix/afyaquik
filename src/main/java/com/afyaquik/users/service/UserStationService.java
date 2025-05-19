@@ -1,7 +1,7 @@
 package com.afyaquik.users.service;
 
-import com.afyaquik.dtos.user.StationDto;
-import com.afyaquik.dtos.user.UserDto;
+import com.afyaquik.users.dto.StationDto;
+import com.afyaquik.users.dto.UserDto;
 
 import java.util.Set;
 

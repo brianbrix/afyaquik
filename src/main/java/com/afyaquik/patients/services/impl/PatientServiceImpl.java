@@ -1,15 +1,15 @@
 package com.afyaquik.patients.services.impl;
 
-import com.afyaquik.dtos.patient.PatientAttendingPlanDto;
-import com.afyaquik.dtos.patient.PatientDto;
-import com.afyaquik.dtos.patient.PatientVisitDto;
-import com.afyaquik.dtos.search.ListFetchDto;
+import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientDto;
+import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientAttendingPlan;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
-import com.afyaquik.patients.mappers.PatientVisitMapper;
+import com.afyaquik.utils.mappers.patients.PatientVisitMapper;
 import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;
@@ -51,7 +51,7 @@ public class PatientServiceImpl implements PatientService {
                 .build();
         if (patient.getContactInfo() != null)
         {
-            patientDto.setContactInfo(com.afyaquik.dtos.user.ContactInfo.builder()
+            patientDto.setContactInfo(com.afyaquik.users.dto.ContactInfo.builder()
                 .phone(patient.getContactInfo().getPhoneNumber())
                 .phone2(patient.getContactInfo().getPhoneNumber2())
                 .email(patient.getContactInfo().getEmail())

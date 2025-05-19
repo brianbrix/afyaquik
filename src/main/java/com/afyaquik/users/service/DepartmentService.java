@@ -1,6 +1,6 @@
 package com.afyaquik.users.service;
 
-import com.afyaquik.dtos.user.department.DepartmentDto;
+import com.afyaquik.users.dto.department.DepartmentDto;
 
 public interface DepartmentService {
     DepartmentDto  createDepartment(DepartmentDto departmentDto);

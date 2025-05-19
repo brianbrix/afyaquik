@@ -1,8 +1,8 @@
 package com.afyaquik.web.api.users;
 
 
-import com.afyaquik.dtos.user.UserDto;
-import com.afyaquik.dtos.user.UserResponse;
+import com.afyaquik.users.dto.UserDto;
+import com.afyaquik.users.dto.UserResponse;
 import com.afyaquik.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

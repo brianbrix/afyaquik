@@ -1,7 +1,7 @@
 package com.afyaquik.users.service;
 
-import com.afyaquik.dtos.user.RoleRequest;
-import com.afyaquik.dtos.user.RoleResponse;
+import com.afyaquik.users.dto.RoleRequest;
+import com.afyaquik.users.dto.RoleResponse;
 
 import java.util.List;
 

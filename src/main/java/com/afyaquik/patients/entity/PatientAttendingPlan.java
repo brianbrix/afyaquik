@@ -1,6 +1,6 @@
 package com.afyaquik.patients.entity;
 
-import com.afyaquik.dtos.SuperEntity;
+import com.afyaquik.utils.SuperEntity;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
 import jakarta.persistence.*;

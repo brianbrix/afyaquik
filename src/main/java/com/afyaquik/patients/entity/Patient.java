@@ -1,6 +1,6 @@
 package com.afyaquik.patients.entity;
 
-import com.afyaquik.dtos.SuperEntity;
+import com.afyaquik.utils.SuperEntity;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
 import com.afyaquik.users.entity.ContactInfo;

@@ -1,7 +1,7 @@
 package com.afyaquik.users.service.impl;
 
-import com.afyaquik.dtos.user.RoleRequest;
-import com.afyaquik.dtos.user.RoleResponse;
+import com.afyaquik.users.dto.RoleRequest;
+import com.afyaquik.users.dto.RoleResponse;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.repository.RolesRepository;
 import com.afyaquik.users.service.UserRoleService;

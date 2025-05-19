@@ -1,6 +1,6 @@
 package com.afyaquik.users.entity;
 
-import com.afyaquik.dtos.SuperEntity;
+import com.afyaquik.utils.SuperEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
