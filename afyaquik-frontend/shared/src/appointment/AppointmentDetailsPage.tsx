@@ -1,14 +1,12 @@
-import {useParams} from "react-router-dom";
-import {DetailsPage} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React from "react";
-import ReceptionAppointmentList from "../appointment/ReceptionAppointmentList";
-
-const AppointmentDetailsPage = () => {
-    let  params = useParams();
-    const id = Number(params.id);
-    console.log("Patient ID", id)
-    const endpoint = `/appointments/${id}`;
+import {DetailsPage} from "../index";
+interface AppointmentDetailsPageProps
+{
+    appointmentId: number;
+}
+const AppointmentDetailsPage: React.FC<AppointmentDetailsPageProps>= ({appointmentId}) => {
+    const endpoint = `/appointments/${appointmentId}`;
     const back = function (){
         return (  <Button
             variant="outline-primary"
@@ -19,8 +17,18 @@ const AppointmentDetailsPage = () => {
         </Button>)
     }
 
+    const editButton = function (){
+        return (  <Button
+            variant="outline-warning"
+            className="btn btn-secondary mb-4"
+            onClick={() => window.location.href = `index.html#/appointments/${appointmentId}/edit`}
+        >
+            <i className="bi bi-pencil-fill me-1"></i> Edit Appointment
+        </Button>)
+    }
+
     const fields=[
-        { label: "Date scheduled", accessor: "appointmentDateTime" },
+        { label: "Date scheduled", accessor: "appointmentDateTime", type:'datetime' },
         { label: "Status", accessor: "status" },
         { label: "Reason", accessor: "reason" },
         { label: "First Name", accessor: "patient.firstName" },
@@ -35,7 +43,7 @@ const AppointmentDetailsPage = () => {
 
     return (
         <DetailsPage title={"Appointment Details"} endpoint={endpoint} fields={fields} topComponents={topComponents}
-
+        otherComponentsToRender={[editButton()]}
         />
     )
 }

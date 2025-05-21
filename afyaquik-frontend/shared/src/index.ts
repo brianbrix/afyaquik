@@ -10,6 +10,7 @@ export { ToastProvider, useToast } from './ToastContext';
 export {default as apiRequest } from  './api';
 export {default as PatientList} from './patient/PatientList'
 export {default as AppointmentList} from './appointment/AppointmentList'
+export {default as AppointmentDetailsPage} from './appointment/AppointmentDetailsPage'
 export {default as PatientVisitForm} from './patient/PatientVisitForm'
 export {patientName } from './patient/PatientVisitForm'
 export {default as PatientVisitList} from './patient/PatientVisitList'

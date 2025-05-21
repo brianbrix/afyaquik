@@ -11,7 +11,7 @@ const columns = [
     { header: '#', accessor: 'id' },
     { header: 'First Name', accessor: 'firstName' },
     { header: 'Last Name', accessor: 'lastName' },
-    { header: 'When created', accessor: 'createdAt' },
+    { header: 'When created', accessor: 'createdAt' , type:'datetime'},
     { header: 'Phone', accessor: 'contactInfo.phone' }
 ];
 

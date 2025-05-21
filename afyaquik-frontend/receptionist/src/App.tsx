@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {AppointmentList, AuthGuard, Header, ToastProvider,} from "@afyaquik/shared";
+import {AppointmentDetailsPage, AppointmentList, AuthGuard, Header, ToastProvider,} from "@afyaquik/shared";
 import {HashRouter, Route, Routes} from "react-router-dom";
 
 import HomePage from "./HomePage";
@@ -14,7 +14,7 @@ import PatientVisitDetailsPage from "./patient/PatientVisitDetailsPage";
 import ReceptionPatientAssignForm from "./patient/ReceptionPatientAssignForm";
 import AppointmentCreateForm from "./appointment/AppointmentCreateForm";
 import AppointmentEditForm from "./appointment/AppointmentEditForm";
-import AppointmentDetailsPage from "./appointment/AppointmentDetailsPage";
+import ReceptionAppointmentDetailsPage from "./appointment/ReceptionAppointmentDetailsPage";
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
 
           <Route path="/patients/:id/appointments/add" element={<AppointmentCreateForm />} />
           <Route path="/appointments/:id/edit" element={<AppointmentEditForm />} />
-          <Route path="/appointments/:id/details" element={<AppointmentDetailsPage />} />
+          <Route path="/appointments/:id/details" element={<ReceptionAppointmentDetailsPage />} />
         </Routes>
         </div>
       </AuthGuard>

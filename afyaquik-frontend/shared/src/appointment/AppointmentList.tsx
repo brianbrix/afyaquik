@@ -9,7 +9,7 @@ const columns = [
     { header: 'First Name', accessor: 'patient.firstName' },
     { header: 'Last Name', accessor: 'patient.lastName' },
     { header: 'Doctor Name', accessor: 'doctor.username' },
-    { header: 'Date scheduled', accessor: 'appointmentDateTime' },
+    { header: 'Date scheduled', accessor: 'appointmentDateTime' , type:'datetime' },
     { header: 'Status', accessor: 'status' }
 ];
 interface AppointmentListProps{

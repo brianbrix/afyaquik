@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiRequest from './api';
 import {Card, Col, Row, Spinner} from 'react-bootstrap';
+import formatDate from "./dateFormatter";
 
 interface DetailsPageProps {
     fields: { label: string; accessor: string; type?: string}[];
@@ -53,7 +54,6 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,otherC
                     <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
                         {fields.map(({ label, accessor, type }) => {
                             const value = resolveValue(record, accessor);
-                            const isWysiwyg = type === 'wysiwyg';
 
                             return (
                                 <div key={accessor} className="col">
@@ -61,11 +61,11 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,otherC
                                         <div className="text-truncate" title={label}>
                                             <strong>{label}:</strong>
                                         </div>
-                                        {isWysiwyg ? (
+                                        { type === 'wysiwyg' ? (
                                             <div dangerouslySetInnerHTML={{ __html: value || '' }} />
                                         ) : (
                                             <div className="text-truncate" title={value}>
-                                                {value}
+                                                {type === 'date' || type === 'datetime' ? formatDate(value) : value}
                                             </div>
                                         )}
                                     </div>

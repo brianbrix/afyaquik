@@ -27,13 +27,13 @@ const PatientVisitDetailsPage = () => {
     let  params = useParams();
     const id = Number(params.id);
     console.log("Visit ID", id)
-    const endpoint = `/patients/visits/${id}`;
+    const endpoint = `/patient/visits/${id}`;
     const fields=[
         { label: "Patient Name", accessor: "patientName" },
         { label: "Visit Type", accessor: "visitType" },
-        {label: "Visit Date", accessor: "visitDate"},
+        {label: "Visit Date", accessor: "visitDate", type:'datetime'},
         {label: "Reason for Visit", accessor: "summaryReasonForVisit", type:'wysiwyg'},
-        {label: "Next Visit Date", accessor: "nextVisitDate"}
+        {label: "Next Visit Date", accessor: "nextVisitDate" , type:'datetime'}
     ]
 
     return (

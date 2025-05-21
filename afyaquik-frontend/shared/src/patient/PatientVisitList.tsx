@@ -10,7 +10,7 @@ interface PatientVisitListProps {
 const columns = [
     { header: '#', accessor: 'id' },
     { header: 'Visit Type', accessor: 'visitType' },
-    { header: 'Date of Visit', accessor: 'visitDate' }
+    { header: 'Date of Visit', accessor: 'visitDate', type:'datetime' }
 ];
 
 
@@ -56,6 +56,7 @@ const PatientVisitList: React.FC<PatientVisitListProps> = ({patientId}) => {
             data={patientVisits}
             editView={"index.html#/patients/visits/#id/edit"}
             addView={`index.html#/patients/${patientId}/visits/add`}
+            detailsView={"index.html#/patients/visits/#id/details"}
             searchFields={searchFields}
             // searchEntity={'visits'}
             requestMethod={'GET'}

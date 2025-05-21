@@ -24,7 +24,7 @@ const PatientDetailsPage = () => {
         { label: "First Name", accessor: "firstName" },
         { label: "Last Name", accessor: "lastName" },
         {label: "Gender", accessor: "gender"},
-        {label: "Date of Birth", accessor: "dateOfBirth"},
+        {label: "Date of Birth", accessor: "dateOfBirth", type:'datetime'},
         {label: "National Id", accessor: "nationalId"},
         {label: "Marital Status", accessor: "maritalStatus"},
         {label: "Email", accessor: "contactInfo.email"},

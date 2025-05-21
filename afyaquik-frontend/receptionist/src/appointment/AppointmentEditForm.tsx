@@ -28,6 +28,7 @@ const AppointmentEditForm = () => {
                 const mappedData={
                     id: data.id,
                     reason: data.reason,
+                    status: data.status,
                     appointmentDateTime: data.appointmentDateTime,
                     doctorId: data.doctor.id,
                     patientId: data.patient.id,
@@ -76,6 +77,7 @@ const AppointmentEditForm = () => {
                     name: "doctorId",
                     label: "Doctor",
                     type: "select",
+                    disabled: true,
                     options: doctors, colSpan:6 ,
                     onChange: (val: number) => {
                         setSelectedDoctor(val);
@@ -92,7 +94,7 @@ const AppointmentEditForm = () => {
             config={formConfig}
             onSubmit={(data,) => {
                 console.log('Submitted data:', data);
-                apiRequest(`/appointments`, { method:'POST' , body: data}, showToast)
+                apiRequest(`/appointments`, { method:'PUT' , body: data}, showToast)
                     .then(response => {
                         console.log(response)
                         window.location.href = `index.html#/patients/${response.id}/details`;
@@ -100,7 +102,7 @@ const AppointmentEditForm = () => {
                     .catch(err => console.error(err));
             }}
             defaultValues={defaultValues}
-            submitButtonLabel={'Create appointment'}
+            submitButtonLabel={'Update appointment'}
         />);
 }
 export default AppointmentEditForm;

@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
 import Papa from 'papaparse';
 import apiRequest from "./api";
-import {FieldConfig} from "./StepConfig";
+import {FieldConfig, FieldType} from "./StepConfig";
 import {SearchBar} from "./index";
+import formatDate from "./dateFormatter";
 
 interface DataTableProps<T> {
     title: string;
-    columns: { header: string; accessor: string, sortable?: boolean }[];
+    columns: { header: string; accessor: string, sortable?: boolean, type?:string }[];
     data?: T[];
     editView?: string;
     addView?: string;
@@ -147,7 +148,7 @@ function DataTable<T extends { id: number }>({
         const csvData = (data).map(record => {
             const row: any = {};
             columns.forEach(col => {
-                row[col.header] = record[col.accessor as keyof T];
+                row[col.header] = resolveValue(record, col.accessor);
             });
             return row;
         });
@@ -225,11 +226,17 @@ function DataTable<T extends { id: number }>({
                 ) : (
                     data.map(record => (
                         <tr key={record.id}>
-                            {columns.map(col => (
-                                <td key={`${record.id}-${col.accessor}`}>
-                                    {resolveValue(record, col.accessor)}
-                                </td>
-                            ))}
+                            {columns.map(col => {
+                                const value = resolveValue(record, col.accessor);
+                                const isDate = col.type === 'date' || col.type === 'datetime';
+                                const display = isDate ? formatDate(value) : value;
+
+                                return (
+                                    <td key={`${record.id}-${col.accessor}`}>
+                                        {display}
+                                    </td>
+                                );
+                            })}
                             {(editView || detailsView) && (
                                 <td>
                                     {detailsView && (
