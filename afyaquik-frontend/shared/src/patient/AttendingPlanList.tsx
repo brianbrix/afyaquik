@@ -32,13 +32,13 @@ const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId}) => {
             title="Attending Plan"
             columns={columns}
             data={plans}
-            addView={`index.html#/patient/visits/${visitId}/assign`}
-            detailsView={"index.html#/patient/#id/details"}
+            addView={`index.html#/patients/visits/${visitId}/assign`}
+            detailsView={"index.html#/patients/#id/details"}
             isSearchable={false}
             // searchFields={searchFields}
             // searchEntity={'patients'}
             requestMethod={'GET'}
-            dataEndpoint={`/patient/visits/${visitId}/plan`}
+            dataEndpoint={`/patients/visits/${visitId}/plan`}
         />);
 }
 export default AttendingPlanList;

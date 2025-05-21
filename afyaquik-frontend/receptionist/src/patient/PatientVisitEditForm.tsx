@@ -27,7 +27,7 @@ const components = function (visitId:any){
         <div className="d-flex justify-content-between">
             <Button
                 variant="outline-info"
-                onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/details`}
+                onClick={() => window.location.href = `index.html#/patients/visits/${visitId}/details`}
             >
                 Got to Visit Details
             </Button>
@@ -65,7 +65,7 @@ const PatientVisitEditForm = () => {
                           apiRequest(`/patient/visits/update`, { method:'PUT' , body: data})
                               .then(response => {
                                   console.log(response)
-                                  window.location.href = `index.html#/patient/visits/${response.id}/details`;
+                                  window.location.href = `index.html#/patients/visits/${response.id}/details`;
                               })
                               .catch(err => console.error(err));
                       }}

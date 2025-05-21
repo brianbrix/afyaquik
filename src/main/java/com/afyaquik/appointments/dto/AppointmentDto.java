@@ -1,5 +1,7 @@
 package com.afyaquik.appointments.dto;
 
+import com.afyaquik.patients.dto.PatientDto;
+import com.afyaquik.users.dto.UserDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +20,6 @@ public class AppointmentDto {
     private Long patientId;
     @NotNull(message = "Doctor ID is required")
     private Long doctorId;
+    private PatientDto patient;
+    private UserDto doctor;
 }

@@ -15,8 +15,6 @@ public interface UserService {
     UserResponse createUser(UserDto request);
     List<UserResponse> getAllUsers(List<Long> ids);
     User findByUsername(String username);
-    HttpHeaders login(String username, String password);
-    void logout(HttpServletRequest request, HttpServletResponse response);
     UserResponse fetchByUsername(String username);
     UserResponse fetchById(Long userId);
     UserResponse updateUserDetails(Long userId, UserDto request);
@@ -33,5 +31,5 @@ public interface UserService {
             Integer size
     );
     List<UserResponse> getUsersByRoles(List<Long> roleIds);
-    String getCurrentUsername();
+
 }

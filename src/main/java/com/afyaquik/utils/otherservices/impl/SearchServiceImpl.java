@@ -16,10 +16,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -53,7 +56,7 @@ public class SearchServiceImpl implements SearchService {
             Root<?> root = query.from(entityClass);
             query.select(root);
 
-            List<Predicate> predicates = buildPredicates(searchDto, cb, root);
+            List<Predicate> predicates = buildPredicates(searchDto, cb, root, entityClass);
             if (!predicates.isEmpty()) {
                 query.where(cb.or(predicates.toArray(new Predicate[0])));
             }
@@ -78,7 +81,7 @@ public class SearchServiceImpl implements SearchService {
             CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
             Root<?> countRoot = countQuery.from(entityClass);
             countQuery.select(cb.count(countRoot));
-            List<Predicate> countPredicates = buildPredicates(searchDto, cb, countRoot);
+            List<Predicate> countPredicates = buildPredicates(searchDto, cb, countRoot, entityClass);
 
             if (!countPredicates.isEmpty()) {
                 countQuery.where(cb.or(countPredicates.toArray(new Predicate[0])));
@@ -101,7 +104,39 @@ public class SearchServiceImpl implements SearchService {
         }
         return mapper.toDto(entity);
     }
-    private List<Predicate> buildPredicates(SearchDto dto, CriteriaBuilder cb, Root<?> root) {
+
+    private Path<?> resolveJoinPath(Root<?> root, String fieldPath, Class<?> entityClass) {
+        String[] parts = fieldPath.split("\\.");
+        From<?, ?> current = root;
+        Class<?> currentClass = entityClass;
+
+        for (int i = 0; i < parts.length - 1; i++) {
+            String part = parts[i];
+            Field field;
+
+            try {
+                field = currentClass.getDeclaredField(part);
+            } catch (NoSuchFieldException e) {
+                throw new IllegalArgumentException("Field not found: " + part);
+            }
+
+            boolean isCollection = Collection.class.isAssignableFrom(field.getType());
+
+            // This works because JPA will use SetJoin internally
+            current = ((From<?, ?>) current).join(part, JoinType.LEFT);
+
+            // Handle generic type of collection
+            if (isCollection) {
+                ParameterizedType pt = (ParameterizedType) field.getGenericType();
+                currentClass = (Class<?>) pt.getActualTypeArguments()[0];
+            } else {
+                currentClass = field.getType();
+            }
+        }
+
+        return current.get(parts[parts.length - 1]);
+    }
+    private List<Predicate> buildPredicates(SearchDto dto, CriteriaBuilder cb, Root<?> root, Class<?> entityClass) {
         List<Predicate> predicates = new ArrayList<>();
 
         if (dto.getQuery() == null || dto.getQuery().isEmpty()) return predicates;
@@ -111,7 +146,7 @@ public class SearchServiceImpl implements SearchService {
 
         for (String field : dto.getSearchFields()) {
             try {
-                Path<?> path = resolvePath(root, field);
+                Path<?> path = resolveJoinPath(root, field, entityClass);
                 Class<?> type = path.getJavaType();
 
                 if (type.equals(String.class)) {

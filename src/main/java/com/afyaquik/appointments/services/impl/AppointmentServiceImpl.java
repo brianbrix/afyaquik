@@ -19,6 +19,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
@@ -36,6 +39,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         if (appointmentRepo.existsByPatientAndAppointmentDateTime(patient, appointmentDto.getAppointmentDateTime())) {
             throw new EntityExistsException("Appointment already exists at that time for this patient.");
+        }
+        if (appointmentRepo.existsByDoctorAndAppointmentDateTimeAndStatusIn(doctor, appointmentDto.getAppointmentDateTime(), Set.of(AppointmentStatus.PENDING))) {
+            throw new EntityExistsException("This doctor has a pending appointment for that time.");
         }
 
         Appointment appointment = Appointment.builder()
@@ -84,5 +90,11 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Appointment updatedAppointment = appointmentRepo.save(appointment);
         return appointmentMapper.toDto(updatedAppointment);
+    }
+
+    @Override
+    public AppointmentDto getAppointmentDetails(Long appointmentId) {
+       return appointmentMapper.toDto(appointmentRepo.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found")));
     }
 }

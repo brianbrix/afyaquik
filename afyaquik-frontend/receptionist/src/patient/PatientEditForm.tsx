@@ -1,7 +1,8 @@
 import {apiRequest, StepConfig, StepForm} from "@afyaquik/shared";
 import {useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {backtoList} from "./PatientRegisterForm";
+import {Form} from "react-bootstrap";
 
 
 const formConfig: StepConfig[] = [
@@ -42,6 +43,8 @@ const formConfig: StepConfig[] = [
 
 
 const PatientEditForm = () => {
+    const [goToAppointment, setGoToAppointment] = useState(false);
+
     let  params = useParams();
     const id = params.id;
     console.log('id', id)
@@ -58,15 +61,27 @@ const PatientEditForm = () => {
         <StepForm
             config={formConfig}
             onSubmit={(data) => {
-                apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
-                    .then(response => {
-                        window.location.href = `index.html#/patient/${response.id}/details`;
-
-                    })
-                    .catch(err => console.error(err));
+               return apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
+            }}
+            getRedirectUrl={(data:any) => {
+                if (goToAppointment && data?.id) {
+                    return `index.html#/patients/${data.id}/appointments/add`;
+                } else if (data?.id) {
+                    return `index.html#/patients/${data.id}/details`;
+                }
+                return undefined;
             }}
             defaultValues={defaultValues}
             submitButtonLabel={'Update Patient'}
+            bottomComponents={[
+                <Form.Check
+                    key="checkbox"
+                    type="checkbox"
+                    label="Go to appointment after update"
+                    checked={goToAppointment}
+                    onChange={(e) => setGoToAppointment(e.target.checked)}
+                />
+            ]}
         />);
 }
 export default PatientEditForm;

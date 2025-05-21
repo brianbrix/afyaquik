@@ -9,5 +9,6 @@ public interface AppointmentService {
     ListFetchDto<AppointmentDto> getDoctorAppointments(Long doctorId, Pageable pageable);
     ListFetchDto<AppointmentDto> getPatientAppointments(Long patientId, Pageable pageable);
     AppointmentDto updateAppointment(Long appointmentId, AppointmentDto dto);
+    AppointmentDto getAppointmentDetails(Long appointmentId);
 
     }

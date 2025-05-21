@@ -1,6 +1,7 @@
 package com.afyaquik.web.exception;
 
 import com.afyaquik.utils.exceptions.DuplicateValueException;
+import com.afyaquik.utils.exceptions.LoginException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
@@ -50,6 +51,16 @@ public class GlobalExceptionHandler {
         );
         log.warn("Access denied: {}", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(LoginException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(LoginException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage()
+        );
+        log.warn("Login error: {}", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

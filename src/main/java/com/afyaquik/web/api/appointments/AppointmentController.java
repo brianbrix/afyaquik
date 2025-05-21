@@ -29,4 +29,12 @@ public class AppointmentController {
     public ResponseEntity<ListFetchDto<AppointmentDto>> getByPatient(@PathVariable Long patientId, Pageable pageable) {
         return ResponseEntity.ok(service.getPatientAppointments(patientId, pageable));
     }
+    @PutMapping("/{appointmentId}")
+    public ResponseEntity<AppointmentDto> update(@PathVariable Long appointmentId, @RequestBody AppointmentDto dto) {
+        return ResponseEntity.ok(service.updateAppointment(appointmentId, dto));
+    }
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<AppointmentDto> getAppointmentDetails(@PathVariable Long appointmentId) {
+        return ResponseEntity.ok(service.getAppointmentDetails(appointmentId));
+    }
 }

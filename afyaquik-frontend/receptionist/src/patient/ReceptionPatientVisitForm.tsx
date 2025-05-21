@@ -8,7 +8,7 @@ const components = function (patientId:any){
         <div className="d-flex justify-content-between">
             <Button
                 variant="outline-info"
-                onClick={() => window.location.href = `index.html#/patient/${patientId}/details`}
+                onClick={() => window.location.href = `index.html#/patients/${patientId}/details`}
             >
                 Got to Patient Details
             </Button>
@@ -53,7 +53,7 @@ return (
                       apiRequest(`/patients/${id}/visits/create`, { method:'POST' , body: data})
                           .then(response => {
                               console.log(response)
-                              window.location.href = `index.html#/patient/visits/${response.id}/assign`;
+                              window.location.href = `index.html#/patients/visits/${response.id}/assign`;
                           })
                           .catch(err => console.error(err));
                   }}

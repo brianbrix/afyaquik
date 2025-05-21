@@ -11,10 +11,12 @@ interface StepFormProps {
     defaultValues?: any;
     idFromParent?: number;
     submitButtonLabel?: string;
+    bottomComponents?: React.ReactNode[];
+    getRedirectUrl?: (data: any) => string | undefined;
 
 }
 
-const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel }) => {
+const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents,getRedirectUrl }) => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({ defaultValues });
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
@@ -73,7 +75,32 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                         else if (field.type === 'wysiwyg')
                         {
                             return <DraftEditor disabled={field.disabled} hidden={field.hidden} value={controllerField.value || ''} onChange={controllerField.onChange} />
-                        } else {
+                        }
+                        else if (field.type === 'datetime') {
+                            // Handle datetime-local input
+                            const handleDateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                                const value = e.target.value;
+                                controllerField.onChange(value);
+                                field.onChange?.(value);
+                            };
+
+                            // Convert value to datetime-local format if it exists
+                            const value = controllerField.value
+                                ? new Date(controllerField.value).toISOString().slice(0, 16)
+                                : '';
+
+                            return (
+                                <input
+                                    hidden={field.hidden}
+                                    disabled={field.disabled}
+                                    type="datetime-local"
+                                    value={value}
+                                    onChange={handleDateTimeChange}
+                                    className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
+                                />
+                            );
+                        }
+                        else {
                             return (
                                 <input hidden={field.hidden} disabled={field.disabled}
                                        {...controllerField}
@@ -110,6 +137,10 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
 
             if (isLastStep) {
                 onSubmit(stepData);
+                const redirectUrl = getRedirectUrl?.(stepData);
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                }
             } else {
                 nextStep();
             }
@@ -146,6 +177,15 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                 </div>
                             ))}
                         </div>
+                        {bottomComponents && bottomComponents.length > 0 && (
+                            <Row className="mt-4 g-3">
+                                {bottomComponents.map((component, idx) => (
+                                    <Col key={`bottom-${idx}`} md={12}>
+                                        {component}
+                                    </Col>
+                                ))}
+                            </Row>
+                        )}
 
                         <div className="d-flex justify-content-between mt-4">
                             <div>
@@ -177,6 +217,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                             </div>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>

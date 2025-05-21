@@ -1,6 +1,6 @@
 import {apiRequest, StepConfig, StepForm} from "@afyaquik/shared";
-import {Button} from "react-bootstrap";
-import React from "react";
+import {Button, Form} from "react-bootstrap";
+import React, {useState} from "react";
 
 export const backtoList = function (){
     return (  <Button
@@ -46,6 +46,7 @@ const formConfig: StepConfig[] = [
     }
 ];
 const PatientRegisterForm = () => {
+    const [goToAppointment, setGoToAppointment] = useState(false);
 
     return (
 
@@ -53,16 +54,27 @@ const PatientRegisterForm = () => {
             config={formConfig}
             onSubmit={(data,) => {
                 console.log('Submitted data:', data);
-                apiRequest(`/patients`, { method:'POST' , body: data})
-                    .then(response => {
-                        console.log(response)
-                        window.location.href = `index.html#/patient/${response.id}/details`;
-
-                    })
-                    .catch(err => console.error(err));
+                return apiRequest(`/patients`, { method:'POST' , body: data})
+            }}
+            getRedirectUrl={(data:any) => {
+                if (goToAppointment && data?.id) {
+                    return `index.html#/patients/${data.id}/appointments/add`;
+                } else if (data?.id) {
+                    return `index.html#/patients/${data.id}/details`;
+                }
+                return undefined;
             }}
             defaultValues={{}}
             submitButtonLabel={'Register Patient'}
+            bottomComponents={[
+                <Form.Check
+                    key="checkbox"
+                    type="checkbox"
+                    label="Go to appointment after registration"
+                    checked={goToAppointment}
+                    onChange={(e) => setGoToAppointment(e.target.checked)}
+                />
+            ]}
         />);
 }
 export default PatientRegisterForm;

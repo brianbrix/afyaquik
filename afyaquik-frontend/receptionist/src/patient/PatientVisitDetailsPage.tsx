@@ -10,7 +10,7 @@ const components = function (visitId:any){
         <div className="d-flex justify-content-between">
             <Button
                 variant="outline-info"
-                onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/details`}
+                onClick={() => window.location.href = `index.html#/patients/visits/${visitId}/details`}
             >
                 Got to Visits
             </Button>
@@ -27,7 +27,7 @@ const PatientVisitDetailsPage = () => {
     let  params = useParams();
     const id = Number(params.id);
     console.log("Visit ID", id)
-    const endpoint = `/patient/visits/${id}`;
+    const endpoint = `/patients/visits/${id}`;
     const fields=[
         { label: "Patient Name", accessor: "patientName" },
         { label: "Visit Type", accessor: "visitType" },
@@ -38,7 +38,7 @@ const PatientVisitDetailsPage = () => {
 
     return (
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
-                     listRender={<ReceptionAttendingPlanList/>}
+                     otherComponentsToRender={[<ReceptionAttendingPlanList/>]}
         />
     )
 }

@@ -3,6 +3,7 @@ package com.afyaquik.patients.services.impl;
 import com.afyaquik.patients.dto.PatientAttendingPlanDto;
 import com.afyaquik.patients.dto.PatientDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.users.service.SecurityService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientAttendingPlan;
@@ -23,6 +24,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class PatientServiceImpl implements PatientService {
     private final StationRepository stationRepository;
     private final PatientAttendingPlanRepo  patientAttendingPlanRepo;
     private final UserService userService;
+    private final SecurityService securityService;
     private final PatientVisitMapper patientVisitMapper;
 
     private static PatientDto buildPatientDto(Patient patient) {
@@ -44,6 +47,7 @@ public class PatientServiceImpl implements PatientService {
                 .firstName(patient.getFirstName())
                 .secondName(patient.getSecondName())
                 .lastName(patient.getLastName())
+                .createdAt(patient.getCreatedAt())
                 .gender(patient.getGender()!=null?patient.getGender().name():null)
                 .dateOfBirth(patient.getDateOfBirth())
                 .nationalId(patient.getNationalId())
@@ -62,6 +66,7 @@ public class PatientServiceImpl implements PatientService {
     }
     @Transactional
     @Override
+    @CacheEvict(value = "searchResults", allEntries = true)
     public PatientDto createPatient(PatientDto dto) {
         Patient patient = new Patient();
 
@@ -99,6 +104,7 @@ public class PatientServiceImpl implements PatientService {
     }
     @Transactional
     @Override
+    @CacheEvict(value = "searchResults", allEntries = true)
     public PatientDto updatePatient(PatientDto patientDto) {
         Patient patient = patientRepository.findById(patientDto.getId()).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
         patient.setFirstName(patientDto.getFirstName());
@@ -157,7 +163,7 @@ public class PatientServiceImpl implements PatientService {
     PatientAttendingPlan  patientAttendingPlan = PatientAttendingPlan.builder()
             .patientVisit(patientVisit)
             .build();
-        String userName = userService.getCurrentUsername();
+        String userName = securityService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
         patientAttendingPlan.setAttendingOfficer(attendingOfficer);
         Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).
@@ -196,7 +202,7 @@ public class PatientServiceImpl implements PatientService {
             .orElseThrow(() -> new EntityNotFoundException("Patient attending plan not found"));
         patientAttendingPlan.setPatientVisit(patientAttendingPlan.getPatientVisit());
 
-        String userName = userService.getCurrentUsername();
+        String userName = securityService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
         patientAttendingPlan.setAttendingOfficer(attendingOfficer);
         Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).orElseThrow(()-> new EntityNotFoundException("Station not found"));

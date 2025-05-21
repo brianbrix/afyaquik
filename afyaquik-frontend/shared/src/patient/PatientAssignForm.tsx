@@ -28,7 +28,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
         return (  <Button
             variant="outline-info"
             className="btn btn-success mb-4"
-            onClick={() => window.location.href = `index.html#/patient/visits/${visitId}/details`}
+            onClick={() => window.location.href = `index.html#/patients/visits/${visitId}/details`}
         >
             <i className="bi bi-arrow-left me-1"></i> Back to Summary
         </Button>)
@@ -85,10 +85,10 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log("Submitting data:", data);
-                apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data }, showToast)
+                apiRequest(`/patients/visits/plan/create`, { method: "POST", body: data }, showToast)
                     .then((response) => {
                         console.log(response)
-                        window.location.href = `index.html#/patient/visits/${visitId}/details`
+                        window.location.href = `index.html#/patients/visits/${visitId}/details`
                     })
                     .catch((err) => console.error(err));
             }}

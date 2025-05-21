@@ -15,6 +15,7 @@ import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.users.service.JwtProviderService;
 import com.afyaquik.users.service.UserService;
+import com.afyaquik.utils.exceptions.LoginException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TypedQuery;
@@ -26,6 +27,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +60,7 @@ public class UserServiceImpl implements UserService {
     private final JwtProviderService jwtProvider;
     private final AuthenticationManager authenticationManager;
     @Override
+    @CacheEvict(value = "searchResults", allEntries = true)
     public UserResponse createUser(UserDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateValueException("Username already exists");
@@ -99,6 +102,9 @@ public class UserServiceImpl implements UserService {
         }
         return authentication.getName();
     }
+
+
+
     public Authentication getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -161,62 +167,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + username));
     }
 
-    @Override
-    public HttpHeaders login(String username, String password) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User user = findByUsername(username);
-        String token = jwtProvider.generateToken(user.getUsername(),
-                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
-        ResponseCookie cookie = ResponseCookie.from("authToken", token)
-                .httpOnly(true)
-                .secure(false) // Use true in production (with HTTPS)
-                .path("/")
-                .maxAge(Duration.ofDays(1))
-                .sameSite("Strict")
-                .build();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-        return headers;
-    }
-
-    @Override
-    public void   logout(HttpServletRequest request, HttpServletResponse response) {
-        String token = null;
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("authToken".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        // (Optional) Audit or blacklist the token
-        if (token != null) {
-            RevokedToken revokedToken = new RevokedToken();
-            revokedToken.setToken(token);
-            revokedToken.setRevokedAt(Instant.now());
-            revokedTokenRepository.save(revokedToken);
-        }
-        else
-        {
-            throw new IllegalArgumentException("Token not found");
-        }
-
-        ResponseCookie cookie = ResponseCookie.from("authToken", "")
-                .httpOnly(true)
-                .secure(false) // use HTTPS in production
-                .path("/")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-    }
 
     @Override
     public UserResponse fetchByUsername(String username) {
@@ -254,6 +204,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "searchResults", allEntries = true)
     public UserResponse updateUserDetails(Long userId, UserDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));

@@ -6,11 +6,11 @@ interface DetailsPageProps {
     fields: { label: string; accessor: string; type?: string}[];
     endpoint: string;
     title?:string;
-    listRender?: React.ReactNode;
+    otherComponentsToRender?: React.ReactNode[];
     topComponents?: React.ReactNode[];
 }
 
-const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,listRender,topComponents }) => {
+const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,otherComponentsToRender,topComponents }) => {
     const [record, setRecord] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -44,6 +44,7 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,listRe
                     ))}
                 </Row>
             )}
+
             <Card className="shadow-sm">
                 <Card.Header className="bg-primary text-white">
                     <h5 className="mb-0">{title ? title : "Details"}</h5>
@@ -74,12 +75,18 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint,title,listRe
                     </div>
                 </Card.Body>
             </Card>
-            {listRender && (
-                <div className="mt-4">
-                    <h6 className="text-muted">Records</h6>
-                    {listRender}
+            {otherComponentsToRender && otherComponentsToRender.length > 0 &&(
+                <div>
+                    {otherComponentsToRender.map((component, idx) => (
+                        <div className="mt-4">
+                            {component}
+                        </div>
+                    ))}
                 </div>
+
             )}
+
+
         </div>
     );
 };

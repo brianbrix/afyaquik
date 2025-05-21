@@ -3,6 +3,7 @@ import {DetailsPage} from "@afyaquik/shared";
 import ReceptionPatientVisitList from "./ReceptionPatientVisitList";
 import {Button} from "react-bootstrap";
 import React from "react";
+import ReceptionPatientAppointmentList from "../appointment/ReceptionAppointmentList";
 
 const PatientDetailsPage = () => {
     let  params = useParams();
@@ -33,7 +34,7 @@ const PatientDetailsPage = () => {
 
     return (
         <DetailsPage title={"Patient Details"} endpoint={endpoint} fields={fields} topComponents={topComponents}
-        listRender={<ReceptionPatientVisitList/>}
+        otherComponentsToRender={[<ReceptionPatientVisitList/>,<ReceptionPatientAppointmentList/>]}
         />
     )
 }

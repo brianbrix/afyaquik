@@ -3,6 +3,8 @@ import { FieldConfig } from "../StepConfig";
 import apiRequest from "../api";
 import React from "react";
 import DataTable from "../DataTable";
+import {usePreviousLocation} from "../usePreviousLocation";
+import {useToast} from "../ToastContext";
 
 
 const columns = [
@@ -14,6 +16,8 @@ const columns = [
 ];
 
 const PatientList = () => {
+    const { showToast } = useToast()
+
     const [patients, setPatients] = useState([]);
     useEffect(() => {
         apiRequest("/patients/search", { method: 'POST', body: {} })
@@ -21,6 +25,7 @@ const PatientList = () => {
                 setPatients(data);
             })
             .catch(err => console.error(err));
+        showToast('Search for patients or add a new patient to create appointment or add visit', 'info');
     }, []);
     const searchFields:FieldConfig[] =[
         {
@@ -48,9 +53,9 @@ const PatientList = () => {
             title="Patient List"
             columns={columns}
             data={patients}
-            editView={"index.html#/patient/#id/edit"}
-            addView={"index.html#/patient/add"}
-            detailsView={"index.html#/patient/#id/details"}
+            editView={"index.html#/patients/#id/edit"}
+            addView={"index.html#/patients/add"}
+            detailsView={"index.html#/patients/#id/details"}
             searchFields={searchFields}
             searchEntity={'patients'}
             requestMethod={'POST'}

@@ -7,7 +7,6 @@ import React from "react";
 
 export default function App() {
   return (
-      <HashRouter>
           <ToastProvider>
           <AuthProvider>
               <Header />
@@ -16,9 +15,8 @@ export default function App() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
-      </AuthProvider>
+        </AuthProvider>
           </ToastProvider>
-      </HashRouter>
 
   );
 }

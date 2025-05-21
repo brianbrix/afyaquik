@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'email' | 'date' | 'number' | 'select' | 'checkbox' | 'wysiwyg';
+export type FieldType = 'text' | 'email' | 'date' | 'number' | 'select' | 'checkbox' | 'wysiwyg' | 'datetime';
 
 export interface FieldConfig {
     name: string;
