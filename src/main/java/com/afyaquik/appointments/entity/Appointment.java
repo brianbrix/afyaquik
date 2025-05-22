@@ -27,6 +27,10 @@ public class Appointment extends SuperEntity {
     @Column(length = 1000, columnDefinition = "TEXT")
     private String reason;
 
+    @Column(length = 5000, columnDefinition = "TEXT")
+    private String notes;
+
+
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 

@@ -112,11 +112,13 @@ function DataTable<T extends { id: number }>({
             setIsSearching(false);
         }
     };
+    if (dataEndpoint) {
+        useEffect(() => {
+            const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
+            fetchData(currentPage, pageSize, sortParam);
 
-    useEffect(() => {
-        const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
-        fetchData(currentPage, pageSize, sortParam);
-    }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields]);
+        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields]);
+    }
 
     const handleSort = (field: string) => {
         if (sortField === field) {

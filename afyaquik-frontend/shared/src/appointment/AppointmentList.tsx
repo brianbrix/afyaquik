@@ -15,9 +15,11 @@ const columns = [
 interface AppointmentListProps{
 
     patientId?:number;
+    data?:any;
+    title?:string;
 }
 
-const AppointmentList:  React.FC<AppointmentListProps> = ({patientId}) => {
+const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, title}) => {
     const [appointments, setAppointments] = useState([]);
 
     const searchFields:FieldConfig[] =[
@@ -41,9 +43,18 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId}) => {
     ]
 
     return (
+        data? (
+            <DataTable
+                title={title?title:"Appointments List"}
+                columns={columns}
+                data={data}
+                searchEntity={'appointments'}
+            />
+        ):
+            (
         patientId ? (
             <DataTable
-                title="Appointments List"
+                title={title?title:"Appointments List"}
                 columns={columns}
                 data={appointments}
                 editView={"index.html#/appointments/#id/edit"}
@@ -57,7 +68,7 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId}) => {
             />
         ) : (
             <DataTable
-                title="Appointments List"
+                title={title?title:"Appointments List"}
                 columns={columns}
                 data={appointments}
                 editView={"index.html#/appointments/#id/edit"}
@@ -69,7 +80,8 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId}) => {
                 isSearchable={true}
                 dataEndpoint={'/search'}
             />
-        )
+        ))
+
     );
 }
 export default AppointmentList;

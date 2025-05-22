@@ -61,15 +61,20 @@ const PatientEditForm = () => {
         <StepForm
             config={formConfig}
             onSubmit={(data) => {
-               return apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
-            }}
-            getRedirectUrl={(data:any) => {
-                if (goToAppointment && data?.id) {
-                    return `index.html#/patients/${data.id}/appointments/add`;
-                } else if (data?.id) {
-                    return `index.html#/patients/${data.id}/details`;
-                }
-                return undefined;
+                apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
+                   .then(response=>{
+                       if (goToAppointment && response?.id) {
+                           console.log('Go to app', goToAppointment)
+                           window.location.href= `index.html#/patients/${response.id}/appointments/add`;
+                       } else if (response?.id) {
+                           console.log('Go to details', goToAppointment)
+                           window.location.href= `index.html#/patients/${response.id}/details`;
+                       }
+                   })
+                   .catch(error=>{
+                       console.error('Error:', error);
+                       throw error;
+                   })
             }}
             defaultValues={defaultValues}
             submitButtonLabel={'Update Patient'}

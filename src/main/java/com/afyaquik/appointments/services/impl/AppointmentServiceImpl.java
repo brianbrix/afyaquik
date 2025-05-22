@@ -76,6 +76,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDto updateAppointment(Long appointmentId, AppointmentDto dto) {
         Appointment appointment = appointmentRepo.findById(appointmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+        if (!dto.getAppointmentDateTime().equals(appointment.getAppointmentDateTime())) {
+            if (appointmentRepo.existsByDoctorAndAppointmentDateTimeAndStatusIn(appointment.getDoctor(), dto.getAppointmentDateTime(), Set.of(AppointmentStatus.PENDING))) {
+                throw new EntityExistsException("This doctor has a pending appointment for that time.");
+            }
+        }
 
         if (dto.getReason() != null) {
             appointment.setReason(dto.getReason());

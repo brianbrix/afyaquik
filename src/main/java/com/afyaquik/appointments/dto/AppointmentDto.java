@@ -15,6 +15,7 @@ public class AppointmentDto {
     @NotNull(message = "Appointment date and time is required")
     private LocalDateTime appointmentDateTime;
     private String reason;
+    private String notes;
     private String status="PENDING";
     @NotNull(message = "Patient ID is required")
     private Long patientId;

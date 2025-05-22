@@ -53,17 +53,25 @@ const PatientRegisterForm = () => {
         <StepForm
             config={formConfig}
             onSubmit={(data,) => {
-                console.log('Submitted data:', data);
-                return apiRequest(`/patients`, { method:'POST' , body: data})
+                console.log('Submitted data err:', data);
+                 apiRequest(`/patients`, { method:'POST' , body: data})
+                     .then((response)=>{
+                         console.log('Response:', response);
+                         console.log('Go to appointment', goToAppointment)
+                         if (goToAppointment && response?.id) {
+                             console.log('Go to app', goToAppointment)
+                             window.location.href= `index.html#/patients/${response.id}/appointments/add`;
+                         } else if (response?.id) {
+                             console.log('Go to details', goToAppointment)
+                             window.location.href= `index.html#/patients/${response.id}/details`;
+                         }
+                     })
+                     .catch(error=>{
+                         console.error('Error:', error);
+                         throw error;
+                     })
             }}
-            getRedirectUrl={(data:any) => {
-                if (goToAppointment && data?.id) {
-                    return `index.html#/patients/${data.id}/appointments/add`;
-                } else if (data?.id) {
-                    return `index.html#/patients/${data.id}/details`;
-                }
-                return undefined;
-            }}
+
             defaultValues={{}}
             submitButtonLabel={'Register Patient'}
             bottomComponents={[

@@ -4,6 +4,7 @@ import {FieldConfig, StepConfig} from "./StepConfig";
 import DraftEditor from "./DraftEditor";
 import {Button, Col, Row} from "react-bootstrap";
 import {useParams} from "react-router-dom";
+import {formatForDatetimeLocal} from "./dateFormatter";
 
 interface StepFormProps {
     config: StepConfig[];
@@ -12,11 +13,10 @@ interface StepFormProps {
     idFromParent?: number;
     submitButtonLabel?: string;
     bottomComponents?: React.ReactNode[];
-    getRedirectUrl?: (data: any) => string | undefined;
 
 }
 
-const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents,getRedirectUrl }) => {
+const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents }) => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({ defaultValues });
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
@@ -84,9 +84,9 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                 field.onChange?.(value);
                             };
 
-                            // Convert value to datetime-local format if it exists
-                            const value = controllerField.value
-                                ? new Date(controllerField.value).toISOString().slice(0, 16)
+                            const rawValue = controllerField.value;
+                            const value = rawValue
+                                ? formatForDatetimeLocal(new Date(rawValue))
                                 : '';
 
                             return (
@@ -136,11 +136,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
             }
 
             if (isLastStep) {
-                onSubmit(stepData);
-                const redirectUrl = getRedirectUrl?.(stepData);
-                if (redirectUrl) {
-                    window.location.href = redirectUrl;
-                }
+                onSubmit(stepData)
             } else {
                 nextStep();
             }

@@ -1,4 +1,4 @@
-import {apiRequest, StepConfig, StepForm, useToast} from "@afyaquik/shared";
+import {apiRequest, AppointmentList, StepConfig, StepForm, useToast} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
@@ -16,6 +16,7 @@ export const backtoList = function (){
 const AppointmentCreateForm = () => {
     const [doctors, setDoctors] = useState<{ label: string; value: number }[]>([]);
     const [selectedDoctor, setSelectedDoctor] = useState<number | undefined>(undefined);
+    const [doctorAppointments, setDoctorAppointments]=useState<{}|undefined>(undefined);
 
     let  params = useParams();
     const id = params.id;
@@ -35,6 +36,16 @@ const AppointmentCreateForm = () => {
             })
             .catch(err => console.error(err));
     }, []);
+    useEffect(() => {
+        if (selectedDoctor === undefined) {
+            return;
+        }
+        apiRequest(`/appointments/doctor/${selectedDoctor}`, { method: 'GET' })
+            .then(data => {
+                setDoctorAppointments(data?.results?.content);
+            })
+            .catch(err => console.error(err));
+    }, [selectedDoctor]);
 
     const { showToast } = useToast();
 
@@ -53,7 +64,7 @@ const AppointmentCreateForm = () => {
                 setDoctors(doctorsOptions);
             })
             .catch(console.error);
-    }, [selectedDoctor]);
+    }, []);
 
     const formConfig: StepConfig[] = [
         {
@@ -80,19 +91,25 @@ const AppointmentCreateForm = () => {
     ];
     return (
 
-        <StepForm
+        <><StepForm
             config={formConfig}
-            onSubmit={(data,) => {
+            onSubmit={(data) => {
                 console.log('Submitted data:', data);
-                apiRequest(`/appointments`, { method:'POST' , body: data}, showToast)
+                apiRequest(`/appointments`, {method: 'POST', body: data}, showToast)
                     .then(response => {
-                        console.log(response)
+                        console.log(response);
                         window.location.href = `index.html#/appointments/${response.id}/details`;
                     })
                     .catch(err => console.error(err));
             }}
             defaultValues={defaultValues}
-            submitButtonLabel={'Create appointment'}
-        />);
+            submitButtonLabel={'Create appointment'}/>
+
+            {selectedDoctor && doctorAppointments && (
+                <AppointmentList data={doctorAppointments} title={"Selected doctor's existing appointments"} />
+            )}
+        </>
+
+    );
 }
 export default AppointmentCreateForm;
