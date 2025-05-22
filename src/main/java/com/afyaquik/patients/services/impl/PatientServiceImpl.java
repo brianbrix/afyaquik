@@ -56,8 +56,8 @@ public class PatientServiceImpl implements PatientService {
         if (patient.getContactInfo() != null)
         {
             patientDto.setContactInfo(com.afyaquik.users.dto.ContactInfo.builder()
-                .phone(patient.getContactInfo().getPhoneNumber())
-                .phone2(patient.getContactInfo().getPhoneNumber2())
+                .phoneNumber(patient.getContactInfo().getPhoneNumber())
+                .phoneNumber2(patient.getContactInfo().getPhoneNumber2())
                 .email(patient.getContactInfo().getEmail())
                 .address(patient.getContactInfo().getAddress())
                 .build());
@@ -87,8 +87,8 @@ public class PatientServiceImpl implements PatientService {
 
         if (dto.getContactInfo() != null) {
             ContactInfo contactInfo = new ContactInfo();
-            contactInfo.setPhoneNumber(dto.getContactInfo().getPhone());
-            contactInfo.setPhoneNumber2(dto.getContactInfo().getPhone2());
+            contactInfo.setPhoneNumber(dto.getContactInfo().getPhoneNumber());
+            contactInfo.setPhoneNumber2(dto.getContactInfo().getPhoneNumber2());
             contactInfo.setEmail(dto.getContactInfo().getEmail());
             contactInfo.setAddress(dto.getContactInfo().getAddress());
             patient.setContactInfo(contactInfo);
@@ -120,9 +120,12 @@ public class PatientServiceImpl implements PatientService {
             patient.setMaritalStatus(MaritalStatus.valueOf(patientDto.getMaritalStatus()));
         }
         if (patientDto.getContactInfo() != null) {
+            if (patient.getContactInfo() == null) {
+                patient.setContactInfo(new ContactInfo());
+            }
             ContactInfo contactInfo = patient.getContactInfo();
-            contactInfo.setPhoneNumber(patientDto.getContactInfo().getPhone());
-            contactInfo.setPhoneNumber2(patientDto.getContactInfo().getPhone2());
+            contactInfo.setPhoneNumber(patientDto.getContactInfo().getPhoneNumber());
+            contactInfo.setPhoneNumber2(patientDto.getContactInfo().getPhoneNumber2());
             contactInfo.setEmail(patientDto.getContactInfo().getEmail());
             contactInfo.setAddress(patientDto.getContactInfo().getAddress());
             patient.setContactInfo(contactInfo);

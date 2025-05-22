@@ -33,7 +33,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
                 <div
                     style={{
                         position: 'fixed',
-                        top: '12%',
+                        top: '6%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                         padding: '16px 24px',
@@ -48,7 +48,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
                         alignItems: 'center',
                         gap: '16px'
                     }}
-                    className={`toast-container toast-${toast.type}`}
+                    className={`toast-${toast.type}`}
                 >
                     {toast.message}
                     <button

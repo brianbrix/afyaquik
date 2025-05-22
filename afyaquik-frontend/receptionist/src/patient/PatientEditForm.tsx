@@ -32,8 +32,8 @@ const formConfig: StepConfig[] = [
     {
         label: 'Contact Info',
         fields: [
-            { name: 'contactInfo.phone', label: 'Phone', type: 'text', colSpan:6  },
-            { name: 'contactInfo.phone2', label: 'Phone 2', type: 'text', colSpan:6  },
+            { name: 'contactInfo.phoneNumber', label: 'Phone', type: 'text', colSpan:6  },
+            { name: 'contactInfo.phoneNumber2', label: 'Phone 2', type: 'text', colSpan:6  },
             { name: 'contactInfo.email', label: 'Email', type: 'email', colSpan:6  },
             { name: 'contactInfo.address', label: 'Address', type: 'text', colSpan:6  }
         ],

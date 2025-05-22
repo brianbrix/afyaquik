@@ -9,7 +9,7 @@ export const backtoList = function (){
         className="btn btn-success mb-4"
         onClick={() => window.location.href = "index.html#/appointments"}
     >
-        <i className="bi bi-arrow-left me-1"></i> Back To List
+        <i className="bi bi-arrow-left me-1"></i> Back To Appointment List
     </Button>)
 }
 

@@ -10,7 +10,7 @@ import org.mapstruct.Mapper;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ContactInfoMapper.class})
 public interface UserMapper extends EntityMapper<User, UserDto> {
     @Override
     UserDto toDto(User user);

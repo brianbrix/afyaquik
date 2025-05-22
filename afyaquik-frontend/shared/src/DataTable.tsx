@@ -75,7 +75,7 @@ function DataTable<T extends { id: number }>({
                 page,
                 size,
                 ...(sort && { sort }),
-                ...(dateField && { dateFilter : dateFieldName||'createdAt'+'#'+dateField }),
+                ...(dateField && { dateFilter : dateFieldName?dateFieldName+'#'+dateField : 'createdAt'+'#'+dateField }),
                 ...(searchEntity && { searchEntity: searchEntity})
             };
 

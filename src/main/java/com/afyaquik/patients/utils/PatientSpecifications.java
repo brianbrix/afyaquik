@@ -48,9 +48,9 @@ public class PatientSpecifications {
             if (dto.getContactInfo() != null) {
                 Join<Object, Object> contactJoin = root.join("contactInfo", JoinType.LEFT);
 
-                if (dto.getContactInfo().getPhone() != null && !dto.getContactInfo().getPhone().isEmpty()) {
+                if (dto.getContactInfo().getPhoneNumber() != null && !dto.getContactInfo().getPhoneNumber().isEmpty()) {
                     predicate = criteriaBuilder.and(predicate,
-                            criteriaBuilder.like(contactJoin.get("phoneNumber"), "%" + dto.getContactInfo().getPhone() + "%"));
+                            criteriaBuilder.like(contactJoin.get("phoneNumber"), "%" + dto.getContactInfo().getPhoneNumber() + "%"));
                 }
                 if (dto.getContactInfo().getEmail() != null && !dto.getContactInfo().getEmail().isEmpty()) {
                     predicate = criteriaBuilder.and(predicate,
