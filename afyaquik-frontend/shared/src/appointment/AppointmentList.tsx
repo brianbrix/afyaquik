@@ -64,6 +64,7 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, titl
                 searchEntity={'appointments'}
                 requestMethod={'GET'}
                 isSearchable={true}
+                dateFieldName={'appointmentDateTime'}
                 dataEndpoint={`/appointments/patient/${patientId}`}
             />
         ) : (
@@ -78,6 +79,7 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, titl
                 searchEntity={'appointments'}
                 requestMethod={'POST'}
                 isSearchable={true}
+                dateFieldName={'appointmentDateTime'}
                 dataEndpoint={'/search'}
             />
         ))

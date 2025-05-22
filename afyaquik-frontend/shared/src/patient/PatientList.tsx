@@ -25,7 +25,7 @@ const PatientList = () => {
                 setPatients(data);
             })
             .catch(err => console.error(err));
-        showToast('Search for patients or add a new patient to create appointment or add visit', 'info');
+        showToast('Search for patients or add a new patient to create appointment or add visit', 'warning');
     }, []);
     const searchFields:FieldConfig[] =[
         {

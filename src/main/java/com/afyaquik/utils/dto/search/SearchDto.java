@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -14,9 +15,10 @@ import java.util.List;
 public class SearchDto {
     private String query;
     private String searchEntity;
-    private List<String> searchFields;
+    private List<String> searchFields= new ArrayList<>();
     private int page=0;
     private int size=10;
+    private String dateFilter;
     private String sort;
 
 }

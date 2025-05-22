@@ -4,7 +4,7 @@ import Papa from 'papaparse';
 import apiRequest from "./api";
 import {FieldConfig, FieldType} from "./StepConfig";
 import {SearchBar} from "./index";
-import formatDate from "./dateFormatter";
+import formatDate, {formatForDatetimeLocal, formatJustDate} from "./dateFormatter";
 
 interface DataTableProps<T> {
     title: string;
@@ -19,6 +19,7 @@ interface DataTableProps<T> {
     searchEntity?: string;
     defaultPageSize?: number;
     isSearchable?: boolean;
+    dateFieldName?:string;
 }
 
 interface PaginatedResponse<T> {
@@ -46,7 +47,7 @@ function DataTable<T extends { id: number }>({
                                                  searchFields = [],
                                                  searchEntity = 'patients',
                                                  defaultPageSize = 10,
-                                                 isSearchable
+                                                 isSearchable,dateFieldName
                                              }: DataTableProps<T>) {
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -59,18 +60,26 @@ function DataTable<T extends { id: number }>({
     const [isSearching, setIsSearching] = useState(false);
     const [selectedFields, setSelectedFields] = useState<FieldConfig[]>(searchFields);
     const [showFieldSelector, setShowFieldSelector] = useState(false);
+    const [dateField, setDateField] = useState('');
 
+    const onResetFilters = () => {
+        setSearchTerm('');
+        setDateField('');
+        setSelectedFields([]);
+        setCurrentPage(0);
+    };
     const fetchData = async (page: number, size: number, sort?: string) => {
         setIsSearching(true);
         try {
             const params = {
                 page,
                 size,
-                ...(sort && { sort })
+                ...(sort && { sort }),
+                ...(dateField && { dateFilter : dateFieldName||'createdAt'+'#'+dateField }),
+                ...(searchEntity && { searchEntity: searchEntity})
             };
 
             let response;
-            console.log("Request Method", requestMethod);
             if (requestMethod === 'GET') {
                 const queryParams = new URLSearchParams();
                 Object.entries(params).forEach(([key, value]) => {
@@ -114,10 +123,12 @@ function DataTable<T extends { id: number }>({
     };
     if (dataEndpoint) {
         useEffect(() => {
-            const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
-            fetchData(currentPage, pageSize, sortParam);
+            if (searchTerm.length >= 3 || searchTerm.length === 0) {
+                const sortParam = sortField ? `${sortField},${sortDirection}` : 'createdAt,desc';
+                fetchData(currentPage, pageSize, sortParam);
+            }
 
-        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields]);
+        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateField]);
     }
 
     const handleSort = (field: string) => {
@@ -134,7 +145,6 @@ function DataTable<T extends { id: number }>({
         const newFields = selectedFields.includes(field)
             ? selectedFields.filter(f => f !== field)
             : [...selectedFields, field];
-        console.log("Fields",newFields)
         setSelectedFields(newFields);
         setCurrentPage(0); // Reset to first page when search fields change
     };
@@ -194,6 +204,11 @@ function DataTable<T extends { id: number }>({
                     showFieldSelector={showFieldSelector}
                     setShowFieldSelector={setShowFieldSelector}
                     isLoading={isSearching}
+                    dateField={dateField}
+                    onDateFieldChange={setDateField}
+                    onResetFilters={onResetFilters}
+                    setCurrentPage={setCurrentPage}
+
                 />
             )}
 

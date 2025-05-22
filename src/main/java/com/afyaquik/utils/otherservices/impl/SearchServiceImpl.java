@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -56,9 +57,9 @@ public class SearchServiceImpl implements SearchService {
             Root<?> root = query.from(entityClass);
             query.select(root);
 
-            List<Predicate> predicates = buildPredicates(searchDto, cb, root, entityClass);
-            if (!predicates.isEmpty()) {
-                query.where(cb.or(predicates.toArray(new Predicate[0])));
+            Predicate predicate = buildPredicates(searchDto, cb, root, entityClass);
+            if (predicate!=null) {
+                query.where(predicate);
             }
 
             // Sorting
@@ -81,10 +82,10 @@ public class SearchServiceImpl implements SearchService {
             CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
             Root<?> countRoot = countQuery.from(entityClass);
             countQuery.select(cb.count(countRoot));
-            List<Predicate> countPredicates = buildPredicates(searchDto, cb, countRoot, entityClass);
+            Predicate countPredicates = buildPredicates(searchDto, cb, countRoot, entityClass);
 
-            if (!countPredicates.isEmpty()) {
-                countQuery.where(cb.or(countPredicates.toArray(new Predicate[0])));
+            if (countPredicates!=null) {
+                countQuery.where(countPredicates);
             }
 
             long total = entityManager.createQuery(countQuery).getSingleResult();
@@ -136,33 +137,66 @@ public class SearchServiceImpl implements SearchService {
 
         return current.get(parts[parts.length - 1]);
     }
-    private List<Predicate> buildPredicates(SearchDto dto, CriteriaBuilder cb, Root<?> root, Class<?> entityClass) {
+    private LocalDate parseDateToLocalDate(String input) {
+        try {
+            return LocalDate.parse(input, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+    private Predicate buildPredicates(SearchDto dto, CriteriaBuilder cb, Root<?> root, Class<?> entityClass) {
         List<Predicate> predicates = new ArrayList<>();
+        if (dto.getSearchFields()==null) dto.setSearchFields(new ArrayList<>());
+        if (dto.getDateFilter() != null && !dto.getDateFilter().isEmpty()) {
+            String fieldPath = dto.getDateFilter().split("#")[0];
+            String fieldValue = dto.getDateFilter().split("#")[1];
+            if (fieldPath == null || fieldPath.isEmpty()) {
+                throw new IllegalArgumentException("Invalid date filter format: " + dto.getDateFilter());
+            }
+            Path<?> path = resolveJoinPath(root, fieldPath, entityClass);
+                LocalDate parsedDate = parseDateToLocalDate(fieldValue);
+                if (parsedDate != null) {
+                    // Match any time within that date
+                    predicates.add(cb.between(
+                            path.as(LocalDateTime.class),
+                            parsedDate.atStartOfDay(),
+                            parsedDate.plusDays(1).atStartOfDay()
+                    ));
 
-        if (dto.getQuery() == null || dto.getQuery().isEmpty()) return predicates;
-        if (dto.getSearchFields() == null || dto.getSearchFields().isEmpty()) return predicates;
+            }
+        }
+        if (dto.getQuery() != null && !dto.getQuery().isEmpty() &&
+                dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
 
-        String searchTerm = dto.getQuery().toLowerCase(Locale.ROOT);
 
-        for (String field : dto.getSearchFields()) {
-            try {
-                Path<?> path = resolveJoinPath(root, field, entityClass);
-                Class<?> type = path.getJavaType();
+            String searchTerm = dto.getQuery().toLowerCase(Locale.ROOT);
+            List<Predicate> queryPredicates = new ArrayList<>();
 
-                if (type.equals(String.class)) {
-                    predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + searchTerm + "%"));
-                } else if (type.equals(LocalDateTime.class)) {
-                    LocalDateTime parsed = parseDate(searchTerm);
-                    if (parsed != null) predicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
-                } else {
-                    predicates.add(cb.equal(path.as(String.class), searchTerm)); // fallback
+            for (String field : dto.getSearchFields()) {
+                try {
+                    Path<?> path = resolveJoinPath(root, field, entityClass);
+                    Class<?> type = path.getJavaType();
+
+                    if (type.equals(String.class)) {
+                        queryPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + searchTerm + "%"));
+                    } else if (type.equals(LocalDateTime.class)) {
+                        LocalDateTime parsed = parseDate(searchTerm);
+                        if (parsed != null) queryPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+
+                    } else {
+                        queryPredicates.add(cb.equal(path.as(String.class), searchTerm)); // fallback
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid search field: {}", field);
                 }
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid search field: {}", field);
+            }
+            if (!queryPredicates.isEmpty()) {
+                predicates.add(cb.or(queryPredicates.toArray(new Predicate[0])));
             }
         }
 
-        return predicates;
+        return predicates.isEmpty() ? null : cb.and(predicates.toArray(new Predicate[0]));
+
     }
 
     private Class<?> resolveEntityClass(String key) throws ClassNotFoundException {

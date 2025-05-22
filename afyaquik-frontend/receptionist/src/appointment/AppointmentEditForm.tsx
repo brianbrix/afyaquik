@@ -94,7 +94,7 @@ const AppointmentEditForm = () => {
             config={formConfig}
             onSubmit={(data,) => {
                 console.log('Submitted data:', data);
-                apiRequest(`/appointments`, { method:'PUT' , body: data}, showToast)
+                apiRequest(`/appointments/${id}`, { method:'PUT' , body: data}, showToast)
                     .then(response => {
                         console.log(response)
                         window.location.href = `index.html#/patients/${response.id}/details`;

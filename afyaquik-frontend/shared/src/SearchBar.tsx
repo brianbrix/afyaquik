@@ -12,6 +12,11 @@ interface SearchBarProps {
     showFieldSelector: boolean;
     setShowFieldSelector: (value: boolean) => void;
     isLoading: boolean;
+    dateField: string;
+    onDateFieldChange: (value: string) => void;
+    onResetFilters: () => void;
+    setCurrentPage: (page: number) => void;
+
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -23,7 +28,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
                                                  onToggleSelectAll,
                                                  showFieldSelector,
                                                  setShowFieldSelector,
-                                                 isLoading
+                                                 isLoading,
+    dateField, onDateFieldChange, onResetFilters,setCurrentPage
                                              }) => {
     return (
         <>
@@ -54,6 +60,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
                         </div>
                     )}
                 </div>
+                <Form.Group controlId="createdAt" className="ms-3">
+                    <Form.Label>Filter by date</Form.Label>
+                    <Form.Control
+                        type="date"
+                        value={dateField}
+                        onChange={(e) => {
+                            onDateFieldChange(e.target.value)
+                            setCurrentPage(0);
+                        }
+                        }
+                    />
+                </Form.Group>
+
+                <Button variant="outline-danger" onClick={onResetFilters}>
+                    <i className="bi bi-x-circle me-1"></i> Reset Filters
+                </Button>
             </div>
 
             {showFieldSelector && searchFields.length > 0 && (
@@ -80,7 +102,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
                         ))}
                     </div>
                 </div>
+
             )}
+
         </>
     );
 };
