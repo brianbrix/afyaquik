@@ -15,10 +15,15 @@ const ToastContext = createContext<ToastContextProps | undefined>(undefined);
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
     const [toast, setToast] = useState<Toast | null>(null);
+    const [isVisible, setIsVisible] = useState(false);
 
     const showToast = (message: string, type: ToastType = 'info') => {
         setToast({ message, type });
-        setTimeout(() => setToast(null), 6000); // auto-dismiss after 6s
+        setIsVisible(true);
+        setTimeout(() => {
+            setIsVisible(false);
+            setTimeout(() => setToast(null), 300); // Wait for fade-out to complete
+        }, 5000);
     };
 
     return (
@@ -26,10 +31,9 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
             {children}
             {toast && (
                 <div
-
                     style={{
                         position: 'fixed',
-                        top: '50%',
+                        top: '12%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                         padding: '16px 24px',
@@ -38,10 +42,31 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
                         fontWeight: 500,
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                         zIndex: 1000,
-                        animation: 'fadeIn 0.3s ease-in-out'
+                        opacity: isVisible ? 1 : 0,
+                        transition: 'opacity 0.3s ease-in-out',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px'
                     }}
-                    className={`toast-container toast-${toast.type}`}>
+                    className={`toast-container toast-${toast.type}`}
+                >
                     {toast.message}
+                    <button
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'inherit',
+                            cursor: 'pointer',
+                            fontSize: '1.2rem',
+                            padding: 0
+                        }}
+                        onClick={() => {
+                            setIsVisible(false);
+                            setTimeout(() => setToast(null), 300);
+                        }}
+                    >
+                        ×
+                    </button>
                 </div>
             )}
         </ToastContext.Provider>
