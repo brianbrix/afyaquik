@@ -18,14 +18,29 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
 
     const showToast = (message: string, type: ToastType = 'info') => {
         setToast({ message, type });
-        setTimeout(() => setToast(null), 5000); // auto-dismiss after 3s
+        setTimeout(() => setToast(null), 6000); // auto-dismiss after 6s
     };
 
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
             {toast && (
-                <div className={`toast-container toast-${toast.type}`}>
+                <div
+
+                    style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        padding: '16px 24px',
+                        borderRadius: '8px',
+                        color: toast.type === 'warning' ? '#212529' : 'white',
+                        fontWeight: 500,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        zIndex: 1000,
+                        animation: 'fadeIn 0.3s ease-in-out'
+                    }}
+                    className={`toast-container toast-${toast.type}`}>
                     {toast.message}
                 </div>
             )}
