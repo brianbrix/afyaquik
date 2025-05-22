@@ -34,7 +34,7 @@ const AppointmentDetailsPage: React.FC<AppointmentDetailsPageProps>= ({appointme
         { label: "First Name", accessor: "patient.firstName" },
         { label: "Last Name", accessor: "patient.lastName" },
         {label: "Email", accessor: "patient.contactInfo.email"},
-        { label: "Phone", accessor: "patient.contactInfo.phone" },
+        { label: "Phone", accessor: "patient.contactInfo.phoneNumber" },
         {label: "Gender", accessor: "patient.gender"},
         {label: "Doctor", accessor: "doctor.username"},
 

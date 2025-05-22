@@ -28,7 +28,7 @@ const PatientDetailsPage = () => {
         {label: "National Id", accessor: "nationalId"},
         {label: "Marital Status", accessor: "maritalStatus"},
         {label: "Email", accessor: "contactInfo.email"},
-        { label: "Phone", accessor: "contactInfo.phone" }
+        { label: "Phone", accessor: "contactInfo.phoneNumber" }
     ]
     const topComponents = [back()]
 

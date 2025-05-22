@@ -12,7 +12,7 @@ const columns = [
     { header: 'First Name', accessor: 'firstName' },
     { header: 'Last Name', accessor: 'lastName' },
     { header: 'When Registered', accessor: 'createdAt' , type:'datetime'},
-    { header: 'Phone', accessor: 'contactInfo.phone' }
+    { header: 'Phone', accessor: 'contactInfo.phoneNumber' }
 ];
 
 const PatientList = () => {
