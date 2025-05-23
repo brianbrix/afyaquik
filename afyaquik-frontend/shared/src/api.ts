@@ -29,6 +29,7 @@ export default async function apiRequest<T = any>(endpoint: string, options: Api
                     showToast(data.message, 'error');
                 }
             )
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         const errorText = await response.text();
         throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);

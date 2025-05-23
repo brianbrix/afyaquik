@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_BASE="../afyaquik-web/src/main/resources/static/client"
+TARGET_BASE="../src/main/resources/static/client"
 
 copy_module() {
   MODULE=$1

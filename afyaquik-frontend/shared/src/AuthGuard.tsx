@@ -5,6 +5,22 @@ interface AuthGuardProps {
     requiredRoles?: string[];
 }
 const isAuthenticated = () => {
+    const validToken =  fetch("/api/auth/validate-token",{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'credentials': 'include',
+        }
+    })
+    validToken.then((res) => {
+        if(res.status === 200){
+            localStorage.setItem('isLoggedIn', 'true');
+        }
+        else
+            {
+            localStorage.clear();
+        }
+    })
     return !!localStorage.getItem('isLoggedIn');
 };
 const userHasAnyRole = (requiredRoles: string[]): boolean => {

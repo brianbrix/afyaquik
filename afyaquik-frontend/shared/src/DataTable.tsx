@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Form } from 'react-bootstrap';
 import Papa from 'papaparse';
 import apiRequest from "./api";
-import {FieldConfig} from "./StepConfig";
+import {FieldConfig, FieldType} from "./StepConfig";
+import {SearchBar} from "./index";
+import formatDate, {formatForDatetimeLocal, formatJustDate} from "./dateFormatter";
 
 interface DataTableProps<T> {
     title: string;
-    columns: { header: string; accessor: string, sortable?: boolean }[];
+    columns: { header: string; accessor: string, sortable?: boolean, type?:string }[];
     data?: T[];
     editView?: string;
     addView?: string;
@@ -17,6 +19,7 @@ interface DataTableProps<T> {
     searchEntity?: string;
     defaultPageSize?: number;
     isSearchable?: boolean;
+    dateFieldName?:string;
 }
 
 interface PaginatedResponse<T> {
@@ -44,7 +47,7 @@ function DataTable<T extends { id: number }>({
                                                  searchFields = [],
                                                  searchEntity = 'patients',
                                                  defaultPageSize = 10,
-                                                 isSearchable
+                                                 isSearchable,dateFieldName
                                              }: DataTableProps<T>) {
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -57,18 +60,26 @@ function DataTable<T extends { id: number }>({
     const [isSearching, setIsSearching] = useState(false);
     const [selectedFields, setSelectedFields] = useState<FieldConfig[]>(searchFields);
     const [showFieldSelector, setShowFieldSelector] = useState(false);
+    const [dateField, setDateField] = useState('');
 
+    const onResetFilters = () => {
+        setSearchTerm('');
+        setDateField('');
+        setSelectedFields([]);
+        setCurrentPage(0);
+    };
     const fetchData = async (page: number, size: number, sort?: string) => {
         setIsSearching(true);
         try {
             const params = {
                 page,
                 size,
-                ...(sort && { sort })
+                ...(sort && { sort }),
+                ...(dateField && { dateFilter : dateFieldName?dateFieldName+'#'+dateField : 'createdAt'+'#'+dateField }),
+                ...(searchEntity && { searchEntity: searchEntity})
             };
 
             let response;
-            console.log("Request Method", requestMethod);
             if (requestMethod === 'GET') {
                 const queryParams = new URLSearchParams();
                 Object.entries(params).forEach(([key, value]) => {
@@ -110,11 +121,15 @@ function DataTable<T extends { id: number }>({
             setIsSearching(false);
         }
     };
+    if (dataEndpoint) {
+        useEffect(() => {
+            if (searchTerm.length >= 3 || searchTerm.length === 0) {
+                const sortParam = sortField ? `${sortField},${sortDirection}` : 'createdAt,desc';
+                fetchData(currentPage, pageSize, sortParam);
+            }
 
-    useEffect(() => {
-        const sortParam = sortField ? `${sortField},${sortDirection}` : undefined;
-        fetchData(currentPage, pageSize, sortParam);
-    }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields]);
+        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateField]);
+    }
 
     const handleSort = (field: string) => {
         if (sortField === field) {
@@ -130,7 +145,6 @@ function DataTable<T extends { id: number }>({
         const newFields = selectedFields.includes(field)
             ? selectedFields.filter(f => f !== field)
             : [...selectedFields, field];
-        console.log("Fields",newFields)
         setSelectedFields(newFields);
         setCurrentPage(0); // Reset to first page when search fields change
     };
@@ -139,12 +153,14 @@ function DataTable<T extends { id: number }>({
         setSelectedFields(selectedFields.length === searchFields.length ? [] : [...searchFields]);
         setCurrentPage(0);
     };
-
+    function resolveValue(obj: any, path: string, fallback: string = 'N/A'): any {
+        return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : fallback, obj);
+    }
     const downloadCSV = () => {
         const csvData = (data).map(record => {
             const row: any = {};
             columns.forEach(col => {
-                row[col.header] = record[col.accessor as keyof T];
+                row[col.header] = resolveValue(record, col.accessor);
             });
             return row;
         });
@@ -177,63 +193,26 @@ function DataTable<T extends { id: number }>({
             </div>
 
             {/* Search and Field Selection */}
-            {(isSearchable) && (
-                <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
-                    <div className="position-relative w-50">
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                            {searchFields.length > 0 && (
-                                <Button
-                                    variant="outline-secondary"
-                                    onClick={() => setShowFieldSelector(!showFieldSelector)}
-                                >
-                                    <i className={`bi bi-${showFieldSelector ? 'chevron-up' : 'chevron-down'}`}></i> Filter by
-                                </Button>
-                            )}
-                        </div>
-                        {isSearching && (
-                            <div className="position-absolute top-50 end-0 translate-middle-y me-2">
-                                <div className="spinner-border spinner-border-sm text-secondary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+            {isSearchable && (
+                <SearchBar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchFields={searchFields}
+                    selectedFields={selectedFields}
+                    onToggleField={handleFieldToggle}
+                    onToggleSelectAll={toggleSelectAllFields}
+                    showFieldSelector={showFieldSelector}
+                    setShowFieldSelector={setShowFieldSelector}
+                    isLoading={isSearching}
+                    dateField={dateField}
+                    onDateFieldChange={setDateField}
+                    onResetFilters={onResetFilters}
+                    setCurrentPage={setCurrentPage}
+
+                />
             )}
 
-            {/* Field Selection Dropdown */}
-            {showFieldSelector && searchFields.length > 0 && isSearchable && (
-                <div className="bg-white p-3 mb-3 border rounded shadow-sm">
-                    <div className="mb-2">
-                        <Form.Check
-                            type="checkbox"
-                            id="select-all-fields"
-                            label="Select All"
-                            checked={selectedFields.length === searchFields.length}
-                            onChange={toggleSelectAllFields}
-                        />
-                    </div>
-                    <div className="d-flex flex-wrap gap-3">
-                        {searchFields.map(field => (
-                            <Form.Check
-                                key={field.name}
-                                type="checkbox"
-                                id={`field-${field.name}`}
-                                label={field.label}
-                                checked={selectedFields.includes(field)}
-                                onChange={() => handleFieldToggle(field)}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+
 
             <Table bordered hover responsive className="table-sm align-middle">
                 <thead className="table-light">
@@ -264,11 +243,17 @@ function DataTable<T extends { id: number }>({
                 ) : (
                     data.map(record => (
                         <tr key={record.id}>
-                            {columns.map(col => (
-                                <td key={`${record.id}-${col.accessor}`}>
-                                    {record[col.accessor as keyof T] as any}
-                                </td>
-                            ))}
+                            {columns.map(col => {
+                                const value = resolveValue(record, col.accessor);
+                                const isDate = col.type === 'date' || col.type === 'datetime';
+                                const display = isDate ? formatDate(value) : value;
+
+                                return (
+                                    <td key={`${record.id}-${col.accessor}`}>
+                                        {display}
+                                    </td>
+                                );
+                            })}
                             {(editView || detailsView) && (
                                 <td>
                                     {detailsView && (

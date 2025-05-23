@@ -8,6 +8,7 @@ interface PatientVisitProps {
     onSubmit: (data: any) => void;
     idFromParent: number,
     defaultValues?: {};
+    submitButtonLabel?: string;
 }
 export const patientName = function (id: number)
 {
@@ -25,7 +26,7 @@ export const patientName = function (id: number)
 
 
 
-const PatientVisitForm: React.FC<PatientVisitProps> = ({formConfig, onSubmit, idFromParent, defaultValues}) => {
+const PatientVisitForm: React.FC<PatientVisitProps> = ({formConfig, onSubmit, idFromParent, defaultValues, submitButtonLabel}) => {
     // let  params = useParams();
     // const id = Number(params.id);
     console.log(' Id',idFromParent)
@@ -37,6 +38,7 @@ const PatientVisitForm: React.FC<PatientVisitProps> = ({formConfig, onSubmit, id
             onSubmit={onSubmit}
             idFromParent={idFromParent}
             defaultValues={defaultValues}
-            submitButtonLabel={'Add visit'}/></>);
+            submitButtonLabel={submitButtonLabel}/>
+        </>);
 }
 export default PatientVisitForm;
