@@ -43,7 +43,9 @@ const AppointmentDetailsPage: React.FC<AppointmentDetailsPageProps>= ({appointme
 
     return (
         <DetailsPage title={"Appointment Details"} endpoint={endpoint} fields={fields} topComponents={topComponents}
-        otherComponentsToRender={[editButton()]}
+        otherComponentsToRender={[{
+            title:'Actions',content:editButton()
+        }]}
         />
     )
 }

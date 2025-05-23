@@ -6,6 +6,7 @@ import com.afyaquik.patients.enums.VisitType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class PatientVisit extends SuperEntity {
 
     private String summaryReasonForVisit;
 
-    private LocalDateTime  visitDate;
-    private LocalDateTime nextVisitDate;
+    private LocalDate visitDate;
+    private LocalDate nextVisitDate;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "triage_report_id")

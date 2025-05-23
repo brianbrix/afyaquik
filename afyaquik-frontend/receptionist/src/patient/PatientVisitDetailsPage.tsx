@@ -38,7 +38,9 @@ const PatientVisitDetailsPage = () => {
 
     return (
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
-                     otherComponentsToRender={[<ReceptionAttendingPlanList/>]}
+                     otherComponentsToRender={[
+                         {title:'Attending Plan',content:<ReceptionAttendingPlanList/>}
+                     ]}
         />
     )
 }

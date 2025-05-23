@@ -12,7 +12,11 @@ interface PatientAssignProps {
 const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
     const [stations, setStations] = useState<{ label: string; value: string }[]>([]);
     const [officers, setOfficers] = useState<{ label: string; value: string }[]>([]);
-    const [selectedStation, setSelectedStation] = useState<string | undefined>(undefined);
+    const [formValues, setFormValues] = useState({
+        patientVisitId: visitId,
+        nextStation: '',
+        assignedOfficer: ''
+    });
     const { showToast } = useToast();
 
     useEffect(() => {
@@ -34,9 +38,10 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
         </Button>)
     }
     // Fetch officers when station changes
+    // Fetch officers when station changes
     useEffect(() => {
-        if (!selectedStation) return;
-        apiRequest(`/stations/${selectedStation}/users`, { method: "GET" })
+        if (!formValues.nextStation) return;
+        apiRequest(`/stations/${formValues.nextStation}/users`, { method: "GET" })
             .then((users) => {
                 const officerOptions = users.map((user: any) => ({
                     label: user.fullName,
@@ -45,7 +50,15 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                 setOfficers(officerOptions);
             })
             .catch(console.error);
-    }, [selectedStation]);
+    }, [formValues.nextStation]);
+
+
+    const handleFieldChange = (fieldName: string, value: any) => {
+        setFormValues(prev => ({
+            ...prev,
+            [fieldName]: value
+        }));
+    };
 
     const formConfig: StepConfig[] = [
         {
@@ -62,9 +75,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                     label: "Next Station",
                     type: "select",
                     options: stations, colSpan:6 ,
-                    onChange: (val: any) => {
-                        setSelectedStation(val);
-                    },
+                    onChange: (val: any) => handleFieldChange('nextStation', val),
                     required:true
                 },
 
@@ -72,6 +83,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                     name: "assignedOfficer",
                     label: "Next Officer",
                     type: "select",
+                    onChange: (val: any) => handleFieldChange('assignedOfficer', val),
                     options: officers, colSpan:6,required:true
                 }
             ],
@@ -85,7 +97,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log("Submitting data:", data);
-                apiRequest(`/patients/visits/plan/create`, { method: "POST", body: data }, showToast)
+                apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data }, showToast)
                     .then((response) => {
                         console.log(response)
                         window.location.href = `index.html#/patients/visits/${visitId}/details`
@@ -93,9 +105,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                     .catch((err) => console.error(err));
             }}
             idFromParent={visitId}
-            defaultValues={{
-                    patientVisitId: visitId
-            }}
+            defaultValues={formValues}
             submitButtonLabel={'Assign Patient'}
         />
     );

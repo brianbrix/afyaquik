@@ -14,7 +14,7 @@ const PatientDetailsPage = () => {
         return (  <Button
             variant="outline-primary"
             className="btn btn-success mb-4"
-            onClick={() => window.location.href = "index.html"}
+            onClick={() => window.location.href = "index.html#/patients"}
         >
             <i className="bi bi-arrow-left me-1"></i> Back To Patient List
         </Button>)
@@ -34,7 +34,11 @@ const PatientDetailsPage = () => {
 
     return (
         <DetailsPage title={"Patient Details"} endpoint={endpoint} fields={fields} topComponents={topComponents}
-        otherComponentsToRender={[<ReceptionPatientVisitList/>,<ReceptionPatientAppointmentList/>]}
+        otherComponentsToRender={[
+            { title:'Patient Visits',content: <ReceptionPatientVisitList/>},
+
+            {title:'Patient Appointments',content:<ReceptionPatientAppointmentList/>}
+        ]}
         />
     )
 }

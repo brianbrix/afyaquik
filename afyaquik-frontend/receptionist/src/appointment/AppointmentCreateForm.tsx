@@ -37,7 +37,7 @@ const AppointmentCreateForm = () => {
             .catch(err => console.error(err));
     }, []);
     useEffect(() => {
-        if (selectedDoctor === undefined) {
+        if (!selectedDoctor) {
             return;
         }
         apiRequest(`/appointments/doctor/${selectedDoctor}`, { method: 'GET' })

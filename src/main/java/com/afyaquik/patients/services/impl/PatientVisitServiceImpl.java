@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         PatientVisit patientVisit = PatientVisit.builder()
                 .patient(patient)
                 .summaryReasonForVisit(patientVisitDto.getSummaryReasonForVisit())
-                .visitDate(LocalDateTime.now())
+                .visitDate(LocalDate.now())
                 .visitType(VisitType.valueOf(patientVisitDto.getVisitType()))
                 .build();
 
