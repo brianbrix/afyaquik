@@ -1,4 +1,4 @@
-import {apiRequest, AppointmentList, StepConfig, StepForm, useToast} from "@afyaquik/shared";
+import {apiRequest, AppointmentList, sendNotification, StepConfig, StepForm, useToast} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
@@ -97,8 +97,15 @@ const AppointmentCreateForm = () => {
                 console.log('Submitted data:', data);
                 apiRequest(`/appointments`, {method: 'POST', body: data}, showToast)
                     .then(response => {
-                        console.log(response);
+                        sendNotification(
+                            data.doctorId,
+                            "New Appointment",
+                            `You have a new appointment with ${data.patientId} on ${data.appointmentDateTime}.`,
+                            `index.html#/appointments/${response.id}/details`,
+                            'APPOINTMENT'
+                        );
                         window.location.href = `index.html#/appointments/${response.id}/details`;
+
                     })
                     .catch(err => console.error(err));
             }}

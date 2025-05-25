@@ -3,6 +3,9 @@ package com.afyaquik.users.repository;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,5 +25,7 @@ public interface UsersRepository extends CrudRepository<User, Long> {
     boolean existsByEmail(String email);
 
     List<User> findByRolesIn(Collection<Role> roles);
-    Set<User> findByStationsIn(Set<Station> stations);
+    Set<User> findByStationsIn(Collection<Station> stations);
+    @Query("SELECT u FROM User u")
+    Page<User> getAllUsersPaginated(Pageable pageable);
 }

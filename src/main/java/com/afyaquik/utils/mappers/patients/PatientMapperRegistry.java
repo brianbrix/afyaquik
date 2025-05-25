@@ -8,12 +8,13 @@ import org.springframework.stereotype.Component;
 public class PatientMapperRegistry {
 
     @Autowired
-    PatientMapperRegistry(PatientMapper patientMapper, PatientVisitMapper patientVisitMapper, TriageReportItemMapper triageReportItemMapper, MapperRegistry mapperRegistry)
+    PatientMapperRegistry(PatientMapper patientMapper, PatientVisitMapper patientVisitMapper, TriageReportItemMapper triageReportItemMapper, TriageItemMapper triageItemMapper, MapperRegistry mapperRegistry)
     {
         {
             mapperRegistry.registerMapper("patients", patientMapper);
             mapperRegistry.registerMapper("visits", patientVisitMapper);
             mapperRegistry.registerMapper("triageReportItem", triageReportItemMapper);
+            mapperRegistry.registerMapper("triageItems", triageItemMapper);
         }
     }
 }

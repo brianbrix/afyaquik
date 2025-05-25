@@ -206,8 +206,10 @@ public class SearchServiceImpl implements SearchService {
             case "stations" -> Class.forName("com.afyaquik.users.entity.Station");
             case "patients" -> Class.forName("com.afyaquik.patients.entity.Patient");
             case "appointments" -> Class.forName("com.afyaquik.appointments.entity.Appointment");
+            case "triageItems" -> Class.forName("com.afyaquik.patients.entity.TriageItem");
             case "visits" -> Class.forName("com.afyaquik.patients.entity.PatientVisit");
-            case "settings" -> Class.forName("com.afyaquik.utils.settings.entity.GeneralSettings");
+            case "generalSettings" -> Class.forName("com.afyaquik.utils.settings.entity.GeneralSettings");
+            case "observationItems" -> Class.forName("com.afyaquik.doctor.entity.ObservationItem");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -219,8 +221,10 @@ public class SearchServiceImpl implements SearchService {
             case "stations" -> Class.forName("com.afyaquik.users.dto.StationDto");
             case "patients" -> Class.forName("com.afyaquik.patients.dto.PatientDto");
             case "appointments" -> Class.forName("com.afyaquik.appointments.dto.AppointmentDto");
+            case "triageItems" -> Class.forName("com.afyaquik.patients.dto.TriageItemDto");
             case "visits" -> Class.forName("com.afyaquik.patients.dto.PatientVisitDto");
-            case "settings" -> Class.forName("com.afyaquik.dtos.settings.GeneralSettingsDto");
+            case "generalSettings" -> Class.forName("com.afyaquik.dtos.settings.GeneralSettingsDto");
+            case "observationItems" -> Class.forName("com.afyaquik.doctor.dto.ObservationItemDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }

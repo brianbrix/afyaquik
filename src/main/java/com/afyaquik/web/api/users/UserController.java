@@ -6,6 +6,7 @@ import com.afyaquik.users.dto.UserResponse;
 import com.afyaquik.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok(userService.fetchById(userId));
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getAllUsers( @RequestParam(required = false) List<Long> ids,
                                           @RequestParam(required = false) String sortBy,
                                           @RequestParam(required = false, defaultValue = "asc") String sortDir,
@@ -56,6 +57,11 @@ public class UserController {
                 .headers(headers)
                 .body(users);
     }
+    @GetMapping
+    public ResponseEntity<?> getAllUsersPaginated(Pageable pageable) {
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
+    }
+
     @GetMapping("/byrole")
     public ResponseEntity<?> getAllUsersByRole(@RequestParam Long roleId) {
         return ResponseEntity.ok(userService.getUsersByRole(roleId));

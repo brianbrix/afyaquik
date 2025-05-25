@@ -7,6 +7,8 @@ export { default as DataTable } from './DataTable';
 export { default as SearchBar } from './SearchBar';
 export { default as DetailsPage } from './DetailsPage';
 export { ToastProvider, useToast } from './ToastContext';
+export {default as NotificationsBell} from './communication/NotificationsBell'
+export {sendNotification} from './communication/NotificationService'
 export {default as apiRequest } from  './api';
 export {default as PatientList} from './patient/PatientList'
 export {default as AppointmentList} from './appointment/AppointmentList'

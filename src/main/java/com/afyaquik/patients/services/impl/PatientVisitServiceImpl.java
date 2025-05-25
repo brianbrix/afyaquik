@@ -110,6 +110,12 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
+    public PatientVisit getPatientVisit(Long visitId) {
+        return patientVisitRepository.findById(visitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+    }
+
+    @Override
     public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlan(Long visitId, Pageable pageable) {
         PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));

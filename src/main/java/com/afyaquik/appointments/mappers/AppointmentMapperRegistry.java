@@ -10,7 +10,6 @@ public class AppointmentMapperRegistry {
     AppointmentMapperRegistry(AppointmentMapper appointmentMapper, MapperRegistry mapperRegistry)
     {
         {
-
             mapperRegistry.registerMapper("appointments", appointmentMapper);
         }
     }

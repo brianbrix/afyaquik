@@ -1,6 +1,7 @@
 package com.afyaquik.users.service.impl;
 
 
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.utils.exceptions.DuplicateValueException;
 import com.afyaquik.users.dto.AssignRolesRequest;
 import com.afyaquik.users.dto.UserDto;
@@ -31,6 +32,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -183,6 +185,12 @@ public class UserServiceImpl implements UserService {
                 .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
+    }
+
+    @Override
+    public User getById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     @Override
@@ -375,6 +383,25 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public ListFetchDto<UserResponse> getAllUsers(Pageable pageable) {
+        return ListFetchDto.<UserResponse>builder()
+                .results(userRepository.getAllUsersPaginated(pageable)
+                        .map(user -> UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .firstName(user.getFirstName())
+                                .secondName(user.getSecondName())
+                                .lastName(user.getLastName())
+                                .email(user.getEmail())
+                                .enabled(user.isEnabled())
+                                .available(user.isAvailable())
+                                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                                .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
+                                .build()))
+                .build();
+
+    }
 
 
 }
