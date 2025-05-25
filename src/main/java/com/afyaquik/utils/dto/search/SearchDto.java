@@ -1,0 +1,24 @@
+package com.afyaquik.utils.dto.search;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Setter
+@Getter
+@Builder
+@Data
+public class SearchDto {
+    private String query;
+    private String searchEntity;
+    private List<String> searchFields= new ArrayList<>();
+    private int page=0;
+    private int size=10;
+    private String dateFilter;
+    private String sort;
+
+}

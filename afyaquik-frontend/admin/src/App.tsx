@@ -19,6 +19,9 @@ import TriageItemEdit from "./patient/triage/TriageItemEdit";
 import TriageItemCreate from "./patient/triage/TriageItemCreate";
 import {AuthGuard} from "@afyaquik/shared";
 import authProvider from "./authProvider";
+import ObservationItemList from "./doctor/observation_item/ObservationItemList";
+import ObservationItemEdit from "./doctor/observation_item/ObservationItemEdit";
+import ObservationItemCreate from "./doctor/observation_item/ObservationItemCreate";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
@@ -28,6 +31,7 @@ const App = () => (
       <Resource name="stations" list={StationList} edit={StationEdit} create={StationCreate} />
       <Resource name="generalSettings" list={SettingsList} edit={SettingsEdit} create={SettingsCreate} />
       <Resource name="triageItems" list={TriageItemList} edit={TriageItemEdit} create={TriageItemCreate} />
+        <Resource name="observationItems" list={ObservationItemList} edit={ObservationItemEdit} create={ObservationItemCreate} />
     </Admin>
     </AuthGuard>
 );

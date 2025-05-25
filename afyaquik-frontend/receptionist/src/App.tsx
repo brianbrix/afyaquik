@@ -1,39 +1,47 @@
 import React from 'react';
 import './App.css';
-import {AuthGuard, Header, ToastProvider,} from "@afyaquik/shared";
-import PatientRegisterForm from "./PatientRegisterForm";
+import {AppointmentDetailsPage, AppointmentList, AuthGuard, Header, ToastProvider,} from "@afyaquik/shared";
 import {HashRouter, Route, Routes} from "react-router-dom";
-import PatientEditForm from "./PatientEditForm";
-import ReceptionPatientVisitForm from "./ReceptionPatientVisitForm";
-import ReceptionPatientAssignForm from "./ReceptionPatientAssignForm";
-import ReceptionPatientList from "./ReceptionPatientList";
-import PatientDetailsPage from "./PatientDetailsPage";
-import PatientVisitEditForm from "./PatientVisitEditForm";
-import PatientVisitDetailsPage from "./PatientVisitDetailsPage";
+
+import HomePage from "./HomePage";
+import ReceptionPatientList from "./patient/ReceptionPatientList";
+import PatientRegisterForm from "./patient/PatientRegisterForm";
+import PatientEditForm from "./patient/PatientEditForm";
+import PatientDetailsPage from "./patient/PatientDetailsPage";
+import ReceptionPatientVisitForm from "./patient/ReceptionPatientVisitForm";
+import PatientVisitEditForm from "./patient/PatientVisitEditForm";
+import PatientVisitDetailsPage from "./patient/PatientVisitDetailsPage";
+import ReceptionPatientAssignForm from "./patient/ReceptionPatientAssignForm";
+import AppointmentCreateForm from "./appointment/AppointmentCreateForm";
+import AppointmentEditForm from "./appointment/AppointmentEditForm";
+import ReceptionAppointmentDetailsPage from "./appointment/ReceptionAppointmentDetailsPage";
 
 function App() {
   return (
-      <HashRouter>
         <ToastProvider>
 
         <AuthGuard requiredRoles={['RECEPTIONIST']}>
-        <Header />
+        <Header homeUrl="/client/receptionist/index.html" />
         <div className="container my-4">
         <Routes>
-          <Route path="" element={<ReceptionPatientList />} />
-          <Route path="/patient/add" element={<PatientRegisterForm />} />
-          <Route path="/patient/:id/edit" element={<PatientEditForm />} />
-          <Route path="/patient/:id/details" element={<PatientDetailsPage />} />
-          <Route path="/patient/:id/visits/add" element={<ReceptionPatientVisitForm />} />
-          <Route path="/patient/visits/:id/edit" element={<PatientVisitEditForm />} />
-          <Route path="/patient/visits/:id/details" element={<PatientVisitDetailsPage />} />
-          <Route path="/patient/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
+          <Route path="" element={<HomePage />} />
+          <Route path="/patients" element={<ReceptionPatientList />} />
+          <Route path="/appointments" element={<AppointmentList />} />
+          <Route path="/patients/add" element={<PatientRegisterForm />} />
+          <Route path="/patients/:id/edit" element={<PatientEditForm />} />
+          <Route path="/patients/:id/details" element={<PatientDetailsPage />} />
+          <Route path="/patients/:id/visits/add" element={<ReceptionPatientVisitForm />} />
+          <Route path="/patients/visits/:id/edit" element={<PatientVisitEditForm />} />
+          <Route path="/patients/visits/:id/details" element={<PatientVisitDetailsPage />} />
+          <Route path="/patients/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
+
+          <Route path="/patients/:id/appointments/add" element={<AppointmentCreateForm />} />
+          <Route path="/appointments/:id/edit" element={<AppointmentEditForm />} />
+          <Route path="/appointments/:id/details" element={<ReceptionAppointmentDetailsPage />} />
         </Routes>
         </div>
       </AuthGuard>
         </ToastProvider>
-</HashRouter>
-
 
 );
 }

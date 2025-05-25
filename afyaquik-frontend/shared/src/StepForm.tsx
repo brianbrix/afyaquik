@@ -4,6 +4,7 @@ import {FieldConfig, StepConfig} from "./StepConfig";
 import DraftEditor from "./DraftEditor";
 import {Button, Col, Row} from "react-bootstrap";
 import {useParams} from "react-router-dom";
+import {formatForDatetimeLocal} from "./dateFormatter";
 
 interface StepFormProps {
     config: StepConfig[];
@@ -11,10 +12,11 @@ interface StepFormProps {
     defaultValues?: any;
     idFromParent?: number;
     submitButtonLabel?: string;
+    bottomComponents?: React.ReactNode[];
 
 }
 
-const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel }) => {
+const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents }) => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({ defaultValues });
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
@@ -73,7 +75,32 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                         else if (field.type === 'wysiwyg')
                         {
                             return <DraftEditor disabled={field.disabled} hidden={field.hidden} value={controllerField.value || ''} onChange={controllerField.onChange} />
-                        } else {
+                        }
+                        else if (field.type === 'datetime') {
+                            // Handle datetime-local input
+                            const handleDateTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                                const value = e.target.value;
+                                controllerField.onChange(value);
+                                field.onChange?.(value);
+                            };
+
+                            const rawValue = controllerField.value;
+                            const value = rawValue
+                                ? formatForDatetimeLocal(new Date(rawValue))
+                                : '';
+
+                            return (
+                                <input
+                                    hidden={field.hidden}
+                                    disabled={field.disabled}
+                                    type="datetime-local"
+                                    value={value}
+                                    onChange={handleDateTimeChange}
+                                    className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
+                                />
+                            );
+                        }
+                        else {
                             return (
                                 <input hidden={field.hidden} disabled={field.disabled}
                                        {...controllerField}
@@ -109,7 +136,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
             }
 
             if (isLastStep) {
-                onSubmit(stepData);
+                onSubmit(stepData)
             } else {
                 nextStep();
             }
@@ -146,6 +173,15 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                 </div>
                             ))}
                         </div>
+                        {bottomComponents && bottomComponents.length > 0 && (
+                            <Row className="mt-4 g-3">
+                                {bottomComponents.map((component, idx) => (
+                                    <Col key={`bottom-${idx}`} md={12}>
+                                        {component}
+                                    </Col>
+                                ))}
+                            </Row>
+                        )}
 
                         <div className="d-flex justify-content-between mt-4">
                             <div>
@@ -177,6 +213,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                             </div>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>

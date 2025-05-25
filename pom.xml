@@ -8,25 +8,12 @@
         <version>3.4.5</version>
     </parent>
     <groupId>com.afyaquik</groupId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <artifactId>afyaquik</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>afyaquik</name>
     <description>afyaquik</description>
-    <modules>
-        <module>dtos</module>
-        <module>afyaquik-core</module>
-        <module>afyaquik-users</module>
-        <module>afyaquik-receptionist</module>
-        <module>afyaquik-web</module>
-        <module>afyaquik-admin</module>
-        <module>afyaquik-billing</module>
-        <module>afyaquik-doctor</module>
-        <module>afyaquik-patients</module>
-        <module>afyaquik-reports</module>
-        <module>afyaquik-frontend</module>
-        <module>afyaquik-communication</module>
-    </modules>
+
     <url/>
     <licenses>
         <license/>
@@ -67,6 +54,14 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -103,6 +98,27 @@
             <artifactId>mapstruct</artifactId>
             <version>1.6.0.Beta1</version>
         </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -124,6 +140,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-compiler-plugin</artifactId>
@@ -148,6 +175,49 @@
                                 </annotationProcessorPaths>
                             </configuration>
                         </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.14.1</version>
+                <configuration>
+                    <workingDirectory>afyaquik-frontend</workingDirectory>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals><goal>install-node-and-npm</goal></goals>
+                        <configuration>
+                            <nodeVersion>v18.17.1</nodeVersion>
+                            <npmVersion>9.8.1</npmVersion>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm-install</id>
+                        <goals><goal>npm</goal></goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm-build</id>
+                        <goals><goal>npm</goal></goals>
+                        <configuration>
+                            <arguments>run build:all</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-build</id>
+                        <goals><goal>npm</goal></goals>
+                        <configuration>
+                            <arguments>run copy:all</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

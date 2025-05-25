@@ -6,9 +6,7 @@ AfyaQuik is a comprehensive healthcare management system designed to streamline 
 
 - **Patient Management**: Register, update, and manage patient information
 - **Appointment Scheduling**: Schedule and manage patient appointments
-- **Triage System**: Prioritize patients based on medical urgency
 - **Visit Tracking**: Record and track patient visits and medical notes
-- **Billing Management**: Generate and manage patient bills
 - **Reporting**: Generate various reports for administrative and clinical purposes
 - **User Management**: Manage system users with role-based access control
 - **Multi-interface Support**: Specialized interfaces for doctors, nurses, receptionists, and administrators
@@ -26,14 +24,13 @@ AfyaQuik is a comprehensive healthcare management system designed to streamline 
 - MapStruct
 - JUnit Jupiter (for testing)
 - SpringDoc OpenAPI (for API documentation)
+- JWT Authentication
 
 ### Frontend
 - React
-- Redux Toolkit
 - React Router
-- Bootstrap 5
+- Bootstrap
 - SASS
-- PapaParse (for CSV parsing)
 
 ### DevOps
 - Docker
@@ -44,17 +41,12 @@ AfyaQuik is a comprehensive healthcare management system designed to streamline 
 The project follows a modular architecture with separate backend services and frontend applications:
 
 ### Backend Modules
-- **afyaquik-core**: Core functionality and shared components
-- **afyaquik-users**: User management and authentication
-- **afyaquik-patients**: Patient management
-- **afyaquik-appointments**: Appointment scheduling
-- **afyaquik-billing**: Billing management
-- **afyaquik-reports**: Reporting functionality
-- **afyaquik-communication**: Communication services
-- **afyaquik-admin**: Administrative functions
-- **afyaquik-doctor**: Doctor-specific functionality
-- **afyaquik-receptionist**: Receptionist-specific functionality
-- **afyaquik-web**: Web interface components
+- **appointments**: Appointment scheduling functionality
+- **patients**: Patient management
+- **reports**: Reporting functionality
+- **users**: User management and authentication
+- **utils**: Utility classes and helpers
+- **web**: Web interface components
 - **dtos**: Data Transfer Objects shared across modules
 
 ### Frontend Applications
@@ -71,8 +63,8 @@ The project follows a modular architecture with separate backend services and fr
 ### Prerequisites
 - Java 17 or higher
 - Maven 3.6 or higher
-- Node.js 16 or higher
-- npm 8 or higher
+- Node.js 18 or higher
+- npm 9 or higher
 - PostgreSQL 14 or higher
 - Docker and Docker Compose (optional, for containerized deployment)
 
@@ -88,7 +80,7 @@ The project follows a modular architecture with separate backend services and fr
    mvn clean install
    ```
 
-3. Configure the database connection in `application.properties` or `application.yml` files of each module.
+3. Configure the database connection in `application.properties` or `application.yml`.
 
 4. Run the backend services:
    ```
@@ -123,19 +115,19 @@ The project follows a modular architecture with separate backend services and fr
    ```
 
 2. Access the services at:
-   - Backend API: http://localhost:8080/api
-   - Admin Frontend: http://localhost:8080/client/admin/index.html
-   - User Management Frontend: http://localhost:8080/client/auth/index.html
-   - Doctor Frontend: http://localhost:8080/client/doctor/index.html
-   - Receptionist Frontend: http://localhost:8080/client/receptionist/index.html
-   - Reports Frontend: http://localhost:8080/client/reports/index.html
+   - Backend API: http://localhost:8080
+   - Admin Frontend: http://localhost:3001
+   - Auth Frontend: http://localhost:3002
+   - Doctor Frontend: http://localhost:3003
+   - Receptionist Frontend: http://localhost:3004
+   - Reports Frontend: http://localhost:3005
 
 ## API Documentation
 
 API documentation is available via SpringDoc OpenAPI. After starting the backend services, access the API documentation at:
 
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ## Contributing
