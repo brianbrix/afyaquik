@@ -5,6 +5,7 @@ import com.afyaquik.doctor.service.ObservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class ObservationItemController {
     private final ObservationService observationService;
     @PostMapping
-    public ResponseEntity<ObservationItemDto> addObservationItem(@RequestBody ObservationItemDto  observationItemDto) {
+    public ResponseEntity<ObservationItemDto> addObservationItem(@Validated @RequestBody ObservationItemDto  observationItemDto) {
         return ResponseEntity.ok(observationService.addObservationItem(observationItemDto));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ObservationItemDto> updateObservationItem(@RequestBody ObservationItemDto observationItemDto, @PathVariable Long id) {
+    public ResponseEntity<ObservationItemDto> updateObservationItem(@Validated @RequestBody ObservationItemDto observationItemDto, @PathVariable Long id) {
         return ResponseEntity.ok(observationService.updateObservationItem(id, observationItemDto));
     }
     @GetMapping("/{id}")

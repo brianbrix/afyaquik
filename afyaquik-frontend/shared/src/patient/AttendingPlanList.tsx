@@ -1,5 +1,4 @@
 import {useEffect, useState} from "react";
-import { FieldConfig } from "../StepConfig";
 import apiRequest from "../api";
 import React from "react";
 import DataTable from "../DataTable";

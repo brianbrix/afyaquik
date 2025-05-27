@@ -6,8 +6,8 @@ import com.afyaquik.communication.entity.Notification;
 import java.util.List;
 
 public interface NotificationService {
-    NotificationDto sendToUser(Long userId, String title, String message, String url, String type);
-    List<NotificationDto> getUnread(Long userId);
+    NotificationDto sendToUser(NotificationDto notificationDto);
+    List<NotificationDto> getUnread(Long userId, String roleName);
     void markAsRead(Long id);
-    void markAllAsRead(Long userId);
+    void markAllAsRead(Long userId, String roleName);
 }

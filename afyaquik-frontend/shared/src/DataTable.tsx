@@ -17,6 +17,7 @@ interface DataTableProps<T> {
     requestMethod?: string;
     searchFields?: FieldConfig[];
     searchEntity?: string;
+    combinedSearchFieldsAndTerms?:string;
     defaultPageSize?: number;
     isSearchable?: boolean;
     dateFieldName?:string;
@@ -47,10 +48,10 @@ function DataTable<T extends { id: number }>({
                                                  searchFields = [],
                                                  searchEntity = 'patients',
                                                  defaultPageSize = 10,
-                                                 isSearchable,dateFieldName
+                                                 isSearchable,dateFieldName, combinedSearchFieldsAndTerms
                                              }: DataTableProps<T>) {
 
-    const [searchTerm, setSearchTerm] = useState('');
+    let [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState<string | null>(null);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [currentPage, setCurrentPage] = useState(0);
@@ -60,11 +61,11 @@ function DataTable<T extends { id: number }>({
     const [isSearching, setIsSearching] = useState(false);
     const [selectedFields, setSelectedFields] = useState<FieldConfig[]>(searchFields);
     const [showFieldSelector, setShowFieldSelector] = useState(false);
-    const [dateField, setDateField] = useState('');
+    const [dateFieldValue, setDateFieldValue] = useState('');
 
     const onResetFilters = () => {
         setSearchTerm('');
-        setDateField('');
+        setDateFieldValue('');
         setSelectedFields([]);
         setCurrentPage(0);
     };
@@ -75,7 +76,7 @@ function DataTable<T extends { id: number }>({
                 page,
                 size,
                 ...(sort && { sort }),
-                ...(dateField && { dateFilter : dateFieldName?dateFieldName+'#'+dateField : 'createdAt'+'#'+dateField }),
+                ...((dateFieldValue && dateFieldName) && { dateFilter : dateFieldName?dateFieldName+'#'+dateFieldValue : 'createdAt'+'#'+dateFieldValue }),
                 ...(searchEntity && { searchEntity: searchEntity})
             };
 
@@ -93,6 +94,14 @@ function DataTable<T extends { id: number }>({
 
                 response = await apiRequest(`${dataEndpoint}?${queryParams.toString()}`);
             } else {
+                if (combinedSearchFieldsAndTerms)
+                {
+                    if (searchTerm.length > 0)
+                    {
+                        searchTerm+=',';
+                    }
+                    searchTerm+=combinedSearchFieldsAndTerms;
+                }
                 const requestBody = {
                     ...params,
                     searchEntity: searchEntity,
@@ -124,11 +133,13 @@ function DataTable<T extends { id: number }>({
     if (dataEndpoint) {
         useEffect(() => {
             if (searchTerm.length >= 3 || searchTerm.length === 0) {
-                const sortParam = sortField ? `${sortField},${sortDirection}` : 'createdAt,desc';
+                let sortParam = sortField ? `${sortField},${sortDirection}` : 'createdAt,desc';
+                if (dateFieldName)
+                    sortParam = `${dateFieldName},desc`;
                 fetchData(currentPage, pageSize, sortParam);
             }
 
-        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateField]);
+        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateFieldValue]);
     }
 
     const handleSort = (field: string) => {
@@ -204,8 +215,8 @@ function DataTable<T extends { id: number }>({
                     showFieldSelector={showFieldSelector}
                     setShowFieldSelector={setShowFieldSelector}
                     isLoading={isSearching}
-                    dateField={dateField}
-                    onDateFieldChange={setDateField}
+                    dateFieldValue={dateFieldValue}
+                    onDateFieldChange={setDateFieldValue}
                     onResetFilters={onResetFilters}
                     setCurrentPage={setCurrentPage}
 
@@ -245,8 +256,8 @@ function DataTable<T extends { id: number }>({
                         <tr key={record.id}>
                             {columns.map(col => {
                                 const value = resolveValue(record, col.accessor);
-                                const isDate = col.type === 'date' || col.type === 'datetime';
-                                const display = isDate ? formatDate(value) : value;
+                                let display = col.type === 'date' ? formatDate(value, true) : value;
+                                display = col.type === 'datetime'?formatDate(value):display;
 
                                 return (
                                     <td key={`${record.id}-${col.accessor}`}>

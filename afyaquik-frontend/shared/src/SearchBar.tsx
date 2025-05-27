@@ -12,7 +12,7 @@ interface SearchBarProps {
     showFieldSelector: boolean;
     setShowFieldSelector: (value: boolean) => void;
     isLoading: boolean;
-    dateField: string;
+    dateFieldValue: string;
     onDateFieldChange: (value: string) => void;
     onResetFilters: () => void;
     setCurrentPage: (page: number) => void;
@@ -29,7 +29,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                                                  showFieldSelector,
                                                  setShowFieldSelector,
                                                  isLoading,
-    dateField, onDateFieldChange, onResetFilters,setCurrentPage
+    dateFieldValue, onDateFieldChange, onResetFilters,setCurrentPage
                                              }) => {
     return (
         <>
@@ -64,7 +64,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     <Form.Label>Filter by date</Form.Label>
                     <Form.Control
                         type="date"
-                        value={dateField}
+                        value={dateFieldValue}
                         onChange={(e) => {
                             onDateFieldChange(e.target.value)
                             setCurrentPage(0);

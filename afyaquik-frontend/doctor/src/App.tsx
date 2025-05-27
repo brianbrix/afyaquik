@@ -1,28 +1,27 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {AuthGuard, Header} from '@afyaquik/shared';
+import {AppointmentList, AuthGuard, Header, ToastProvider} from '@afyaquik/shared';
+import {Route, Routes} from "react-router-dom";
+import DoctorPatientVisitList from "./patient/DoctorPatientVisitList";
+import DoctorPatientVisitDetailsPage from "./patient/DoctorPatientVisitDetailsPage";
+
 function App() {
   return (
-      <AuthGuard requiredRoles={['DOCTOR']}>
-        <Header />
-        <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-      </AuthGuard>
+      <ToastProvider>
+
+          <AuthGuard requiredRoles={['DOCTOR']}>
+              <Header homeUrl="/client/doctor/index.html" />
+              <div className="container my-4">
+                  <Routes>
+                      <Route path="" element={<DoctorPatientVisitList />} />
+                      <Route path="/visits" element={<DoctorPatientVisitList />} />
+                      <Route path="/visits/:id/details" element={<DoctorPatientVisitDetailsPage />} />
+
+                  </Routes>
+              </div>
+          </AuthGuard>
+      </ToastProvider>
   );
 }
 

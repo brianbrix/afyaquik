@@ -8,7 +8,20 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface NotificationMapper extends EntityMapper<Notification, NotificationDto> {
-    @Override
-    NotificationDto toDto(Notification notification);
+    default NotificationDto toDto(Notification entity) {
+        return NotificationDto.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .message(entity.getMessage())
+                .type(entity.getType().name())
+                .read(entity.isRead())
+                .readAt(entity.getReadAt())
+                .createdAt(entity.getCreatedAt())
+                .targetUrl(entity.getTargetUrl())
+                .recipientId(entity.getRecipient().getId())
+                .recipientRole(entity.getRecipientRole().getName())
+                .recipientRoleId(entity.getRecipientRole().getId())
+                .build();
+    }
 
 }

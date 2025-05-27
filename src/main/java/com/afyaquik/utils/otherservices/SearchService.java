@@ -5,5 +5,5 @@ import com.afyaquik.utils.dto.search.SearchResponseDto;
 import org.springframework.data.domain.Pageable;
 
 public interface SearchService {
-     SearchResponseDto search(SearchDto searchDto, Pageable pageable);
+     SearchResponseDto search(SearchDto searchDto);
 }

@@ -1,6 +1,6 @@
 package com.afyaquik.patients.enums;
 
 public enum VisitStatus {
-    RECEPTION,NURSE,DOCTOR,PHARMACY,CASHIER,COMPLETED,
+    PENDING,COMPLETED,PAID,CANCELLED,IN_PROGRESS,
     STARTED //temporary status
 }

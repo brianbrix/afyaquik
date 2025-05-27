@@ -10,6 +10,7 @@ import com.afyaquik.patients.entity.PatientAttendingPlan;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
+import com.afyaquik.utils.mappers.patients.PatientAttendingPlanMapper;
 import com.afyaquik.utils.mappers.patients.PatientVisitMapper;
 import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
 import com.afyaquik.patients.repository.PatientRepository;
@@ -40,6 +41,7 @@ public class PatientServiceImpl implements PatientService {
     private final UserService userService;
     private final SecurityService securityService;
     private final PatientVisitMapper patientVisitMapper;
+    private final PatientAttendingPlanMapper patientAttendingPlanMapper;
 
     private static PatientDto buildPatientDto(Patient patient) {
         PatientDto patientDto = PatientDto.builder()
@@ -187,14 +189,7 @@ public class PatientServiceImpl implements PatientService {
         patientVisit.getPatientAttendingPlan().add(patientAttendingPlan);
         patientVisitRepository.save(patientVisit);
 
-        return PatientAttendingPlanDto.builder()
-                .id(patientAttendingPlan.getId())
-                .patientName(patientVisit.getPatient().getPatientName())
-                .nextStation(patientAttendingPlan.getNextStation().getName())
-                .assignedOfficer(patientAttendingPlan.getAssignedOfficer().getUsername())
-                .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
-                .attendingOfficerUserName(patientAttendingPlan.getAttendingOfficer().getUsername())
-                .build();
+        return patientAttendingPlanMapper.toDto(patientAttendingPlan);
 
     }
 
@@ -215,14 +210,7 @@ public class PatientServiceImpl implements PatientService {
         patientAttendingPlan.setAssignedOfficer(userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer()));
 
         patientAttendingPlan = patientAttendingPlanRepo.save(patientAttendingPlan);
-        return PatientAttendingPlanDto.builder()
-            .id(patientAttendingPlan.getId())
-                .patientName(patientAttendingPlan.getPatientVisit().getPatient().getPatientName())
-                .nextStation(patientAttendingPlan.getNextStation().getName())
-                .assignedOfficer(patientAttendingPlan.getAssignedOfficer().getUsername())
-            .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
-            .attendingOfficerUserName(patientAttendingPlan.getAttendingOfficer().getUsername())
-            .build();
+        return patientAttendingPlanMapper.toDto(patientAttendingPlan);
     }
 
 

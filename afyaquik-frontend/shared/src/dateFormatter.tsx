@@ -1,8 +1,11 @@
 import dayjs from 'dayjs';
-export default function formatDate(value: any): string {
+export default function formatDate(value: any, isDate?:boolean): string {
     if (!value) return 'N/A';
     const date = new Date(value);
     if (isNaN(date.getTime())) return value;
+    if (isDate){
+        return dayjs(date).format('DD MMM YYYY');
+    }
     return dayjs(date).format('DD MMM YYYY, hh:mm A');
 }
 

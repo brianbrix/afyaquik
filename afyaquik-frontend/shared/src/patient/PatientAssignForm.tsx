@@ -4,6 +4,7 @@ import apiRequest from "../api";
 import React, { useEffect, useState } from "react";
 import {Button} from "react-bootstrap";
 import {useToast} from "../ToastContext";
+import {sendNotification} from "../communication/NotificationService";
 interface PatientAssignProps {
     visitId?: number;
 }
@@ -100,6 +101,12 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                 apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data }, showToast)
                     .then((response) => {
                         console.log(response)
+                        sendNotification(
+                            response.assignedOfficerId,'New Patient alert',
+                            `You have been assigned a new patient by ${response.attendingOfficer}`,
+                            `index.html#/visits/${visitId}/details`,
+                            'VISIT', 'DOCTOR'
+                        )
                         window.location.href = `index.html#/patients/visits/${visitId}/details`
                     })
                     .catch((err) => console.error(err));

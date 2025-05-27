@@ -13,6 +13,7 @@ public class PatientAttendingPlanDto {
     private String patientName;
     private String attendingOfficerUserName;
     private String assignedOfficer;
+    private Long assignedOfficerId;
     private String nextStation;
     private LocalDateTime createdAt;
 

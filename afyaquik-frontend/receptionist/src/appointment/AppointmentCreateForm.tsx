@@ -102,7 +102,7 @@ const AppointmentCreateForm = () => {
                             "New Appointment",
                             `You have a new appointment with ${data.patientId} on ${data.appointmentDateTime}.`,
                             `index.html#/appointments/${response.id}/details`,
-                            'APPOINTMENT'
+                            'APPOINTMENT','DOCTOR'
                         );
                         window.location.href = `index.html#/appointments/${response.id}/details`;
 

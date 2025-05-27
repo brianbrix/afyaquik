@@ -41,7 +41,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitDate(LocalDate.now())
                 .visitType(VisitType.valueOf(patientVisitDto.getVisitType()))
                 .build();
-
+        patientVisit.setVisitStatus(VisitStatus.STARTED);
         PatientVisit savedVisit = patientVisitRepository.save(patientVisit);
 
         return PatientVisitDto.builder()
@@ -66,6 +66,9 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         patientVisit.setNextVisitDate(patientVisitDto.getNextVisitDate());
         if (patientVisitDto.getVisitStatus()!=null) {
             patientVisit.setVisitStatus(VisitStatus.valueOf(patientVisitDto.getVisitStatus()));
+        }
+        else {
+            patientVisit.setVisitStatus(VisitStatus.STARTED); //todo work on this status
         }
         patientVisitRepository.save(patientVisit);
         return PatientVisitDto.builder()

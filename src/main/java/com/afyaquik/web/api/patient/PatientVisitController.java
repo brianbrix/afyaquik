@@ -36,11 +36,11 @@ public class PatientVisitController {
         return ResponseEntity.ok(patientVisitService.updatePatientVisit(patientVisitDto));
     }
     @PostMapping("/plan/create")
-    public ResponseEntity<?> createAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
+    public ResponseEntity<PatientAttendingPlanDto> createAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
         return ResponseEntity.ok(patientService.createPatientAttendingPlan(planDto));
     }
     @PutMapping("/plan/update")
-    public ResponseEntity<?> updateAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
+    public ResponseEntity<PatientAttendingPlanDto> updateAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
         return ResponseEntity.ok(patientService.updatePatientAttendingPlan(planDto));
     }
 

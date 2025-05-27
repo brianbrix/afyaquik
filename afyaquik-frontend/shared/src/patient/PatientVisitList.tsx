@@ -10,7 +10,7 @@ interface PatientVisitListProps {
 const columns = [
     { header: '#', accessor: 'id' },
     { header: 'Visit Type', accessor: 'visitType' },
-    { header: 'Date of Visit', accessor: 'visitDate', type:'datetime' }
+    { header: 'Date of Visit', accessor: 'visitDate', type:'date' }
 ];
 
 

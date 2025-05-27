@@ -6,6 +6,7 @@ import com.afyaquik.utils.dto.search.ListFetchDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class ObservationController {
     private final ObservationService observationService;
     @PostMapping("/add")
-    public ResponseEntity<ObservationReportDto> addObservation(@RequestBody ObservationReportDto  observationReportDto) {
+    public ResponseEntity<ObservationReportDto> addObservation(@Validated @RequestBody ObservationReportDto  observationReportDto) {
         return ResponseEntity.ok(observationService.addObservationReport(observationReportDto));
     }
     @PostMapping("/update/{id}")
-    public ResponseEntity<ObservationReportDto> updateObservation(@PathVariable Long id, @RequestBody ObservationReportDto observationReportDto) {
+    public ResponseEntity<ObservationReportDto> updateObservation(@PathVariable Long id, @Validated @RequestBody ObservationReportDto observationReportDto) {
         return ResponseEntity.ok(observationService.updateObservationReport(id,observationReportDto));
     }
     @PostMapping("/{id}/delete")

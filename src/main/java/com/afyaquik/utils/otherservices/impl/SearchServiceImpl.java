@@ -11,9 +11,7 @@ import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -40,7 +38,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     @Cacheable("searchResults")
-    public SearchResponseDto search(SearchDto searchDto, Pageable pageable) {
+    public SearchResponseDto search(SearchDto searchDto) {
         String entityKey = searchDto.getSearchEntity();
         if (entityKey == null) throw new IllegalArgumentException("Search entity not specified");
 
@@ -61,6 +59,25 @@ public class SearchServiceImpl implements SearchService {
             if (predicate!=null) {
                 query.where(predicate);
             }
+
+            Pageable pageable;
+            if (searchDto.getSort() != null && !searchDto.getSort().isBlank()) {
+                String[] sortParts = searchDto.getSort().split(",");
+                if (sortParts.length == 2) {
+                    String sortField = sortParts[0].trim();
+                    String sortDirection = sortParts[1].trim().toLowerCase();
+                    Sort sort = sortDirection.equals("desc")
+                            ? Sort.by(Sort.Order.desc(sortField))
+                            : Sort.by(Sort.Order.asc(sortField));
+
+                    pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize(), sort);
+                } else {
+                    pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize());
+                }
+            } else {
+                pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize());
+            }
+
 
             // Sorting
             if (pageable.getSort().isSorted()) {
@@ -144,59 +161,103 @@ public class SearchServiceImpl implements SearchService {
             return null;
         }
     }
+
+
     private Predicate buildPredicates(SearchDto dto, CriteriaBuilder cb, Root<?> root, Class<?> entityClass) {
         List<Predicate> predicates = new ArrayList<>();
-        if (dto.getSearchFields()==null) dto.setSearchFields(new ArrayList<>());
+        if (dto.getSearchFields() == null) dto.setSearchFields(new ArrayList<>());
+
+        // Handle date filter
         if (dto.getDateFilter() != null && !dto.getDateFilter().isEmpty()) {
-            String fieldPath = dto.getDateFilter().split("#")[0];
-            String fieldValue = dto.getDateFilter().split("#")[1];
-            if (fieldPath == null || fieldPath.isEmpty()) {
-                throw new IllegalArgumentException("Invalid date filter format: " + dto.getDateFilter());
-            }
-            Path<?> path = resolveJoinPath(root, fieldPath, entityClass);
+            String[] parts = dto.getDateFilter().split("#");
+            if (parts.length == 2) {
+                String fieldPath = parts[0];
+                String fieldValue = parts[1];
+
+                Path<?> path = resolveJoinPath(root, fieldPath, entityClass);
                 LocalDate parsedDate = parseDateToLocalDate(fieldValue);
                 if (parsedDate != null) {
-                    // Match any time within that date
                     predicates.add(cb.between(
                             path.as(LocalDateTime.class),
                             parsedDate.atStartOfDay(),
                             parsedDate.plusDays(1).atStartOfDay()
                     ));
-
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid date filter format: " + dto.getDateFilter());
             }
         }
-        if (dto.getQuery() != null && !dto.getQuery().isEmpty() &&
-                dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
 
+        // Handle search terms
+        if (dto.getQuery() != null && !dto.getQuery().isEmpty()
+                && dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
 
-            String searchTerm = dto.getQuery().toLowerCase(Locale.ROOT);
-            List<Predicate> queryPredicates = new ArrayList<>();
+            String[] searchTerms = dto.getQuery().toLowerCase(Locale.ROOT).split(",");
+            List<Predicate> termPredicates = new ArrayList<>();
 
-            for (String field : dto.getSearchFields()) {
-                try {
-                    Path<?> path = resolveJoinPath(root, field, entityClass);
-                    Class<?> type = path.getJavaType();
+            for (String term : searchTerms) {
+                term = term.trim();
+                List<Predicate> fieldPredicates = new ArrayList<>();
+                if (!term.contains("=")) {
+                    for (String field : dto.getSearchFields()) {
+                        try {
+                            Path<?> path = resolveJoinPath(root, field, entityClass);
+                            Class<?> type = path.getJavaType();
 
-                    if (type.equals(String.class)) {
-                        queryPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + searchTerm + "%"));
-                    } else if (type.equals(LocalDateTime.class)) {
-                        LocalDateTime parsed = parseDate(searchTerm);
-                        if (parsed != null) queryPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
-
-                    } else {
-                        queryPredicates.add(cb.equal(path.as(String.class), searchTerm)); // fallback
+                            if (type.equals(String.class)) {
+                                fieldPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + term + "%"));
+                            } else if (type.equals(LocalDateTime.class)) {
+                                LocalDateTime parsed = parseDate(term);
+                                if (parsed != null)
+                                    fieldPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                            } else {
+                                fieldPredicates.add(cb.equal(path.as(String.class), term)); // fallback
+                            }
+                        } catch (IllegalArgumentException e) {
+                            log.warn("Invalid search field: {}", field);
+                        }
                     }
-                } catch (IllegalArgumentException e) {
-                    log.warn("Invalid search field: {}", field);
+                    if (!fieldPredicates.isEmpty()) {
+                        termPredicates.add(cb.or(fieldPredicates.toArray(new Predicate[0])));
+                    }
+                }
+                else
+                {
+                    List<Predicate> extraTermPredicates = new ArrayList<>();
+
+                    try {
+                        String[] parts = term.split("=");
+                        String field = parts[0].trim();
+                        String value = parts[1].trim();
+
+                        Path<?> path = resolveJoinPath(root, field, entityClass);
+                        Class<?> type = path.getJavaType();
+
+                        if (type.equals(String.class)) {
+                            extraTermPredicates.add(cb.equal(cb.lower(path.as(String.class)), value.toLowerCase(Locale.ROOT)));
+                        } else if (type.equals(LocalDateTime.class)) {
+                            LocalDateTime parsed = parseDate(value);
+                            if (parsed != null)
+                                extraTermPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                        } else {
+                            extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
+                        }
+                    } catch (IllegalArgumentException e) {
+                        log.warn("Invalid search term: {}", term);
+                    }
+                    if (!extraTermPredicates.isEmpty()) {
+                        termPredicates.add(cb.and(extraTermPredicates.toArray(new Predicate[0])));
+                    }
+
                 }
             }
-            if (!queryPredicates.isEmpty()) {
-                predicates.add(cb.or(queryPredicates.toArray(new Predicate[0])));
+
+            if (!termPredicates.isEmpty()) {
+                predicates.add(cb.or(termPredicates.toArray(new Predicate[0])));
             }
         }
 
         return predicates.isEmpty() ? null : cb.and(predicates.toArray(new Predicate[0]));
-
     }
 
     private Class<?> resolveEntityClass(String key) throws ClassNotFoundException {
