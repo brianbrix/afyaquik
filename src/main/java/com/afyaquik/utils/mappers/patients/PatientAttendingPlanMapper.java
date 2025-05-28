@@ -26,6 +26,7 @@ public interface PatientAttendingPlanMapper extends EntityMapper<PatientAttendin
                 .assignedOfficerId(entity.getAssignedOfficer().getId())
                 .nextStation(entity.getNextStation().getName())
                 .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 }

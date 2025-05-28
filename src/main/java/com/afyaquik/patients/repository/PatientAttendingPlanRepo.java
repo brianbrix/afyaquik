@@ -17,6 +17,8 @@ public interface PatientAttendingPlanRepo extends JpaRepository<PatientAttending
     Page<PatientAttendingPlan> findAllByAttendingOfficerId(Long attendingOfficerId, Pageable pageable);
     Page<PatientAttendingPlan> findAllByNextStationId(Long nextStationId, Pageable pageable);
     Page<PatientAttendingPlan> findAllByPatientVisitId(Long patientVisitId, Pageable pageable);
+    Page<PatientAttendingPlan> findAllByPatientVisitIdAndAssignedOfficerId(Long patientVisitId,Long assignedOfficerId,Pageable pageable);
+    Page<PatientAttendingPlan> findAllByPatientVisitIdAndAttendingOfficerId(Long patientVisitId, Long attendingOfficerId, Pageable pageable);
 
     Optional<PatientAttendingPlan> findByAssignedOfficerAndNextStationAndPatientVisit(User assignedOfficer, Station nextStation, PatientVisit patientVisit);
 }

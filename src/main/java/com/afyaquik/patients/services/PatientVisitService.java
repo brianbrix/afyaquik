@@ -13,5 +13,8 @@ public interface PatientVisitService {
     PatientVisitDto updatePatientVisit(PatientVisitDto patientVisitDto);
     PatientVisitDto getPatientVisitDetails(Long visitId, Set<String> detailsType);
     PatientVisit getPatientVisit(Long visitId);
-    ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlan(Long visitId, Pageable pageable);
+    ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlans(Long visitId, Pageable pageable);
+    ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlanForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable);
+
+ PatientAttendingPlanDto getVisitAttendingPlan(Long planId);
 }

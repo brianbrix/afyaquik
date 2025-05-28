@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import {DetailsPage} from "@afyaquik/shared";
+import {AttendingPlanList, DetailsPage} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React from "react";
 
@@ -9,18 +9,24 @@ const components = function (visitId:any){
         <div className="d-flex justify-content-between">
             <Button
                 variant="outline-info"
-                onClick={() => window.location.href = `index.html#/visits/${visitId}/details`}
+                onClick={() => window.location.href = `index.html`}
             >
                 Got to Visits
             </Button>
-            <Button
-                variant="outline-success"
-                onClick={() => window.location.href = `index.html`}
-            >
-                Go to Patients List
-            </Button>
         </div>
     )
+}
+const columns = [
+    { header: '#', accessor: 'id' },
+    { header: 'Patient Name', accessor: 'patientName' },
+    { header: 'Assigning Officer', accessor: 'attendingOfficerUserName' },
+    { header: 'Assigned Date/Time', accessor: 'updatedAt', type:'datetime' },
+    { header: 'Station', accessor: 'nextStation' }
+];
+const attendingPlanList= function (visitId:number){
+return (
+    <AttendingPlanList visitId={visitId} columns={columns} detailsView={"index.html#/plans/#id/details"}/>
+)
 }
 const DoctorPatientVisitDetailsPage = () => {
     let  params = useParams();
@@ -37,6 +43,9 @@ const DoctorPatientVisitDetailsPage = () => {
 
     return (
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
+                     otherComponentsToRender={[
+                         {title:'Attending Plan',content:attendingPlanList(id)}
+                     ]}
         />
     )
 }

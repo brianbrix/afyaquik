@@ -9,7 +9,7 @@ const columns = [
     { header: '#', accessor: 'id' },
     { header: 'Patient Name', accessor: 'patientName' },
     { header: 'Visit Type', accessor: 'visitType' },
-    { header: 'Time assigned', accessor: 'visitDate', type: 'date' }
+    { header: 'Date of Visit', accessor: 'visitDate', type: 'datetime' }
 ];
 
 const searchFields = [

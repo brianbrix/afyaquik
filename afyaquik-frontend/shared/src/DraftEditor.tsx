@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { EditorState, convertToRaw, ContentState } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
@@ -7,9 +7,9 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 interface DraftEditorProps {
     value: string;
-    onChange: (html: string) => void;
     disabled?: boolean;
     hidden?: boolean;
+    onChange: (value: string) => void;
     textDirection?: 'ltr' | 'rtl';
 }
 
@@ -18,48 +18,52 @@ const DraftEditor: React.FC<DraftEditorProps> = ({
                                                      onChange,
                                                      disabled = false,
                                                      hidden = false,
-                                                     textDirection = 'ltr'
                                                  }) => {
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+    const lastHtml = useRef<string>(''); // cache to prevent unnecessary resets
 
-    // Initialize editor content
+    // Only update state if external value changes and is different
     useEffect(() => {
-        if (value) {
+        if (value && value !== lastHtml.current) {
             try {
                 const blocksFromHtml = htmlToDraft(value);
                 const contentState = ContentState.createFromBlockArray(
                     blocksFromHtml.contentBlocks,
                     blocksFromHtml.entityMap
                 );
-                setEditorState(EditorState.createWithContent(contentState));
+                const newEditorState = EditorState.createWithContent(contentState);
+                setEditorState(newEditorState);
+                lastHtml.current = value;
             } catch (error) {
                 console.error('Error parsing HTML:', error);
-                setEditorState(EditorState.createEmpty());
             }
-        } else {
-            setEditorState(EditorState.createEmpty());
         }
     }, [value]);
 
     const handleEditorChange = (state: EditorState) => {
         setEditorState(state);
         const html = draftToHtml(convertToRaw(state.getCurrentContent()));
-        onChange(html);
+
+        // Avoid re-calling if content hasn't changed
+        if (html !== lastHtml.current) {
+            lastHtml.current = html;
+            onChange(html);
+        }
     };
 
     if (hidden) return null;
 
     return (
-        <div style={{ direction: textDirection }}>
+        <div>
             <Editor
                 editorState={editorState}
+                wrapperClassName="editor-wrapper"
+                editorClassName="afyaquik-editor"
                 onEditorStateChange={handleEditorChange}
-                toolbarHidden={disabled}
                 readOnly={disabled}
                 editorStyle={{
                     minHeight: '200px',
                     padding: '10px',
-                    direction: textDirection
                 }}
                 wrapperStyle={{
                     border: '1px solid #ddd',
@@ -69,4 +73,5 @@ const DraftEditor: React.FC<DraftEditorProps> = ({
         </div>
     );
 };
+
 export default DraftEditor;

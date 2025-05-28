@@ -5,39 +5,45 @@ import DataTable from "../DataTable";
 
 interface AttendingPlanListProps {
     visitId: number;
+    columns: { header: string; accessor: string; sortable?: boolean | undefined; type?: string | undefined; }[];
+    dataEndpoint?:string;
+    editView?: string;
+    addView?: string;
+    detailsView?: string;
 }
-const columns = [
-    { header: '#', accessor: 'id' },
-    { header: 'Patient Name', accessor: 'patientName' },
-    { header: 'Attending Officer', accessor: 'attendingOfficerUserName' },
-    { header: 'Assigned Officer', accessor: 'assignedOfficer' },
-    { header: 'Next Station', accessor: 'nextStation' }
-];
 
-const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId}) => {
+
+const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView}) => {
     const [plans, setPlans] = useState([]);
     useEffect(() => {
-        apiRequest(`/patient/visits/${visitId}/plan`, { method: 'GET' })
+        apiRequest(dataEndpoint?dataEndpoint:`/patient/visits/${visitId}/plans`, { method: 'GET' })
             .then(data => {
                 setPlans(data);
             })
             .catch(err => console.error(err));
     }, []);
 
+    const dataTableProps: any = {
+        title: "Attending Plan",
+        columns,
+        data: plans,
+        isSearchable: false,
+        requestMethod: 'GET',
+        dataEndpoint: `/patient/visits/${visitId}/plans`
+    };
 
-    return (
+    if (addView) {
+        dataTableProps.addView = `index.html#/patients/visits/${visitId}/assign`;
+    }
 
-        <DataTable
-            title="Attending Plan"
-            columns={columns}
-            data={plans}
-            addView={`index.html#/patients/visits/${visitId}/assign`}
-            // detailsView={"index.html#/patients/visits/#id/details"}
-            isSearchable={false}
-            // searchFields={searchFields}
-            // searchEntity={'patients'}
-            requestMethod={'GET'}
-            dataEndpoint={`/patient/visits/${visitId}/plan`}
-        />);
+    if (editView) {
+        dataTableProps.editView = editView;
+    }
+
+    if (detailsView) {
+        dataTableProps.detailsView = detailsView;
+    }
+
+    return <DataTable {...dataTableProps} />;
 }
 export default AttendingPlanList;

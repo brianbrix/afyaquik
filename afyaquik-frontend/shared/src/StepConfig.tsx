@@ -18,5 +18,6 @@ export interface StepConfig {
     label: string
     topComponents?: React.ReactNode[];
     fields: FieldConfig[];
+    stepButtonLabel?: string;
     onStepSubmit?: (stepData: any, id:number | undefined) => Promise<any>;
 }

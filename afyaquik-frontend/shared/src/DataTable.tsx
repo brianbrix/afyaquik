@@ -48,7 +48,7 @@ function DataTable<T extends { id: number }>({
                                                  searchFields = [],
                                                  searchEntity = 'patients',
                                                  defaultPageSize = 10,
-                                                 isSearchable,dateFieldName, combinedSearchFieldsAndTerms
+                                                 isSearchable,dateFieldName='createdAt', combinedSearchFieldsAndTerms
                                              }: DataTableProps<T>) {
 
     let [searchTerm, setSearchTerm] = useState('');

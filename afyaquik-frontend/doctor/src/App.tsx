@@ -5,6 +5,7 @@ import {AppointmentList, AuthGuard, Header, ToastProvider} from '@afyaquik/share
 import {Route, Routes} from "react-router-dom";
 import DoctorPatientVisitList from "./patient/DoctorPatientVisitList";
 import DoctorPatientVisitDetailsPage from "./patient/DoctorPatientVisitDetailsPage";
+import PatientVisitPlanReportsPage from "./patient/PatientVisitPlanReportsPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
                       <Route path="" element={<DoctorPatientVisitList />} />
                       <Route path="/visits" element={<DoctorPatientVisitList />} />
                       <Route path="/visits/:id/details" element={<DoctorPatientVisitDetailsPage />} />
+                      <Route path="/plans/:id/details" element={<PatientVisitPlanReportsPage />} />
 
                   </Routes>
               </div>

@@ -16,5 +16,6 @@ public class PatientAttendingPlanDto {
     private Long assignedOfficerId;
     private String nextStation;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

@@ -206,7 +206,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                         </>
                                     ) : (
                                         <>
-                                            Continue <i className="bi bi-arrow-right ms-1"></i>
+                                            {`${currentStep.stepButtonLabel}` || 'Continue'}<i className="bi bi-arrow-right ms-1"></i>
                                         </>
                                     )}
                                 </button>

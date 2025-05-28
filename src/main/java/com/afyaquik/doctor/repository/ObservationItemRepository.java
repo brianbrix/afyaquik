@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface ObservationItemRepository extends JpaRepository<ObservationItem, Long>{
-    Optional<ObservationItem> findByNameAndType(String name, ObservationType type);
+    Optional<ObservationItem> findByNameAndCategoryId(String name, Long categoryId);
     @Query("SELECT o FROM ObservationItem o")
     Page<ObservationItem>getAllPaginated(Pageable pageable);
 }

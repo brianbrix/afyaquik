@@ -119,7 +119,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
-    public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlan(Long visitId, Pageable pageable) {
+    public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlans(Long visitId, Pageable pageable) {
         PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
         return ListFetchDto.<PatientAttendingPlanDto>builder()
@@ -127,5 +127,34 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                         patientAttendingPlanRepo.findAllByPatientVisitId(patientVisit.getId(), pageable).map(patientAttendingPlanMapper::toDto)
                 )
                 .build();
+    }
+
+    @Override
+    public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlanForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {
+        PatientVisit patientVisit = patientVisitRepository.findById(visitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        if (whichOfficer.equalsIgnoreCase("attending")) {
+            return ListFetchDto.<PatientAttendingPlanDto>builder()
+                    .results(
+                            patientAttendingPlanRepo.findAllByPatientVisitIdAndAttendingOfficerId(patientVisit.getId(), officerId, pageable).map(patientAttendingPlanMapper::toDto)
+                    )
+                    .build();
+        }
+        else if (whichOfficer.equalsIgnoreCase("assigned")) {
+            return ListFetchDto.<PatientAttendingPlanDto>builder()
+                    .results(
+                            patientAttendingPlanRepo.findAllByPatientVisitIdAndAssignedOfficerId(patientVisit.getId(), officerId, pageable).map(patientAttendingPlanMapper::toDto)
+                    )
+                    .build();
+        }
+        else {
+            throw new EntityNotFoundException("Invalid officer type");
+        }
+    }
+
+    @Override
+    public PatientAttendingPlanDto getVisitAttendingPlan(Long planId) {
+        return patientAttendingPlanMapper.toDto(patientAttendingPlanRepo.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient attending plan not found")));
     }
 }

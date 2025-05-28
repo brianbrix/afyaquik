@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/observations/admin/items")
+@RequestMapping("/api/observation/items")
 @RequiredArgsConstructor
 public class ObservationItemController {
     private final ObservationService observationService;

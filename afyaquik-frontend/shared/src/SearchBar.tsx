@@ -65,7 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     <Form.Control
                         type="date"
                         value={dateFieldValue}
-                        onChange={(e) => {
+                        onChange={(e ) => {
                             onDateFieldChange(e.target.value)
                             setCurrentPage(0);
                         }

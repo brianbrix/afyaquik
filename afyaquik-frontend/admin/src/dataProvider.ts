@@ -18,7 +18,8 @@ const resourceUrlMap: { [key: string]: string } = {
     stations: 'stations',
     triageItems:'patient/triage/items',
     generalSettings: 'settings/general',
-    observationItems: 'observations/admin/items'
+    observationItems: 'observation/items',
+    observationItemCategories: 'observation/items/categories'
 };
 const dataProvider = {
     ...baseDataProvider,

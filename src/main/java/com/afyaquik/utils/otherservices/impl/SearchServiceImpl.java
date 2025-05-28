@@ -16,14 +16,12 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,6 +33,9 @@ public class SearchServiceImpl implements SearchService {
     private EntityManager entityManager;
 
     private final MapperRegistry mapperRegistry;
+
+    private final Map<String, Join<?, ?>> joins = new HashMap<>();
+
 
     @Override
     @Cacheable("searchResults")
@@ -82,7 +83,7 @@ public class SearchServiceImpl implements SearchService {
             // Sorting
             if (pageable.getSort().isSorted()) {
                 List<Order> orders = pageable.getSort().stream()
-                        .map(order -> order.isAscending() ? cb.asc(root.get(order.getProperty())) : cb.desc(root.get(order.getProperty())))
+                        .map(order -> order.isAscending() ? cb.asc(resolveJoinPath(root,order.getProperty(),entityClass)) : cb.desc(resolveJoinPath(root,order.getProperty(),entityClass)))
                         .collect(Collectors.toList());
                 query.orderBy(orders);
             }
@@ -189,16 +190,16 @@ public class SearchServiceImpl implements SearchService {
         }
 
         // Handle search terms
-        if (dto.getQuery() != null && !dto.getQuery().isEmpty()
-                && dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
+        if (dto.getQuery() != null && !dto.getQuery().isEmpty()) {
 
-            String[] searchTerms = dto.getQuery().toLowerCase(Locale.ROOT).split(",");
+            String[] searchTerms = dto.getQuery().split(",");
             List<Predicate> termPredicates = new ArrayList<>();
 
             for (String term : searchTerms) {
                 term = term.trim();
                 List<Predicate> fieldPredicates = new ArrayList<>();
-                if (!term.contains("=")) {
+                if (!term.contains("=") &&  dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
+                    term= term.toLowerCase(Locale.ROOT);
                     for (String field : dto.getSearchFields()) {
                         try {
                             Path<?> path = resolveJoinPath(root, field, entityClass);
@@ -239,7 +240,11 @@ public class SearchServiceImpl implements SearchService {
                             LocalDateTime parsed = parseDate(value);
                             if (parsed != null)
                                 extraTermPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
-                        } else {
+                        }
+                       else if (type.equals(Long.class)) {
+                                extraTermPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(value)));
+                            }
+                         else {
                             extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
                         }
                     } catch (IllegalArgumentException e) {
@@ -271,6 +276,7 @@ public class SearchServiceImpl implements SearchService {
             case "visits" -> Class.forName("com.afyaquik.patients.entity.PatientVisit");
             case "generalSettings" -> Class.forName("com.afyaquik.utils.settings.entity.GeneralSettings");
             case "observationItems" -> Class.forName("com.afyaquik.doctor.entity.ObservationItem");
+            case "observationItemCategories" -> Class.forName("com.afyaquik.doctor.entity.ObservationItemCategory");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -286,6 +292,7 @@ public class SearchServiceImpl implements SearchService {
             case "visits" -> Class.forName("com.afyaquik.patients.dto.PatientVisitDto");
             case "generalSettings" -> Class.forName("com.afyaquik.dtos.settings.GeneralSettingsDto");
             case "observationItems" -> Class.forName("com.afyaquik.doctor.dto.ObservationItemDto");
+            case "observationItemCategories" -> Class.forName("com.afyaquik.doctor.dto.ObservationItemCategoryDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }
