@@ -17,7 +17,7 @@ interface StepFormProps {
 }
 
 const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents }) => {
-    const { control, handleSubmit, formState: { errors }, reset } = useForm({ defaultValues });
+    const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = useForm({ defaultValues });
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
     useEffect(() => {
@@ -25,12 +25,23 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
             reset(defaultValues);
         }
     }, [defaultValues, reset]);
+
+
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
 
     const isLastStep = step === config.length - 1;
     const currentStep = config[step];
 
+    useEffect(() => {
+        currentStep.fields.forEach((field) => {
+            if (field.type === 'wysiwyg') {
+                register(field.name, {
+                    required: field.required ? `${field.label} is required` : false,
+                });
+            }
+        });
+    }, [currentStep, register]);
     const renderField = (field: FieldConfig) => {
         return (
             <div key={field.name} className="mb-3">
@@ -74,7 +85,15 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                         }
                         else if (field.type === 'wysiwyg')
                         {
-                            return <DraftEditor disabled={field.disabled} hidden={field.hidden} value={controllerField.value || ''} onChange={controllerField.onChange} />
+                            return <DraftEditor
+                                disabled={field.disabled}
+                                hidden={field.hidden}
+                                value={getValues(field.name) || ''}
+                                onChange={(value) => {
+                                    setValue(field.name, value, { shouldValidate: true });
+                                    field.onChange?.(value);
+                                }}
+                            />
                         }
                         else if (field.type === 'datetime') {
                             // Handle datetime-local input

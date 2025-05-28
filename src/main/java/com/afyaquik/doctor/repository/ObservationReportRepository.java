@@ -13,4 +13,6 @@ import java.util.List;
 public interface ObservationReportRepository extends JpaRepository<ObservationReport, Long>{
     @Query("SELECT o FROM ObservationReport o WHERE o.patientVisit.patient.id = :patientId")
     Page<ObservationReport> findByPatientId(Long patientId, Pageable pageable);
+    @Query("SELECT o FROM ObservationReport o WHERE o.patientVisit.id = :visitId")
+    Page<ObservationReport> findByPatientVisitId(Long visitId, Pageable pageable);
 }

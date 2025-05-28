@@ -62,7 +62,7 @@ const DoctorPatientVisitList = () => {
             title="Visits assigned to me"
             columns={columns}
             data={patientVisits}
-            editView="index.html#/patients/visits/#id/edit"
+            // editView="index.html#/visits/#id/edit"
             detailsView="index.html#/visits/#id/details"
             combinedSearchFieldsAndTerms={`patientAttendingPlan.assignedOfficer.id=${assignedDoctorId}`}
             searchFields={searchFields}

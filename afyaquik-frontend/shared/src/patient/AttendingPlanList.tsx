@@ -10,10 +10,11 @@ interface AttendingPlanListProps {
     editView?: string;
     addView?: string;
     detailsView?: string;
+    title?: string;
 }
 
 
-const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView}) => {
+const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title}) => {
     const [plans, setPlans] = useState([]);
     useEffect(() => {
         apiRequest(dataEndpoint?dataEndpoint:`/patient/visits/${visitId}/plans`, { method: 'GET' })
@@ -24,7 +25,7 @@ const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns,
     }, []);
 
     const dataTableProps: any = {
-        title: "Attending Plan",
+        title: title?`${title}`:"Attending Plan" ,
         columns,
         data: plans,
         isSearchable: false,

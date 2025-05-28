@@ -2,6 +2,7 @@ import {useParams} from "react-router-dom";
 import {AttendingPlanList, DetailsPage} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React from "react";
+import DoctorObservationReportList from "./DoctorObservationReportList";
 
 
 const components = function (visitId:any){
@@ -25,8 +26,15 @@ const columns = [
 ];
 const attendingPlanList= function (visitId:number){
 return (
-    <AttendingPlanList visitId={visitId} columns={columns} detailsView={"index.html#/plans/#id/details"}/>
+    <AttendingPlanList title={'My assignements for this patient'} visitId={visitId} columns={columns} editView={"index.html#/plans/#id/edit"}/>
 )
+
+
+}
+const reportsList= function (visitId:number){
+    return (
+        <DoctorObservationReportList visitId={visitId} />
+    )
 }
 const DoctorPatientVisitDetailsPage = () => {
     let  params = useParams();
@@ -44,7 +52,8 @@ const DoctorPatientVisitDetailsPage = () => {
     return (
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
                      otherComponentsToRender={[
-                         {title:'Attending Plan',content:attendingPlanList(id)}
+                         {title:'Assignments',content:attendingPlanList(id)},
+                         {title:'Reports',content:reportsList(id)},
                      ]}
         />
     )

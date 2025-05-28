@@ -21,7 +21,7 @@ public class ObservationReport extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
     private User doctor;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -3,13 +3,13 @@ import {Button, Form} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 
-export const backtoList = function (){
+export const backtoList = function (visitId:number){
     return (  <Button
         variant="outline-info"
         className="btn btn-success mb-4"
-        onClick={() => window.location.href = "index.html#/patients"}
+        onClick={() => window.location.href = `index.html#/visits/${visitId}/details`}
     >
-        <i className="bi bi-arrow-left me-1"></i> Back To List
+        <i className="bi bi-arrow-left me-1"></i> Back To Visit Details
     </Button>)
 }
 interface Item {
@@ -24,7 +24,7 @@ interface Item {
     mandatory: boolean;
 }
 
-function groupItemsIntoSteps(items: Item[]): StepConfig[] {
+function groupItemsIntoSteps(items: Item[], visitId:number): StepConfig[] {
     const grouped = items.reduce((acc, item) => {
         if (!acc[item.categoryName]) {
             acc[item.categoryName] = [];
@@ -38,7 +38,7 @@ function groupItemsIntoSteps(items: Item[]): StepConfig[] {
 
     return categoryNames.map((categoryName, index) => {
         const fields: FieldConfig[] = grouped[categoryName].map((item) => ({
-            name: `item_${item.id}`,
+            name: `${item.id}`,
             label: item.name,
             type: 'wysiwyg',
             required: item.mandatory,
@@ -55,40 +55,44 @@ function groupItemsIntoSteps(items: Item[]): StepConfig[] {
             label: categoryName,
             fields,
             stepButtonLabel,
-            topComponents: [backtoList()],
+            topComponents: [backtoList(visitId)],
         };
     });
 }
-const PatientVisitPlanReportsPage = () => {
+const PatientVisitPlanReportsAddPage = () => {
     const [formConfig, setFormConfig] = useState<StepConfig[]>([]);
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const planId = params.id;
+    const [patientVisitId, setPatientVisitId] = useState(0);
+    const [doctorId, setDoctorId] = useState(0);
     useEffect(() => {
         if (!planId) {
             setLoading(false);
             return;
         }
         apiRequest(`/patient/visits/plans/${planId}`, { method:'GET' })
-            .then((response)=>{
-                console.log('Response:', response);
+            .then((planResponse)=>{
+                console.log('Response:', planResponse);
                 apiRequest(`/search`, { method:'POST'
                 ,
                     body:{
                     searchEntity:'observationItems',
-                        query:`station.name=${response.nextStation}`,
+                        query:`station.name=${planResponse.nextStation}`,
                         page: 0, size: 100,
                     }
                 })
                     .then((response)=>{
                         console.log('Response:', response);
-                        const config = groupItemsIntoSteps(response.results.content);
+                        const config = groupItemsIntoSteps(response.results.content,planResponse.patientVisitId);
 
                         setFormConfig(config)
                     })
                     .catch(error=>{
                         console.error('Error:', error);
                     })
+                setPatientVisitId(planResponse.patientVisitId)
+                setDoctorId(planResponse.assignedOfficerId)
             })
             .catch(error=>{
                 console.error('Error:', error);
@@ -108,6 +112,23 @@ const PatientVisitPlanReportsPage = () => {
         <StepForm
             config={formConfig}
             onSubmit={(data) => {
+                const observationItems = Object.keys(data).map((key) => ({
+                    itemId: parseInt(key),
+                    value: data[key],
+                }));
+                const body = {
+                    items:observationItems,
+                    patientVisitId:patientVisitId,
+                    doctorId: doctorId,
+                };
+                apiRequest(`/observations/add`, { method:'POST' , body})
+                    .then((response)=>{
+                        console.log('Add Response:', response);
+                        window.location.href= `index.html#/visits/${patientVisitId}/details`;
+                    })
+                    .catch(error=>{
+                        console.error('Error:', error);
+                    })
                 console.log('Form submitted:', data);
             }}
             defaultValues={{}}
@@ -115,4 +136,4 @@ const PatientVisitPlanReportsPage = () => {
         />
     );
 }
-export default PatientVisitPlanReportsPage;
+export default PatientVisitPlanReportsAddPage;

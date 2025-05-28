@@ -184,4 +184,11 @@ public class ObservationServiceImpl implements ObservationService {
                 .results(observationReportRepository.findByPatientId(patientId, pageable).map(observationReportMapper::toDto))
                 .build();
     }
+
+    @Override
+    public ListFetchDto<ObservationReportDto> getPatientVisitReports(Long visitId, Pageable pageable) {
+        return ListFetchDto.<ObservationReportDto>builder()
+                .results(observationReportRepository.findByPatientVisitId(visitId, pageable).map(observationReportMapper::toDto))
+                .build();
+    }
 }

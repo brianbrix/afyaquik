@@ -30,4 +30,6 @@ public interface ObservationService {
     ObservationReportItemDto getObservationReportItem(Long id);
 
     ListFetchDto<ObservationReportDto> getPatientReports(Long patientId, Pageable  pageable);
+
+    ListFetchDto<ObservationReportDto> getPatientVisitReports(Long visitId, Pageable pageable);
 }
