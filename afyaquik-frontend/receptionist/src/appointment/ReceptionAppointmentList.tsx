@@ -4,9 +4,8 @@ import {AppointmentList} from "@afyaquik/shared";
 const ReceptionPatientAppointmentList = () => {
     let  params = useParams();
     const id = Number(params.id);
-    console.log("Patient ID", id)
     return (
-        <AppointmentList patientId={id}/>
+        <AppointmentList query={`patient.id=${id}`}/>
     )
 }
 export default ReceptionPatientAppointmentList;

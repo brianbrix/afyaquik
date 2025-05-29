@@ -5,6 +5,8 @@ import {Route, Routes} from "react-router-dom";
 import DoctorPatientVisitList from "./patient/DoctorPatientVisitList";
 import DoctorPatientVisitDetailsPage from "./patient/DoctorPatientVisitDetailsPage";
 import PatientVisitPlanReportsAddPage from "./patient/PatientVisitPlanReportsAddPage";
+import DoctorAppointmentDetailsPage from "./patient/DoctorAppointmentDetailsPage";
+import DoctorAppointmentList from "./patient/DoctorAppointmentsList";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
                       <Route path="/visits" element={<DoctorPatientVisitList />} />
                       <Route path="/visits/:id/details" element={<DoctorPatientVisitDetailsPage />} />
                       <Route path="/plans/:id/edit" element={<PatientVisitPlanReportsAddPage />} />
+                      <Route path="/appointments/:id/details" element={<DoctorAppointmentDetailsPage />} />
+                      <Route path="/appointments" element={<DoctorAppointmentList />} />
 
                   </Routes>
               </div>

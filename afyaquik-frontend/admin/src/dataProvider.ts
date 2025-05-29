@@ -65,47 +65,30 @@ const dataProvider = {
                 };
             });
         },
-    getMany: (resource:string, params:any) => {
-        const url = `${apiUrl}/search`;
+        getMany: (resource: string, params: any) => {
+            const url = `${apiUrl}/search`;
 
-        const shouldPaginate = params?.pagination !== false;
-
-        const { page = 1, perPage = 10 } = shouldPaginate ? params.pagination : {};
-        const { field = 'createdAt', order = 'DESC' } = params.sort || {};
-
-        const requestBody: any = {
-            searchEntity: resource,
-            sort: `${field},${order}`
-        };
-
-        if (shouldPaginate) {
-            requestBody.page = page - 1;
-            requestBody.size = perPage;
-        }
-
-        if (params.filter?.q) {
-            requestBody.query = params.filter.q;
-        }
-
-        if (params.filter?.searchFields) {
-            requestBody.searchFields = params.filter.searchFields;
-        }
-
-        if (params.filter?.createdAt) {
-            requestBody.createdAt = params.filter.createdAt;
-        }
-
-        return httpClient(url, {
-            method: 'POST',
-            body: JSON.stringify(requestBody),
-        }).then(({ json }) => {
-            const results = json.results || {};
-            return {
-                data: results.content || [],
-                total: results.page?.totalElements || (Array.isArray(results) ? results.length : 0),
+            const requestBody: any = {
+                searchEntity: resource,
+                sort: 'createdAt,DESC',
+                query: params.ids.join(','),
+                searchFields: ['id'],
+                page: 0,
+                operator:'equals',
+                size: params.ids.length || 100
             };
-        });
-    },
+
+            return httpClient(url, {
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+            }).then(({ json }) => {
+                const results = json.results || {};
+                return {
+                    data: results.content || [],
+                    total: results.page?.totalElements || (Array.isArray(results) ? results.length : 0),
+                };
+            });
+        },
     create: (resource: string, params: any) => {
         const endpoint = resourceUrlMap[resource] || resource;
         const url = `${apiUrl}/${endpoint}`;

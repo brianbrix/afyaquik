@@ -206,13 +206,27 @@ public class SearchServiceImpl implements SearchService {
                             Class<?> type = path.getJavaType();
 
                             if (type.equals(String.class)) {
-                                fieldPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + term + "%"));
+                                switch (dto.getOperator()) {
+                                    case "like" ->
+                                            fieldPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + term + "%"));
+                                    case "equals" ->
+                                            fieldPredicates.add(cb.equal(cb.lower(path.as(String.class)), term));
+                                    case "startsWith" ->
+                                            fieldPredicates.add(cb.like(cb.lower(path.as(String.class)), term + "%"));
+                                    case "endsWith" ->
+                                            fieldPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + term));
+                                    default ->
+                                            fieldPredicates.add(cb.like(cb.lower(path.as(String.class)), "%" + term + "%"));
+                                }
+
                             } else if (type.equals(LocalDateTime.class)) {
                                 LocalDateTime parsed = parseDate(term);
                                 if (parsed != null)
                                     fieldPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                            } else if (type.equals(Long.class)) {
+                                fieldPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(term)));
                             } else {
-                                fieldPredicates.add(cb.equal(path.as(String.class), term)); // fallback
+                                fieldPredicates.add(cb.equal(path.as(String.class), term));
                             }
                         } catch (IllegalArgumentException e) {
                             log.warn("Invalid search field: {}", field);

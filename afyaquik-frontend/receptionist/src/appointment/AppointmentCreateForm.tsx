@@ -100,7 +100,7 @@ const AppointmentCreateForm = () => {
                         sendNotification(
                             data.doctorId,
                             "New Appointment",
-                            `You have a new appointment with ${data.patientId} on ${data.appointmentDateTime}.`,
+                            `You have a new appointment with ${data.patient.firstName} on ${data.appointmentDateTime}.`,
                             `index.html#/appointments/${response.id}/details`,
                             'APPOINTMENT','DOCTOR'
                         );

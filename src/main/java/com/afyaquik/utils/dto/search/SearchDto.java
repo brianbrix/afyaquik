@@ -15,6 +15,7 @@ import java.util.List;
 public class SearchDto {
     private String query;
     private String searchEntity;
+    private String operator="like";
     @Builder.Default
     private List<String> searchFields = new ArrayList<>();
     @Builder.Default
