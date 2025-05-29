@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import {AuthGuard, Header, ToastProvider} from '@afyaquik/shared';
 import {Route, Routes} from "react-router-dom";
@@ -10,9 +9,8 @@ import PatientVisitPlanReportsAddPage from "./patient/PatientVisitPlanReportsAdd
 function App() {
   return (
       <ToastProvider>
-
           <AuthGuard requiredRoles={['DOCTOR']}>
-              <Header homeUrl="/client/doctor/index.html" />
+              <Header homeUrl="/client/doctor/index.html" userRole={'DOCTOR'} />
               <div className="container my-4">
                   <Routes>
                       <Route path="" element={<DoctorPatientVisitList />} />

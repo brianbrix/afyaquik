@@ -23,11 +23,11 @@ export  const fetchNotifications = async (setNotifications:any, userId:number, r
 };
 
 export   const markAsRead = async (id: number,setNotifications:any, userId:number, roleName:string) => {
-    await apiRequest(`/notifications/mark-read/${id}`, { method: 'POST' });
+    await apiRequest(`/notifications/mark-read/${id}`, { method: 'PUT' });
     fetchNotifications(setNotifications, userId, roleName);
 };
 
 export const markAllAsRead = async (setNotifications:any, userId:number, roleName:string) => {
-    await apiRequest(`/notifications/mark-all-read/${userId}?roleName=${roleName}`, { method: 'POST' });
+    await apiRequest(`/notifications/mark-all-read/${userId}?roleName=${roleName}`, { method: 'PUT' });
     fetchNotifications(setNotifications, userId,roleName);
 };

@@ -8,7 +8,8 @@ const NotificationsBell = ({ userId, userRole }: { userId: number,userRole:strin
 
     useEffect(() => {
         fetchNotifications(setNotifications,userId, userRole);
-    }, []);
+        console.log("Notifications", notifications)
+    }, [userId, userRole]);
 
     return (
         <Dropdown>

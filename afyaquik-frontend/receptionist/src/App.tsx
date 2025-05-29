@@ -21,7 +21,7 @@ function App() {
         <ToastProvider>
 
         <AuthGuard requiredRoles={['RECEPTIONIST']}>
-        <Header homeUrl="/client/receptionist/index.html" />
+        <Header homeUrl="/client/receptionist/index.html" userRole={'RECEPTIONIST'} />
         <div className="container my-4">
         <Routes>
           <Route path="" element={<HomePage />} />

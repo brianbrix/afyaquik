@@ -20,7 +20,6 @@ public interface NotificationMapper extends EntityMapper<Notification, Notificat
                 .targetUrl(entity.getTargetUrl())
                 .recipientId(entity.getRecipient().getId())
                 .recipientRole(entity.getRecipientRole().getName())
-                .recipientRoleId(entity.getRecipientRole().getId())
                 .build();
     }
 
