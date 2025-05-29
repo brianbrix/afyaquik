@@ -17,6 +17,7 @@ public class ObservationReportDto {
     @NotNull(message = "Doctor id is required")
     private Long doctorId;
     private String doctorName;
+    private String station;
     private String createdAt;
     private String updatedAt;
     @NotEmpty(message = "At least one observation report item is required")

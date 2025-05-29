@@ -15,6 +15,7 @@ interface ObservationReport {
     id: number;
     patientVisitId: number;
     patientName: string;
+    station: string;
     doctorId: number;
     doctorName: string;
     createdAt: string;
@@ -32,6 +33,7 @@ const ObservationReportList: React.FC<{ reports: ObservationReport[] }> = ({ rep
                             <div>
                                 <strong>Patient:</strong> {report.patientName} <br />
                                 <strong>Doctor:</strong> {report.doctorName}
+                                <strong>Station:</strong> {report.station}
                             </div>
                             <div className="text-muted small">
                                 <Badge bg="secondary" className="me-2">

@@ -15,7 +15,7 @@ public abstract class ObservationReportMapper implements EntityMapper<Observatio
 
     @Override
     public ObservationReportDto toDto(ObservationReport observationReport) {
-        return ObservationReportDto.builder()
+        ObservationReportDto observationReportDto = ObservationReportDto.builder()
                 .id(observationReport.getId())
                 .patientVisitId(observationReport.getPatientVisit().getId())
                 .patientName(observationReport.getPatientVisit().getPatient().getFirstName())
@@ -29,5 +29,9 @@ public abstract class ObservationReportMapper implements EntityMapper<Observatio
                                 .toList()
                 )
                 .build();
+        if (observationReport.getObservationReportItems()!=null && !observationReport.getObservationReportItems().isEmpty()){
+            observationReportDto.setStation(observationReport.getObservationReportItems().get(0).getItem().getStation().getName());
+        }
+        return observationReportDto;
     }
 }
