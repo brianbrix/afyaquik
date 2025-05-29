@@ -31,8 +31,8 @@ const ObservationReportList: React.FC<{ reports: ObservationReport[] }> = ({ rep
                     <Accordion.Header>
                         <div className="w-100 d-flex justify-content-between">
                             <div>
-                                <strong>Patient:</strong> {report.patientName} <br />
-                                <strong>Doctor:</strong> {report.doctorName}
+                                <strong>Patient:</strong> {report.patientName} <br/>
+                                <strong>Doctor:</strong> {report.doctorName}<br/>
                                 <strong>Station:</strong> {report.station}
                             </div>
                             <div className="text-muted small">
