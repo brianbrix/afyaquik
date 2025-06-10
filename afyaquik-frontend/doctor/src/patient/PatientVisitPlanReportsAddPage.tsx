@@ -42,7 +42,7 @@ function groupItemsIntoSteps(items: Item[], visitId:number): StepConfig[] {
             label: item.name,
             type: 'wysiwyg',
             required: item.mandatory,
-            colSpan: 4,
+            colSpan: 6,
         }));
 
         // Determine the next category name (if it exists)

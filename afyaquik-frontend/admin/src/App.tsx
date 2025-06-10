@@ -25,6 +25,9 @@ import ObservationItemCreate from "./doctor/observation_item/ObservationItemCrea
 import ObservationItemCategoryList from "./doctor/observation_item_category/ObservationItemCategoryList";
 import ObservationItemCategoryEdit from "./doctor/observation_item_category/ObservationItemCategoryEdit";
 import ObservationItemCategoryCreate from "./doctor/observation_item_category/ObservationItemCategoryCreate";
+import TreatmentPlanItemList from "./doctor/treatment_plan_item/TreatmentPlanItemList";
+import TreatmentPlanItemCreate from "./doctor/treatment_plan_item/TreatmentPlanItemCreate";
+import TreatmentPlanItemEdit from "./doctor/treatment_plan_item/TreatmentPlanItemEdit";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
@@ -36,6 +39,7 @@ const App = () => (
       <Resource name="triageItems" list={TriageItemList} edit={TriageItemEdit} create={TriageItemCreate} />
         <Resource name="observationItems" list={ObservationItemList} edit={ObservationItemEdit} create={ObservationItemCreate} />
         <Resource name="observationItemCategories" list={ObservationItemCategoryList} edit={ObservationItemCategoryEdit} create={ObservationItemCategoryCreate} />
+        <Resource name="treatmentPlanItems" list={TreatmentPlanItemList} create={TreatmentPlanItemCreate} edit={TreatmentPlanItemEdit} />
     </Admin>
     </AuthGuard>
 );

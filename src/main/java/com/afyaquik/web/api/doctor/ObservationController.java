@@ -6,12 +6,14 @@ import com.afyaquik.utils.dto.search.ListFetchDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/observations")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('DOCTOR')")
 public class ObservationController {
     private final ObservationService observationService;
     @PostMapping("/add")

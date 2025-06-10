@@ -38,7 +38,7 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    @Cacheable("searchResults")
+    @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort")
     public SearchResponseDto search(SearchDto searchDto) {
         String entityKey = searchDto.getSearchEntity();
         if (entityKey == null) throw new IllegalArgumentException("Search entity not specified");
@@ -291,6 +291,8 @@ public class SearchServiceImpl implements SearchService {
             case "generalSettings" -> Class.forName("com.afyaquik.utils.settings.entity.GeneralSettings");
             case "observationItems" -> Class.forName("com.afyaquik.doctor.entity.ObservationItem");
             case "observationItemCategories" -> Class.forName("com.afyaquik.doctor.entity.ObservationItemCategory");
+            case "treatmentPlans" -> Class.forName("com.afyaquik.doctor.entity.TreatmentPlan");
+            case "treatmentPlanItems" -> Class.forName("com.afyaquik.doctor.entity.TreatmentPlanItem");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -307,6 +309,8 @@ public class SearchServiceImpl implements SearchService {
             case "generalSettings" -> Class.forName("com.afyaquik.dtos.settings.GeneralSettingsDto");
             case "observationItems" -> Class.forName("com.afyaquik.doctor.dto.ObservationItemDto");
             case "observationItemCategories" -> Class.forName("com.afyaquik.doctor.dto.ObservationItemCategoryDto");
+            case "treatmentPlans" -> Class.forName("com.afyaquik.doctor.dto.TreatmentPlanDto");
+            case "treatmentPlanItems" -> Class.forName("com.afyaquik.doctor.dto.TreatmentPlanItemDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }
