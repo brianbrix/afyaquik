@@ -15,6 +15,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TreatmentPlanServiceImpl implements TreatmentPlanService {
@@ -25,12 +27,14 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
     private final TreatmentPlanItemMapper treatmentPlanItemMapper;
     @Override
     public TreatmentPlanDto addTreatmentPlan(TreatmentPlanDto treatmentPlanDto) {
-        TreatmentPlanItem treatmentPlanItem = treatmentPlanItemRepository.findById(treatmentPlanDto.getTreatmentPlanItemId()).orElseThrow(()-> new EntityNotFoundException("Treatment plan item not found"));
+        List<TreatmentPlanItem> treatmentPlanItems = treatmentPlanItemRepository.findAllById(treatmentPlanDto.getTreatmentPlanItems().stream().map(TreatmentPlanItemDto::getId).toList());
+        if (treatmentPlanItems.isEmpty())
+            throw new EntityNotFoundException("No treatment plan items found with the provided IDs");
         PatientVisit patientVisit = patientVisitRepo.findById(treatmentPlanDto.getPatientVisitId()).orElseThrow(()-> new EntityNotFoundException("Patient visit not found"));
         return treatmentPlanMapper.toDto(treatmentPlanRepository.save(TreatmentPlan.builder()
                 .description(treatmentPlanDto.getDescription())
                 .patientVisit(patientVisit)
-                .treatmentPlanItem(treatmentPlanItem)
+                .treatmentPlanItems(treatmentPlanItems)
                 .build()));
     }
 

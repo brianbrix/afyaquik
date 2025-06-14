@@ -9,5 +9,6 @@ public class TreatmentPlanItemDto {
     private Long id;
     private String name;
     private String description;
+    private String doctorNotes;
     private boolean enabled;
 }

@@ -1,10 +1,11 @@
 package com.afyaquik.doctor.dto;
 
+import com.afyaquik.doctor.entity.TreatmentPlanItem;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,5 +19,5 @@ public class TreatmentPlanDto {
     private Long doctorId;
     private String doctorName;
     private String treatmentPlanItemName;
-    private Long treatmentPlanItemId;
+    private List<TreatmentPlanItemDto> treatmentPlanItems;
 }

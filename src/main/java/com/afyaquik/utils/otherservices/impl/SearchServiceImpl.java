@@ -293,6 +293,9 @@ public class SearchServiceImpl implements SearchService {
             case "observationItemCategories" -> Class.forName("com.afyaquik.doctor.entity.ObservationItemCategory");
             case "treatmentPlans" -> Class.forName("com.afyaquik.doctor.entity.TreatmentPlan");
             case "treatmentPlanItems" -> Class.forName("com.afyaquik.doctor.entity.TreatmentPlanItem");
+            case "drugs" -> Class.forName("com.afyaquik.pharmacy.entity.Drug");
+            case "drugInventories" -> Class.forName("com.afyaquik.pharmacy.entity.DrugInventory");
+            case "drugCategories" -> Class.forName("com.afyaquik.pharmacy.entity.DrugCategory");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -311,6 +314,9 @@ public class SearchServiceImpl implements SearchService {
             case "observationItemCategories" -> Class.forName("com.afyaquik.doctor.dto.ObservationItemCategoryDto");
             case "treatmentPlans" -> Class.forName("com.afyaquik.doctor.dto.TreatmentPlanDto");
             case "treatmentPlanItems" -> Class.forName("com.afyaquik.doctor.dto.TreatmentPlanItemDto");
+            case "drugs" -> Class.forName("com.afyaquik.pharmacy.dto.DrugDto");
+            case "drugInventories" -> Class.forName("com.afyaquik.pharmacy.dto.DrugInventoryDto");
+            case "drugCategories" -> Class.forName("com.afyaquik.pharmacy.dto.DrugCategoryDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }

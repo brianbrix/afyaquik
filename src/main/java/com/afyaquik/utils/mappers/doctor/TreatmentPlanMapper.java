@@ -5,7 +5,7 @@ import com.afyaquik.doctor.entity.TreatmentPlan;
 import com.afyaquik.utils.mappers.EntityMapper;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = TreatmentPlanItemMapper.class)
 public interface TreatmentPlanMapper extends EntityMapper<TreatmentPlan, TreatmentPlanDto> {
 
     @Override
@@ -13,8 +13,6 @@ public interface TreatmentPlanMapper extends EntityMapper<TreatmentPlan, Treatme
         return TreatmentPlanDto.builder()
                 .id(entity.getId())
                 .description(entity.getDescription())
-                .treatmentPlanItemName(entity.getTreatmentPlanItem().getName())
-                .treatmentPlanItemId(entity.getTreatmentPlanItem().getId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .patientName(entity.getPatientVisit().getPatient().getFirstName() + " " + entity.getPatientVisit().getPatient().getLastName())

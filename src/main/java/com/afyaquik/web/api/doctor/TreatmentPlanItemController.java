@@ -1,6 +1,5 @@
 package com.afyaquik.web.api.doctor;
 
-import com.afyaquik.doctor.dto.TreatmentPlanDto;
 import com.afyaquik.doctor.dto.TreatmentPlanItemDto;
 import com.afyaquik.doctor.service.TreatmentPlanService;
 import lombok.RequiredArgsConstructor;

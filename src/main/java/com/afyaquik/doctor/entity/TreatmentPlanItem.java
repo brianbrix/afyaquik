@@ -17,5 +17,7 @@ public class TreatmentPlanItem extends SuperEntity {
     private Long id;
     private String name;
     private String description;
+    @Column(columnDefinition = "TEXT", length = 10000)
+    private String doctorNotes;
     private boolean enabled=true;
 }

@@ -1,0 +1,34 @@
+package com.afyaquik.pharmacy.entity;
+
+import com.afyaquik.pharmacy.enums.DrugForm;
+import com.afyaquik.utils.SuperEntity;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "drugs")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Drug extends SuperEntity {
+    @Id
+    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String brandName;
+    private String description;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "drug_category_id")
+    private DrugCategory drugCategory;
+    @Enumerated(EnumType.STRING)
+    private DrugForm drugForm;
+    private String strength;
+    private String manufacturer;
+    private String sampleDosageInstruction;
+    private String price;
+    private int stockQuantity;
+    private boolean isPrescriptionRequired=false;
+    private String atcCode;
+}

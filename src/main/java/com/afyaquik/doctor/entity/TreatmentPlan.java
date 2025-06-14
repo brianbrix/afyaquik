@@ -19,11 +19,14 @@ public class TreatmentPlan extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "treatment_plan_item_id")
-    private TreatmentPlanItem treatmentPlanItem;
 
-    @Column(columnDefinition = "TEXT" ,length = 10000)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "treatment_plan_items",
+            joinColumns = @JoinColumn(name = "treatment_plan_id"),
+            inverseJoinColumns = @JoinColumn(name = "treatment_plan_item_id"))
+    private List<TreatmentPlanItem> treatmentPlanItems;
+
+    @Column(columnDefinition = "TEXT" ,length = 1000)
     private String description;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
