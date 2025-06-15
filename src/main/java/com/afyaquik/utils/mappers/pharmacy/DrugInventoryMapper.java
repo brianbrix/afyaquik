@@ -19,4 +19,6 @@ public interface DrugInventoryMapper extends EntityMapper<DrugInventory, DrugInv
                 .updatedAt(entity.getUpdatedAt())
                 .build();
     }
+
+    DrugInventory toEntity(DrugInventoryDto inventoryDto);
 }

@@ -31,4 +31,5 @@ public class Drug extends SuperEntity {
     private int stockQuantity;
     private boolean isPrescriptionRequired=false;
     private String atcCode;
+    private boolean enabled=true;
 }

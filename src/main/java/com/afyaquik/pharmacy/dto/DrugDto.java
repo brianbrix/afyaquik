@@ -30,6 +30,7 @@ public class DrugDto {
     private int stockQuantity;//total of all current quantities in inventory for this drug
     private boolean isPrescriptionRequired=false;
     private String atcCode;
+    private boolean enabled=true;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

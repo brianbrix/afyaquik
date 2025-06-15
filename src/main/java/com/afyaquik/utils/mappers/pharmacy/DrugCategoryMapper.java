@@ -9,4 +9,5 @@ import org.mapstruct.Mapper;
 public interface DrugCategoryMapper extends EntityMapper<DrugCategory, DrugCategoryDto> {
     @Override
     DrugCategoryDto toDto(DrugCategory entity);
+    DrugCategory toEntity(DrugCategoryDto dto);
 }
