@@ -7,6 +7,7 @@ import com.afyaquik.pharmacy.repository.DrugInventoryRepository;
 import com.afyaquik.pharmacy.repository.DrugRepository;
 import com.afyaquik.pharmacy.services.DrugInventoryService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
+import com.afyaquik.utils.exceptions.DrugServiceException;
 import com.afyaquik.utils.mappers.pharmacy.DrugInventoryMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +36,11 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
         DrugInventory drugInventory = drugInventoryRepository.findByDrugAndBatchNumberAndActiveTrue(drug, batchNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Active Drug inventory not found for drug id: " + drugId + " and batch number: " + batchNumber));
         if (quantity < 0 && Math.abs(quantity) > drugInventory.getCurrentQuantity()) {
-            throw new IllegalArgumentException("Cannot reduce inventory below zero for drug id: " + drugId + " and batch number: " + batchNumber);
+            throw new DrugServiceException("Cannot reduce inventory below zero for drug id: " + drugId + " and batch number: " + batchNumber);
         }
         if (quantity>0)
         {
-            throw new IllegalArgumentException("Cannot increase inventory here. Ask pharmacy manager to add a new inventory.");
+            throw new DrugServiceException("Cannot increase inventory here. Ask pharmacy manager to add a new inventory.");
         }
         drugInventory.setCurrentQuantity(drugInventory.getCurrentQuantity() + quantity);
         drugInventory.setActive(drugInventory.getCurrentQuantity() != 0);
@@ -111,7 +112,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + drugInventoryDto.getDrugId()));
 
         if (drugInventoryRepository.findByBatchNumberAndBatchNumberNotNull(drugInventoryDto.getBatchNumber()).isPresent()) {
-            throw new IllegalArgumentException("Batch number already exists: " + drugInventoryDto.getBatchNumber());
+            throw new DrugServiceException("Batch number already exists: " + drugInventoryDto.getBatchNumber());
         }
 
         DrugInventory newInventory = DrugInventory.builder()
