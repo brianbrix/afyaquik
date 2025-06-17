@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 
 public class BatchNumberGenerator {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static final int LENGTH = 6;
+    private static final int LENGTH = 4;
     private static final SecureRandom random = new SecureRandom();
 
     public static String generateBatchNumber() {

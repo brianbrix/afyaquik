@@ -27,6 +27,8 @@ public class DrugInventory extends SuperEntity {
     private String batchNumber;
     private LocalDate expiryDate;
     private LocalDateTime receivedDate;
-    private double price;
+    private double buyingPrice;// price at which the drug was purchased
+    private double sellingPrice;// price at which the drug is sold to customers
     private boolean isActive = true;//set to false when the drug is no longer available in the inventory i.e. expired or quantity is zero
+    private String supplierName; // name of the supplier from whom the drug was purchased
 }

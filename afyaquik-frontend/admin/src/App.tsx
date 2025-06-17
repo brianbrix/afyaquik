@@ -28,6 +28,15 @@ import ObservationItemCategoryCreate from "./doctor/observation_item_category/Ob
 import TreatmentPlanItemList from "./doctor/treatment_plan_item/TreatmentPlanItemList";
 import TreatmentPlanItemCreate from "./doctor/treatment_plan_item/TreatmentPlanItemCreate";
 import TreatmentPlanItemEdit from "./doctor/treatment_plan_item/TreatmentPlanItemEdit";
+import DrugCategoryList from "./pharmacy/drug_categories/DrugCategoryList";
+import DrugCategoryCreate from "./pharmacy/drug_categories/DrugCategoryCreate";
+import DrugCategoryEdit from "./pharmacy/drug_categories/DrugCategoryEdit";
+import DrugList from "./pharmacy/drugs/DrugList";
+import DrugCreate from "./pharmacy/drugs/DrugCreate";
+import DrugEdit from "./pharmacy/drugs/DrugEdit";
+import DrugInventoryEdit from "./pharmacy/drug_inventory/DrugInventoryEdit";
+import DrugInventoryList from "./pharmacy/drug_inventory/DrugInventoryList";
+import DrugInventoryCreate from "./pharmacy/drug_inventory/DrugInventoryCreate";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
@@ -40,6 +49,9 @@ const App = () => (
         <Resource name="observationItems" list={ObservationItemList} edit={ObservationItemEdit} create={ObservationItemCreate} />
         <Resource name="observationItemCategories" list={ObservationItemCategoryList} edit={ObservationItemCategoryEdit} create={ObservationItemCategoryCreate} />
         <Resource name="treatmentPlanItems" list={TreatmentPlanItemList} create={TreatmentPlanItemCreate} edit={TreatmentPlanItemEdit} />
+        <Resource name="drugCategories" list={DrugCategoryList} create={DrugCategoryCreate} edit={DrugCategoryEdit} />
+        <Resource name="drugs" list={DrugList} create={DrugCreate} edit={DrugEdit} />
+        <Resource name="drugInventory" list={DrugInventoryList} create={DrugInventoryCreate} edit={DrugInventoryEdit} />
     </Admin>
     </AuthGuard>
 );

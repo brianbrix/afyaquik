@@ -9,7 +9,7 @@ public class PharmacyMapperRegistry {
 
     @Autowired
     public PharmacyMapperRegistry(DrugInventoryMapper drugInventoryMapper, DrugCategoryMapper drugCategoryMapper, DrugMapper drugMapper, MapperRegistry mapperRegistry) {
-        mapperRegistry.registerMapper("drugInventories", drugInventoryMapper);
+        mapperRegistry.registerMapper("drugInventory", drugInventoryMapper);
         mapperRegistry.registerMapper("drugCategories", drugCategoryMapper);
         mapperRegistry.registerMapper("drugs", drugMapper);
 

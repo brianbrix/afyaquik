@@ -20,7 +20,10 @@ const resourceUrlMap: { [key: string]: string } = {
     generalSettings: 'settings/general',
     observationItems: 'observation/items',
     observationItemCategories: 'observation/items/categories',
-    treatmentPlanItems: 'plan/items'
+    treatmentPlanItems: 'plan/items',
+    drugCategories: 'drugs/categories',
+    drugs: 'drugs',
+    drugInventory: 'drugs/inventory',
 };
 const dataProvider = {
     ...baseDataProvider,

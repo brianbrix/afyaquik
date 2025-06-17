@@ -7,6 +7,7 @@ import com.afyaquik.pharmacy.repository.DrugCategoryRepository;
 import com.afyaquik.pharmacy.services.DrugCategoryService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.utils.mappers.pharmacy.DrugCategoryMapper;
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class DrugCategoryServiceImpl implements DrugCategoryService {
     private final DrugCategoryMapper drugCategoryMapper;
     @Override
     public DrugCategoryDto createDrugCategory(DrugCategoryDto drugCategoryDto) {
+        if (drugCategoryRepository.findByName(drugCategoryDto.getName()).isPresent()) {
+            throw new EntityExistsException("Drug category with name " + drugCategoryDto.getName() + " already exists.");
+        }
         DrugCategory drugCategory = drugCategoryMapper.toEntity(drugCategoryDto);
         return drugCategoryMapper.toDto(drugCategoryRepository.save(drugCategory));
     }

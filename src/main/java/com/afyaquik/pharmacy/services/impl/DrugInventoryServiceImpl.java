@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import static com.afyaquik.utils.BatchNumberGenerator.generateBatchNumber;
 import static com.afyaquik.utils.BatchNumberGenerator.generateBatchNumberWithDate;
 
 @Slf4j
@@ -33,7 +32,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
         //inventory must be active
         Drug drug = drugRepository.findById(drugId)
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + drugId));
-        DrugInventory drugInventory = drugInventoryRepository.findByDrugAndBatchNumberAndActiveTrue(drug, batchNumber)
+        DrugInventory drugInventory = drugInventoryRepository.findByDrugAndBatchNumberAndIsActiveTrue(drug, batchNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Active Drug inventory not found for drug id: " + drugId + " and batch number: " + batchNumber));
         if (quantity < 0 && Math.abs(quantity) > drugInventory.getCurrentQuantity()) {
             throw new DrugServiceException("Cannot reduce inventory below zero for drug id: " + drugId + " and batch number: " + batchNumber);
@@ -91,6 +90,10 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
 
 //        existingInventory.setBatchNumber(drugInventoryDto.getBatchNumber());
         existingInventory.setExpiryDate(drugInventoryDto.getExpiryDate());
+        existingInventory.setReceivedDate(drugInventoryDto.getReceivedDate());
+        existingInventory.setSupplierName(drugInventoryDto.getSupplierName());
+        existingInventory.setBuyingPrice(drugInventoryDto.getBuyingPrice());
+        existingInventory.setSellingPrice(drugInventoryDto.getSellingPrice());
         //to avoid fraudulent updates, we do not allow changing the batch number or current quantity directly
 //        existingInventory.setCurrentQuantity(drugInventoryDto.getCurrentQuantity());
         existingInventory.setActive(drugInventoryDto.isActive());
@@ -121,9 +124,24 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
         newInventory.setExpiryDate(drugInventoryDto.getExpiryDate());
         newInventory.setInitialQuantity(drugInventoryDto.getInitialQuantity());
         newInventory.setCurrentQuantity(drugInventoryDto.getInitialQuantity());
+        newInventory.setBuyingPrice(drugInventoryDto.getBuyingPrice());
+        newInventory.setSellingPrice(drugInventoryDto.getSellingPrice());
         // Set the batch number to a generated value if not provided
         if (newInventory.getBatchNumber() == null || newInventory.getBatchNumber().isEmpty()) {
-            newInventory.setBatchNumber(generateBatchNumber());
+
+            String batchNumber;
+            do {
+                batchNumber = generateBatchNumberWithDate();
+            }while (drugInventoryRepository.findByBatchNumberAndBatchNumberNotNull(batchNumber).isPresent());
+            newInventory.setBatchNumber(batchNumber);
+        }
+        else
+        {
+            // Validate the provided batch number format
+            if (drugInventoryDto.getBatchNumber().length()<6 || !drugInventoryDto.getBatchNumber().matches("^[A-Z0-9]+$")) {
+                throw new DrugServiceException("Invalid batch number format. Must be alphanumeric and at least 6 characters long.");
+            }
+            newInventory.setBatchNumber(drugInventoryDto.getBatchNumber());
         }
         newInventory.setActive(newInventory.getCurrentQuantity() > 0);
         DrugInventory savedInventory = drugInventoryRepository.save(newInventory);
@@ -149,7 +167,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
     @Override
     public ListFetchDto<DrugInventoryDto> getAllActiveInventories(Pageable pageable) {
         return ListFetchDto.<DrugInventoryDto>builder()
-                .results(drugInventoryRepository.findAllByActiveTrue(pageable).map(drugInventoryMapper::toDto))
+                .results(drugInventoryRepository.findAllByIsActiveTrue(pageable).map(drugInventoryMapper::toDto))
                 .build();
     }
 
@@ -174,7 +192,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
         Drug drug = drugRepository.findById(drugId)
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + drugId));
         return ListFetchDto.<DrugInventoryDto>builder()
-                .results(drugInventoryRepository.findAllByDrugAndActiveTrue(drug, pageable).map(drugInventoryMapper::toDto))
+                .results(drugInventoryRepository.findAllByDrugAndIsActiveTrue(drug, pageable).map(drugInventoryMapper::toDto))
                 .build();
     }
 

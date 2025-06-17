@@ -1,10 +1,9 @@
 package com.afyaquik.pharmacy.dto;
 
-import com.afyaquik.pharmacy.entity.Drug;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+
+import jakarta.validation.constraints.NegativeOrZero;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,13 +16,18 @@ public class DrugInventoryDto {
     private Long id;
     private Long drugId;
     private int currentQuantity;
+    @NegativeOrZero(message = "Initial quantity cannot be negative or zero")
     private int initialQuantity;
     private String batchNumber;
     private LocalDate expiryDate;
     private LocalDateTime receivedDate;
-    private double price;
+    @NegativeOrZero(message = "Initial quantity cannot be negative or zero")
+    private double sellingPrice;
+    @NegativeOrZero(message = "Initial quantity cannot be negative or zero")
+    private double buyingPrice;
     private boolean isActive;
     private String drugName;
+    private String supplierName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
