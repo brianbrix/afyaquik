@@ -3,8 +3,11 @@ package com.afyaquik.pharmacy.services.impl;
 import com.afyaquik.pharmacy.dto.DrugDto;
 import com.afyaquik.pharmacy.entity.Drug;
 import com.afyaquik.pharmacy.entity.DrugCategory;
-import com.afyaquik.pharmacy.enums.DrugForm;
+import com.afyaquik.pharmacy.entity.DrugForm;
+import com.afyaquik.pharmacy.entity.DrugInventory;
 import com.afyaquik.pharmacy.repository.DrugCategoryRepository;
+import com.afyaquik.pharmacy.repository.DrugFormRepository;
+import com.afyaquik.pharmacy.repository.DrugInventoryRepository;
 import com.afyaquik.pharmacy.repository.DrugRepository;
 import com.afyaquik.pharmacy.services.DrugService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
@@ -19,11 +22,13 @@ import org.springframework.stereotype.Service;
 public class DrugServiceImpl implements DrugService {
     private final DrugRepository drugRepository;
     private final DrugCategoryRepository drugCategoryRepository;
+    private final DrugFormRepository drugFormRepository;
+    private final DrugInventoryRepository drugInventoryRepository;
     private final DrugMapper drugMapper;
 
     @Override
     public DrugDto createDrug(DrugDto drugDto) {
-        if (drugRepository.findByNameAndBrandName(drugDto.getName(), drugDto.getBrandName()).isPresent()) {
+        if (drugRepository.findByName(drugDto.getName()).isPresent()) {
             throw new EntityNotFoundException("Drug with name " + drugDto.getName() + " already exists.");
         }
         if (drugRepository.findByAtcCode(drugDto.getAtcCode()).isPresent()) {
@@ -31,8 +36,10 @@ public class DrugServiceImpl implements DrugService {
         }
         DrugCategory drugCategory = drugCategoryRepository.findById(drugDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Drug category not found with id: " + drugDto.getCategoryId()));
+        DrugForm drugForm = drugFormRepository.findById(drugDto.getDrugFormId())
+                .orElseThrow(() -> new RuntimeException("Drug form not found with id: " + drugDto.getDrugFormId()));
         Drug drug = Drug.builder()
-                .drugForm(DrugForm.valueOf(drugDto.getDrugForm()))
+                .drugForm(drugForm)
                 .name(drugDto.getName())
                 .atcCode(drugDto.getAtcCode())
                 .description(drugDto.getDescription())
@@ -41,7 +48,6 @@ public class DrugServiceImpl implements DrugService {
                 .manufacturer(drugDto.getManufacturer())
                 .sampleDosageInstruction(drugDto.getSampleDosageInstruction())
                 .strength(drugDto.getStrength())
-                .stockQuantity(drugDto.getStockQuantity())
                 .isPrescriptionRequired(drugDto.isPrescriptionRequired())
                 .drugCategory(drugDto.getCategoryId() != null ? drugCategory : null)
                 .price(drugDto.getPrice())
@@ -67,7 +73,9 @@ public class DrugServiceImpl implements DrugService {
     public DrugDto updateDrug(Long id, DrugDto drugDto) {
         Drug existingDrug = drugRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + id));
-
+        if (drugRepository.findByName(drugDto.getName()).isPresent()) {
+            throw new EntityNotFoundException("Drug with name " + drugDto.getName() + " already exists.");
+        }
         if (drugRepository.findByNameAndBrandName(drugDto.getName(), drugDto.getBrandName())
                 .filter(drug -> !drug.getId().equals(id)).isPresent()) {
             throw new EntityNotFoundException("Drug with name " + drugDto.getName() + " already exists.");
@@ -77,18 +85,24 @@ public class DrugServiceImpl implements DrugService {
                 .filter(drug -> !drug.getId().equals(id)).isPresent()) {
             throw new RuntimeException("Drug with ATC code " + drugDto.getAtcCode() + " already exists.");
         }
+        int totalStock = drugInventoryRepository.findByDrugId(id)
+                .stream()
+                .mapToInt(DrugInventory::getCurrentQuantity)
+                .sum();
+        DrugForm drugForm = drugFormRepository.findById(drugDto.getDrugFormId())
+                .orElseThrow(() -> new RuntimeException("Drug form not found with id: " + drugDto.getDrugFormId()));
 
         DrugCategory drugCategory = drugCategoryRepository.findById(drugDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Drug category not found with id: " + drugDto.getCategoryId()));
         existingDrug.setName(drugDto.getName());
         existingDrug.setBrandName(drugDto.getBrandName());
         existingDrug.setDescription(drugDto.getDescription());
-        existingDrug.setDrugForm(DrugForm.valueOf(drugDto.getDrugForm()));
+        existingDrug.setDrugForm(drugForm);
         existingDrug.setStrength(drugDto.getStrength());
         existingDrug.setManufacturer(drugDto.getManufacturer());
         existingDrug.setSampleDosageInstruction(drugDto.getSampleDosageInstruction());
         existingDrug.setPrice(drugDto.getPrice());
-        existingDrug.setStockQuantity(drugDto.getStockQuantity());
+        existingDrug.setStockQuantity(totalStock);
         existingDrug.setPrescriptionRequired(drugDto.isPrescriptionRequired());
         existingDrug.setAtcCode(drugDto.getAtcCode());
         existingDrug.setEnabled(drugDto.isEnabled());

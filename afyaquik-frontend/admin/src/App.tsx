@@ -37,6 +37,9 @@ import DrugEdit from "./pharmacy/drugs/DrugEdit";
 import DrugInventoryEdit from "./pharmacy/drug_inventory/DrugInventoryEdit";
 import DrugInventoryList from "./pharmacy/drug_inventory/DrugInventoryList";
 import DrugInventoryCreate from "./pharmacy/drug_inventory/DrugInventoryCreate";
+import DrugFormList from "./pharmacy/drug_forms/DrugFormList";
+import DrugFormCreate from "./pharmacy/drug_forms/DrugFromCreate";
+import DrugFormEdit from "./pharmacy/drug_forms/DrugFormEdit";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
@@ -52,6 +55,7 @@ const App = () => (
         <Resource name="drugCategories" list={DrugCategoryList} create={DrugCategoryCreate} edit={DrugCategoryEdit} />
         <Resource name="drugs" list={DrugList} create={DrugCreate} edit={DrugEdit} />
         <Resource name="drugInventory" list={DrugInventoryList} create={DrugInventoryCreate} edit={DrugInventoryEdit} />
+        <Resource name="drugForms" list={DrugFormList} create={DrugFormCreate} edit={DrugFormEdit} />
     </Admin>
     </AuthGuard>
 );

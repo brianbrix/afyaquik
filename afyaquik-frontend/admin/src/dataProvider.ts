@@ -22,6 +22,7 @@ const resourceUrlMap: { [key: string]: string } = {
     observationItemCategories: 'observation/items/categories',
     treatmentPlanItems: 'plan/items',
     drugCategories: 'drugs/categories',
+    drugForms: 'drugs/forms',
     drugs: 'drugs',
     drugInventory: 'drugs/inventory',
 };

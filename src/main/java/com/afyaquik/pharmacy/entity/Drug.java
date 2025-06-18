@@ -1,6 +1,5 @@
 package com.afyaquik.pharmacy.entity;
 
-import com.afyaquik.pharmacy.enums.DrugForm;
 import com.afyaquik.utils.SuperEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,12 +21,13 @@ public class Drug extends SuperEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "drug_category_id")
     private DrugCategory drugCategory;
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "drug_form_id")
     private DrugForm drugForm;
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private String price;
+    private double price;
     private int stockQuantity;
     private boolean isPrescriptionRequired=false;
     private String atcCode;

@@ -296,6 +296,7 @@ public class SearchServiceImpl implements SearchService {
             case "drugs" -> Class.forName("com.afyaquik.pharmacy.entity.Drug");
             case "drugInventory" -> Class.forName("com.afyaquik.pharmacy.entity.DrugInventory");
             case "drugCategories" -> Class.forName("com.afyaquik.pharmacy.entity.DrugCategory");
+            case "drugForms" -> Class.forName("com.afyaquik.pharmacy.entity.DrugForm");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -317,6 +318,7 @@ public class SearchServiceImpl implements SearchService {
             case "drugs" -> Class.forName("com.afyaquik.pharmacy.dto.DrugDto");
             case "drugInventory" -> Class.forName("com.afyaquik.pharmacy.dto.DrugInventoryDto");
             case "drugCategories" -> Class.forName("com.afyaquik.pharmacy.dto.DrugCategoryDto");
+            case "drugForms" -> Class.forName("com.afyaquik.pharmacy.dto.DrugFormDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }

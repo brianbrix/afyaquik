@@ -19,7 +19,7 @@ public class DrugCategoryServiceImpl implements DrugCategoryService {
     private final DrugCategoryMapper drugCategoryMapper;
     @Override
     public DrugCategoryDto createDrugCategory(DrugCategoryDto drugCategoryDto) {
-        if (drugCategoryRepository.findByName(drugCategoryDto.getName()).isPresent()) {
+        if (drugCategoryRepository.findByNameIgnoreCase(drugCategoryDto.getName()).isPresent()) {
             throw new EntityExistsException("Drug category with name " + drugCategoryDto.getName() + " already exists.");
         }
         DrugCategory drugCategory = drugCategoryMapper.toEntity(drugCategoryDto);

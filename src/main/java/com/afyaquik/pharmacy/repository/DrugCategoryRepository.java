@@ -12,5 +12,5 @@ import java.util.Optional;
 @Repository
 public interface DrugCategoryRepository extends JpaRepository<DrugCategory, Long> {
 
-    Optional<DrugCategory> findByName(@NotNull(message = "Category name cannot be null") @NotBlank(message = "Category name cannot be blank") String name);
+    Optional<DrugCategory> findByNameIgnoreCase(@NotNull(message = "Category name cannot be null") @NotBlank(message = "Category name cannot be blank") String name);
 }

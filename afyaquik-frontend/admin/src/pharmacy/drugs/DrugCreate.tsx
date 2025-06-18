@@ -16,15 +16,15 @@ const DrugCreate = () => (
            <ReferenceInput source="categoryId" reference="drugCategories" label="Category">
                <SelectInput optionText="name" optionValue="id" />
            </ReferenceInput>
-
-           <TextInput source="drugForm" label="Drug Form" />
+           <ReferenceInput source="drugFormId" reference="drugForms" label="Drug Form">
+               <SelectInput optionText="name" optionValue="id" />
+           </ReferenceInput>
            <TextInput source="strength" label="Strength" />
            <TextInput source="manufacturer" label="Manufacturer" />
            <TextInput source="sampleDosageInstruction" label="Sample Dosage Instruction" multiline />
-           <TextInput source="price" label="Price" />
-           <NumberInput source="stockQuantity" label="Stock Quantity" />
-           <BooleanInput source="isPrescriptionRequired" label="Prescription Required" />
+           <NumberInput source="price" label="Price" defaultValue={0.00} />
            <TextInput source="atcCode" label="ATC Code" />
+           <BooleanInput source="isPrescriptionRequired" label="Prescription Required" />
            <BooleanInput source="enabled" label="Enabled" defaultValue={true} />
        </SimpleForm>
    </Create>

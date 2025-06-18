@@ -1,8 +1,5 @@
 package com.afyaquik.pharmacy.dto;
 
-import com.afyaquik.pharmacy.entity.DrugCategory;
-import com.afyaquik.pharmacy.enums.DrugForm;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -22,11 +19,12 @@ public class DrugDto {
     private String categoryName;
     @NotNull(message = "Category ID cannot be null")
     private Long categoryId;
-    private String drugForm;
+    private Long drugFormId;
+    private String drugFormName;
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private String price;
+    private double price;
     private int stockQuantity;//total of all current quantities in inventory for this drug
     private boolean isPrescriptionRequired=false;
     private String atcCode;

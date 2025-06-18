@@ -15,6 +15,9 @@ const DrugFilter = [
     <TextInput label="ATC Code" source="atcCode" />,
     <ReferenceInput label="Category" source="categoryId" reference="drugCategories" allowEmpty>
         <SelectInput optionText="name" />
+    </ReferenceInput>,
+    <ReferenceInput label="Drug Form" source="drugFormId" reference="drugForms" allowEmpty>
+        <SelectInput optionText="name" optionValue="id" />
     </ReferenceInput>
 ];
 
@@ -26,7 +29,7 @@ const DrugList = () => (
             <TextField source="brandName" />
             <TextField source="categoryName" />
             <TextField source="manufacturer" />
-            <TextField source="drugForm" />
+            <TextField source="drugFormName" />
             <TextField source="strength" />
             <TextField source="price" />
             <NumberField source="stockQuantity" />
