@@ -24,7 +24,6 @@ public class DrugDto {
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private double price;
     private int stockQuantity;//total of all current quantities in inventory for this drug
     private boolean isPrescriptionRequired=false;
     private String atcCode;

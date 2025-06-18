@@ -26,7 +26,7 @@ const columns = [
 ];
 const attendingPlanList= function (visitId:number){
 return (
-    <AttendingPlanList title={'My assignements for this patient'} visitId={visitId} columns={columns} editView={"index.html#/plans/#id/edit"}/>
+    <AttendingPlanList title={'My assignments for this patient visit'} visitId={visitId} columns={columns} editView={"index.html#/plans/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
 )
 
 
@@ -53,7 +53,7 @@ const DoctorPatientVisitDetailsPage = () => {
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
                      otherComponentsToRender={[
                          {title:'Assignments',content:attendingPlanList(id)},
-                         {title:'Reports',content:reportsList(id)},
+                         {title:'Observation Reports',content:reportsList(id)},
                      ]}
         />
     )

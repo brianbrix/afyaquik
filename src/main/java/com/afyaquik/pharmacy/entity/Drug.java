@@ -27,7 +27,6 @@ public class Drug extends SuperEntity {
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private double price;
     private int stockQuantity;
     private boolean isPrescriptionRequired=false;
     private String atcCode;

@@ -21,7 +21,7 @@ public class TreatmentPlan extends SuperEntity {
     private Long id;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "treatment_plan_items",
+    @JoinTable(name = "treatment_plan_plan_items",
             joinColumns = @JoinColumn(name = "treatment_plan_id"),
             inverseJoinColumns = @JoinColumn(name = "treatment_plan_item_id"))
     private List<TreatmentPlanItem> treatmentPlanItems;

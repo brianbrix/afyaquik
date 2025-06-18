@@ -13,7 +13,6 @@ public interface DrugMapper extends EntityMapper<Drug, DrugDto> {
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
-                .price(entity.getPrice())
                 .strength(entity.getStrength())
                 .manufacturer(entity.getManufacturer())
                 .sampleDosageInstruction(entity.getSampleDosageInstruction())

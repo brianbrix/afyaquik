@@ -7,6 +7,8 @@ import DoctorPatientVisitDetailsPage from "./patient/DoctorPatientVisitDetailsPa
 import PatientVisitPlanReportsAddPage from "./patient/PatientVisitPlanReportsAddPage";
 import DoctorAppointmentDetailsPage from "./patient/DoctorAppointmentDetailsPage";
 import DoctorAppointmentList from "./patient/DoctorAppointmentsList";
+import TreatmentPlanAddPage from "./patient/TreatmentPlanAddPage";
+import DoctorTreatmentPlanAddPage from "./patient/DoctorTreatmentPlanAddPage";
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
                       <Route path="/plans/:id/edit" element={<PatientVisitPlanReportsAddPage />} />
                       <Route path="/appointments/:id/details" element={<DoctorAppointmentDetailsPage />} />
                       <Route path="/appointments" element={<DoctorAppointmentList />} />
+                      <Route path="/visits/:id/treatment/plans/create" element={<DoctorTreatmentPlanAddPage />} />
 
                   </Routes>
               </div>

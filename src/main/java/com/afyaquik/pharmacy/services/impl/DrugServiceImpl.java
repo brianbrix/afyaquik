@@ -50,7 +50,6 @@ public class DrugServiceImpl implements DrugService {
                 .strength(drugDto.getStrength())
                 .isPrescriptionRequired(drugDto.isPrescriptionRequired())
                 .drugCategory(drugDto.getCategoryId() != null ? drugCategory : null)
-                .price(drugDto.getPrice())
                 .build();
         return drugMapper.toDto(drugRepository.save(drug));
     }
@@ -101,7 +100,6 @@ public class DrugServiceImpl implements DrugService {
         existingDrug.setStrength(drugDto.getStrength());
         existingDrug.setManufacturer(drugDto.getManufacturer());
         existingDrug.setSampleDosageInstruction(drugDto.getSampleDosageInstruction());
-        existingDrug.setPrice(drugDto.getPrice());
         existingDrug.setStockQuantity(totalStock);
         existingDrug.setPrescriptionRequired(drugDto.isPrescriptionRequired());
         existingDrug.setAtcCode(drugDto.getAtcCode());
