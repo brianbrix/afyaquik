@@ -18,5 +18,5 @@ export {default as PatientVisitForm} from './patient/PatientVisitForm'
 export {patientName } from './patient/PatientVisitForm'
 export {default as PatientVisitList} from './patient/PatientVisitList'
 export {default as PatientAssignForm} from './patient/PatientAssignForm'
-export {default as AttendingPlanList} from './patient/AttendingPlanList'
+export {default as AssignmentsList} from './patient/AssignmentsList'
 export {StepConfig, FieldConfig, FieldType } from './StepConfig';

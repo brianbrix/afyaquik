@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class PatientAttendingPlanDto {
+public class PatientAssignmentsDto {
     private Long id;
     private Long patientVisitId;
     private String patientName;

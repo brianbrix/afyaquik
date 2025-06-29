@@ -1,4 +1,4 @@
-import {AttendingPlanList} from "@afyaquik/shared";
+import {AssignmentsList} from "@afyaquik/shared";
 import {useParams} from "react-router-dom";
 
 const columns = [
@@ -8,12 +8,12 @@ const columns = [
     { header: 'Assigned Officer', accessor: 'assignedOfficer' },
     { header: 'Next Station', accessor: 'nextStation' }
 ];
-const ReceptionAttendingPlanList = () => {
+const ReceptionAssignmentsList = () => {
     let  params = useParams();
     const id = Number(params.id);
     console.log("Visit ID", id)
     return (
-        <AttendingPlanList visitId={id} columns={columns} addView={"justAdd"}/>
+        <AssignmentsList visitId={id} columns={columns} addView={"justAdd"}/>
     )
 }
-export default ReceptionAttendingPlanList
+export default ReceptionAssignmentsList

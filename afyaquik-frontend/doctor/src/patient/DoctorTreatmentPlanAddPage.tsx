@@ -5,7 +5,7 @@ const DoctorTreatmentPlanAddPage = () => {
     let  params = useParams();
     const id = Number(params.id);
     return (
-        <TreatmentPlanAddPage visitId={id} />
+        <TreatmentPlanAddPage planId={id} />
     );
 }
 export default DoctorTreatmentPlanAddPage;

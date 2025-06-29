@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.patient;
 
-import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientAssignmentsDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.services.PatientService;
@@ -26,31 +26,31 @@ public class PatientVisitController {
         return ResponseEntity.ok(patientVisitService.getPatientVisitDetails(visitId, detailsType));
     }
 
-    @GetMapping("/{visitId}/plans")
-    public ResponseEntity<ListFetchDto<PatientAttendingPlanDto>> getPatientVisitAttendingPlans(@PathVariable Long visitId , Pageable pageable) {
-        return ResponseEntity.ok(patientVisitService.getVisitAttendingPlans(visitId, pageable));
+    @GetMapping("/{visitId}/assignments")
+    public ResponseEntity<ListFetchDto<PatientAssignmentsDto>> getPatientAssignments(@PathVariable Long visitId , Pageable pageable) {
+        return ResponseEntity.ok(patientVisitService.getAssignmentss(visitId, pageable));
     }
 
-    @GetMapping("/plans/{planId}")
-    public ResponseEntity<PatientAttendingPlanDto> getPatientVisitAttendingPlan(@PathVariable Long planId) {
-        return ResponseEntity.ok(patientVisitService.getVisitAttendingPlan(planId));
+    @GetMapping("/assignments/{planId}")
+    public ResponseEntity<PatientAssignmentsDto> getPatientAssignments(@PathVariable Long planId) {
+        return ResponseEntity.ok(patientVisitService.getAssignments(planId));
     }
-    @GetMapping("/{visitId}/plans/{officerId}")
-    public ResponseEntity<ListFetchDto<PatientAttendingPlanDto>> getPatientVisitAttendingPlanForOfficer(@PathVariable Long visitId , @PathVariable Long officerId, @RequestParam(required = false)String whichOfficer, Pageable  pageable) {
-        return ResponseEntity.ok(patientVisitService.getVisitAttendingPlanForOfficer(visitId,officerId, whichOfficer, pageable));
+    @GetMapping("/{visitId}/assignments/{officerId}")
+    public ResponseEntity<ListFetchDto<PatientAssignmentsDto>> getPatientAssignmentsForOfficer(@PathVariable Long visitId , @PathVariable Long officerId, @RequestParam(required = false)String whichOfficer, Pageable  pageable) {
+        return ResponseEntity.ok(patientVisitService.getAssignmentsForOfficer(visitId,officerId, whichOfficer, pageable));
     }
 
     @PutMapping("/update")
     public ResponseEntity<PatientVisitDto> updateVisit(@RequestBody PatientVisitDto  patientVisitDto) {
         return ResponseEntity.ok(patientVisitService.updatePatientVisit(patientVisitDto));
     }
-    @PostMapping("/plans/create")
-    public ResponseEntity<PatientAttendingPlanDto> createAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
-        return ResponseEntity.ok(patientService.createPatientAttendingPlan(planDto));
+    @PostMapping("/assignments/create")
+    public ResponseEntity<PatientAssignmentsDto> createAssignments(@RequestBody PatientAssignmentsDto planDto) {
+        return ResponseEntity.ok(patientService.createPatientAssignments(planDto));
     }
-    @PutMapping("/plans/update")
-    public ResponseEntity<PatientAttendingPlanDto> updateAttendingPlan(@RequestBody PatientAttendingPlanDto planDto) {
-        return ResponseEntity.ok(patientService.updatePatientAttendingPlan(planDto));
+    @PutMapping("/assignments/update")
+    public ResponseEntity<PatientAssignmentsDto> updateAssignments(@RequestBody PatientAssignmentsDto planDto) {
+        return ResponseEntity.ok(patientService.updatePatientAssignments(planDto));
     }
 
 

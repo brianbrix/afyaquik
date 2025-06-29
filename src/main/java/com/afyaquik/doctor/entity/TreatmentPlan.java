@@ -1,6 +1,7 @@
 package com.afyaquik.doctor.entity;
 
 import com.afyaquik.patients.entity.PatientVisit;
+import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.utils.SuperEntity;
 import jakarta.persistence.*;
@@ -20,12 +21,6 @@ public class TreatmentPlan extends SuperEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "treatment_plan_plan_items",
-            joinColumns = @JoinColumn(name = "treatment_plan_id"),
-            inverseJoinColumns = @JoinColumn(name = "treatment_plan_item_id"))
-    private List<TreatmentPlanItem> treatmentPlanItems;
-
     @Column(columnDefinition = "TEXT" ,length = 1000)
     private String description;
 
@@ -34,7 +29,14 @@ public class TreatmentPlan extends SuperEntity {
     private User doctor;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "station_id")
+    private Station station;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_visit_id")
     private PatientVisit patientVisit;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "treatmentPlan")
+    private List<TreatmentPlanReportItem> treatmentPlanReportItems;
 
 }

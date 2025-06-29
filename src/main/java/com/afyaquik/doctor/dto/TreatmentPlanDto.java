@@ -1,6 +1,7 @@
 package com.afyaquik.doctor.dto;
 
 import com.afyaquik.doctor.entity.TreatmentPlanItem;
+import com.afyaquik.doctor.entity.TreatmentPlanReportItem;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,7 +18,8 @@ public class TreatmentPlanDto {
     private Long patientVisitId;
     private String patientName;
     private Long doctorId;
+    private Long stationId;
     private String doctorName;
     private String treatmentPlanItemName;
-    private List<TreatmentPlanItemDto> treatmentPlanItems;
+    private List<TreatmentPlanReportItemDto> treatmentPlanReportItems;
 }

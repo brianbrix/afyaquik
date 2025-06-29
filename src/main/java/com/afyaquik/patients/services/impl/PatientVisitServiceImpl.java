@@ -1,14 +1,14 @@
 package com.afyaquik.patients.services.impl;
 
-import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientAssignmentsDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.enums.VisitStatus;
 import com.afyaquik.patients.enums.VisitType;
-import com.afyaquik.utils.mappers.patients.PatientAttendingPlanMapper;
-import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
+import com.afyaquik.utils.mappers.patients.PatientAssignmentsMapper;
+import com.afyaquik.patients.repository.PatientAssignmentsRepo;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.patients.services.PatientVisitService;
@@ -27,8 +27,8 @@ import java.util.Set;
 public class PatientVisitServiceImpl implements PatientVisitService {
     private final PatientRepository patientRepository;
     private final PatientVisitRepo patientVisitRepository;
-    private final PatientAttendingPlanRepo  patientAttendingPlanRepo;
-    private final PatientAttendingPlanMapper  patientAttendingPlanMapper;
+    private final PatientAssignmentsRepo  patientAssignmentsRepo;
+    private final PatientAssignmentsMapper  patientAssignmentsMapper;
     @Override
     public PatientVisitDto createPatientVisit(PatientVisitDto patientVisitDto, Long patientId) {
 
@@ -97,10 +97,10 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitStatus(patientVisit.getVisitStatus()!=null?patientVisit.getVisitStatus().name():null)
                 .build();
                 detailsType = detailsType==null?new HashSet<>():detailsType;
-               if (detailsType.contains("attendingPlan"))
+               if (detailsType.contains("assignment"))
                {
-                   patientVisitDto.setAttendingPlan(patientVisit.getPatientAttendingPlan()!=null?
-                           patientVisit.getPatientAttendingPlan().stream().map(plan -> PatientAttendingPlanDto.builder()
+                   patientVisitDto.setAssignments(patientVisit.getPatientAssignments()!=null?
+                           patientVisit.getPatientAssignments().stream().map(plan -> PatientAssignmentsDto.builder()
                                    .id(plan.getId())
                                    .patientName(plan.getPatientVisit().getPatient().getPatientName())
                                    .nextStation(plan.getNextStation().getName())
@@ -119,31 +119,31 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
-    public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlans(Long visitId, Pageable pageable) {
+    public ListFetchDto<PatientAssignmentsDto> getAssignmentss(Long visitId, Pageable pageable) {
         PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
-        return ListFetchDto.<PatientAttendingPlanDto>builder()
+        return ListFetchDto.<PatientAssignmentsDto>builder()
                 .results(
-                        patientAttendingPlanRepo.findAllByPatientVisitId(patientVisit.getId(), pageable).map(patientAttendingPlanMapper::toDto)
+                        patientAssignmentsRepo.findAllByPatientVisitId(patientVisit.getId(), pageable).map(patientAssignmentsMapper::toDto)
                 )
                 .build();
     }
 
     @Override
-    public ListFetchDto<PatientAttendingPlanDto> getVisitAttendingPlanForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {
+    public ListFetchDto<PatientAssignmentsDto> getAssignmentsForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {
         PatientVisit patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
         if (whichOfficer.equalsIgnoreCase("attending")) {
-            return ListFetchDto.<PatientAttendingPlanDto>builder()
+            return ListFetchDto.<PatientAssignmentsDto>builder()
                     .results(
-                            patientAttendingPlanRepo.findAllByPatientVisitIdAndAttendingOfficerId(patientVisit.getId(), officerId, pageable).map(patientAttendingPlanMapper::toDto)
+                            patientAssignmentsRepo.findAllByPatientVisitIdAndAttendingOfficerId(patientVisit.getId(), officerId, pageable).map(patientAssignmentsMapper::toDto)
                     )
                     .build();
         }
         else if (whichOfficer.equalsIgnoreCase("assigned")) {
-            return ListFetchDto.<PatientAttendingPlanDto>builder()
+            return ListFetchDto.<PatientAssignmentsDto>builder()
                     .results(
-                            patientAttendingPlanRepo.findAllByPatientVisitIdAndAssignedOfficerId(patientVisit.getId(), officerId, pageable).map(patientAttendingPlanMapper::toDto)
+                            patientAssignmentsRepo.findAllByPatientVisitIdAndAssignedOfficerId(patientVisit.getId(), officerId, pageable).map(patientAssignmentsMapper::toDto)
                     )
                     .build();
         }
@@ -153,8 +153,8 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
-    public PatientAttendingPlanDto getVisitAttendingPlan(Long planId) {
-        return patientAttendingPlanMapper.toDto(patientAttendingPlanRepo.findById(planId)
-                .orElseThrow(() -> new EntityNotFoundException("Patient attending plan not found")));
+    public PatientAssignmentsDto getAssignments(Long planId) {
+        return patientAssignmentsMapper.toDto(patientAssignmentsRepo.findById(planId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient Assignment not found")));
     }
 }

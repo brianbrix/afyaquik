@@ -1,14 +1,14 @@
 package com.afyaquik.utils.mappers.patients;
 
 import com.afyaquik.utils.mappers.EntityMapper;
-import com.afyaquik.patients.dto.PatientAttendingPlanDto;
-import com.afyaquik.patients.entity.PatientAttendingPlan;
+import com.afyaquik.patients.dto.PatientAssignmentsDto;
+import com.afyaquik.patients.entity.PatientAssignments;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface PatientAttendingPlanMapper extends EntityMapper<PatientAttendingPlan, PatientAttendingPlanDto> {
+public interface PatientAssignmentsMapper extends EntityMapper<PatientAssignments, PatientAssignmentsDto> {
 
-    default PatientAttendingPlanDto  toDto(PatientAttendingPlan entity) {
+    default PatientAssignmentsDto  toDto(PatientAssignments entity) {
         StringBuilder patientName = new StringBuilder();
         patientName.append(entity.getPatientVisit().getPatient().getFirstName());
         if (entity.getPatientVisit().getPatient().getSecondName() != null) {
@@ -17,7 +17,7 @@ public interface PatientAttendingPlanMapper extends EntityMapper<PatientAttendin
         if (entity.getPatientVisit().getPatient().getLastName() != null) {
             patientName.append(" ").append(entity.getPatientVisit().getPatient().getLastName());
         }
-        return PatientAttendingPlanDto.builder()
+        return PatientAssignmentsDto.builder()
                 .id(entity.getId())
                 .patientVisitId(entity.getPatientVisit().getId())
                 .patientName(patientName.toString())

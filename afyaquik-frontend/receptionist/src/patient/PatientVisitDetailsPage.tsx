@@ -1,6 +1,6 @@
 import {useParams} from "react-router-dom";
 import {DetailsPage} from "@afyaquik/shared";
-import ReceptionAttendingPlanList from "./ReceptionAttendingPlanList";
+import ReceptionAssignmentsList from "./ReceptionAssignmentsList";
 import {Button} from "react-bootstrap";
 import React from "react";
 
@@ -39,7 +39,7 @@ const PatientVisitDetailsPage = () => {
     return (
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
                      otherComponentsToRender={[
-                         {title:'Attending Plan',content:<ReceptionAttendingPlanList/>}
+                         {title:'Assignment',content:<ReceptionAssignmentsList/>}
                      ]}
         />
     )

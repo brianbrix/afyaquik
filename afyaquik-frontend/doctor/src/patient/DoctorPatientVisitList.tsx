@@ -64,10 +64,10 @@ const DoctorPatientVisitList = () => {
             data={patientVisits}
             // editView="index.html#/visits/#id/edit"
             detailsView="index.html#/visits/#id/details"
-            combinedSearchFieldsAndTerms={`patientAttendingPlan.assignedOfficer.id=${assignedDoctorId}`}
+            combinedSearchFieldsAndTerms={`patientAssignments.assignedOfficer.id=${assignedDoctorId}`}
             searchFields={searchFields}
             searchEntity="visits"
-            dateFieldName={"patientAttendingPlan.updatedAt"}
+            dateFieldName={"patientAssignments.updatedAt"}
             requestMethod="POST"
             dataEndpoint="/search"
         />

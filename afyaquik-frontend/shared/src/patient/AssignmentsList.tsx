@@ -3,7 +3,7 @@ import apiRequest from "../api";
 import React from "react";
 import DataTable from "../DataTable";
 
-interface AttendingPlanListProps {
+interface AssignmentsListProps {
     visitId: number;
     columns: { header: string; accessor: string; sortable?: boolean | undefined; type?: string | undefined; }[];
     dataEndpoint?:string;
@@ -14,10 +14,10 @@ interface AttendingPlanListProps {
 }
 
 
-const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title}) => {
+const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title}) => {
     const [plans, setPlans] = useState([]);
     useEffect(() => {
-        apiRequest(dataEndpoint?dataEndpoint:`/patient/visits/${visitId}/plans`, { method: 'GET' })
+        apiRequest(dataEndpoint?dataEndpoint:`/patient/visits/${visitId}/assignments`, { method: 'GET' })
             .then(data => {
                 setPlans(data);
             })
@@ -25,12 +25,12 @@ const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns,
     }, []);
 
     const dataTableProps: any = {
-        title: title?`${title}`:"Attending Plan" ,
+        title: title?`${title}`:"Assignment" ,
         columns,
         data: plans,
         isSearchable: false,
         requestMethod: 'GET',
-        dataEndpoint: `/patient/visits/${visitId}/plans`
+        dataEndpoint: `/patient/visits/${visitId}/assignments`
     };
 
     if (addView) {
@@ -39,12 +39,16 @@ const AttendingPlanList: React.FC<AttendingPlanListProps>  = ({visitId, columns,
 
     if (editView) {
         dataTableProps.editView = editView;
+        dataTableProps.editTitle= 'Add Observation';
+        dataTableProps.editClassName= 'bi bi-plus-circle me-1';
     }
 
     if (detailsView) {
         dataTableProps.detailsView = detailsView;
+        dataTableProps.detailsTitle= 'Add Treatment Plan';
+        dataTableProps.detailsClassName= 'bi bi-plus-square me-1';
     }
 
     return <DataTable {...dataTableProps} />;
 }
-export default AttendingPlanList;
+export default AssignmentsList;

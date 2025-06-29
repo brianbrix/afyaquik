@@ -23,7 +23,7 @@ public class PatientVisitDto {
     private String summaryReasonForVisit;
     private LocalDate visitDate;
     private LocalDate nextVisitDate;
-    private List<PatientAttendingPlanDto> attendingPlan;
+    private List<PatientAssignmentsDto> assignments;
     private TriageReportDto triageReportDto;
     private String visitStatus;
 

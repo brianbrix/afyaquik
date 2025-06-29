@@ -11,8 +11,12 @@ interface DataTableProps<T> {
     columns: { header: string; accessor: string, sortable?: boolean, type?:string }[];
     data?: T[];
     editView?: string;
+    editTitle?: string;
+    editClassName?: string;
     addView?: string;
     detailsView?: string;
+    detailsTitle?: string;
+    detailsClassName?: string;
     dataEndpoint?: string;
     requestMethod?: string;
     searchFields?: FieldConfig[];
@@ -41,8 +45,12 @@ function DataTable<T extends { id: number }>({
                                                  columns,
                                                  data: initialData = [],
                                                  editView,
+                                                 editTitle = 'Edit',
+                                                 editClassName = 'bi bi-pencil',
                                                  addView,
                                                  detailsView,
+                                                 detailsTitle = 'Details',
+                                                 detailsClassName = 'bi bi-eye',
                                                  dataEndpoint,
                                                  requestMethod,
                                                  searchFields = [],
@@ -273,7 +281,7 @@ function DataTable<T extends { id: number }>({
                                             className="me-2"
                                             onClick={() => window.location.href = detailsView.replace("#id", String(record.id))}
                                         >
-                                            <i className="bi bi-eye"></i> Details
+                                            <i className={detailsClassName}></i> {detailsTitle}
                                         </Button>
                                     )}
                                     {editView && (
@@ -281,7 +289,7 @@ function DataTable<T extends { id: number }>({
                                             variant="primary"
                                             onClick={() => window.location.href = editView.replace("#id", String(record.id))}
                                         >
-                                            <i className="bi bi-pencil"></i> Edit
+                                            <i className={editClassName}></i> {editTitle}
                                         </Button>
                                     )}
                                 </td>

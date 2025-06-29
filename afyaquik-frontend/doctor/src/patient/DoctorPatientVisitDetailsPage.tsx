@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import {AttendingPlanList, DetailsPage} from "@afyaquik/shared";
+import {AssignmentsList, DetailsPage} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React from "react";
 import DoctorObservationReportList from "./DoctorObservationReportList";
@@ -24,9 +24,9 @@ const columns = [
     { header: 'Assigned Date/Time', accessor: 'updatedAt', type:'datetime' },
     { header: 'Station', accessor: 'nextStation' }
 ];
-const attendingPlanList= function (visitId:number){
+const assignmentList= function (visitId:number){
 return (
-    <AttendingPlanList title={'My assignments for this patient visit'} visitId={visitId} columns={columns} editView={"index.html#/plans/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
+    <AssignmentsList title={'My assignments for this patient visit'} visitId={visitId} columns={columns} editView={"index.html#/assignments/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
 )
 
 
@@ -52,7 +52,7 @@ const DoctorPatientVisitDetailsPage = () => {
     return (
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
                      otherComponentsToRender={[
-                         {title:'Assignments',content:attendingPlanList(id)},
+                         {title:'Assignments',content:assignmentList(id)},
                          {title:'Observation Reports',content:reportsList(id)},
                      ]}
         />

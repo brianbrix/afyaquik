@@ -2,13 +2,17 @@ package com.afyaquik.doctor.service.impl;
 
 import com.afyaquik.doctor.dto.TreatmentPlanDto;
 import com.afyaquik.doctor.dto.TreatmentPlanItemDto;
+import com.afyaquik.doctor.dto.TreatmentPlanReportItemDto;
 import com.afyaquik.doctor.entity.TreatmentPlan;
 import com.afyaquik.doctor.entity.TreatmentPlanItem;
+import com.afyaquik.doctor.entity.TreatmentPlanReportItem;
 import com.afyaquik.doctor.repository.TreatmentPlanItemRepository;
 import com.afyaquik.doctor.repository.TreatmentPlanRepository;
 import com.afyaquik.doctor.service.TreatmentPlanService;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.repository.PatientVisitRepo;
+import com.afyaquik.users.entity.Station;
+import com.afyaquik.users.repository.StationRepository;
 import com.afyaquik.utils.mappers.doctor.TreatmentPlanItemMapper;
 import com.afyaquik.utils.mappers.doctor.TreatmentPlanMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,16 +29,24 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
     private final PatientVisitRepo patientVisitRepo;
     private final TreatmentPlanMapper treatmentPlanMapper;
     private final TreatmentPlanItemMapper treatmentPlanItemMapper;
+    private final StationRepository stationRepository;
     @Override
     public TreatmentPlanDto addTreatmentPlan(TreatmentPlanDto treatmentPlanDto) {
-        List<TreatmentPlanItem> treatmentPlanItems = treatmentPlanItemRepository.findAllById(treatmentPlanDto.getTreatmentPlanItems().stream().map(TreatmentPlanItemDto::getId).toList());
-        if (treatmentPlanItems.isEmpty())
-            throw new EntityNotFoundException("No treatment plan items found with the provided IDs");
+
         PatientVisit patientVisit = patientVisitRepo.findById(treatmentPlanDto.getPatientVisitId()).orElseThrow(()-> new EntityNotFoundException("Patient visit not found"));
+        Station station = stationRepository.findById(treatmentPlanDto.getStationId()).orElseThrow(() -> new EntityNotFoundException("Station not found"));
+        List<TreatmentPlanReportItem> treatmentPlanReportItems = treatmentPlanDto.getTreatmentPlanReportItems().stream()
+                .map(item -> TreatmentPlanReportItem.builder()
+                        .treatmentPlanItem(treatmentPlanItemRepository.findById(item.getTreatmentPlanItemId())
+                                .orElseThrow(() -> new EntityNotFoundException("One or more treatment plan items not found")))
+                        .reportDetails(item.getReportDetails())
+                        .build())
+                .toList();
         return treatmentPlanMapper.toDto(treatmentPlanRepository.save(TreatmentPlan.builder()
                 .description(treatmentPlanDto.getDescription())
                 .patientVisit(patientVisit)
-                .treatmentPlanItems(treatmentPlanItems)
+                        .station(station)
+                .treatmentPlanReportItems(treatmentPlanReportItems)
                 .build()));
     }
 

@@ -233,10 +233,11 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                                             <Button
                                                 className="mt-2"
                                                 onClick={() => {
+                                                    console.log("Items", conf.items)
                                                     if (!selectedItem || !wysiwygContent.trim()) return;
                                                     if (selectedItem) {
                                                         const content = wysiwygContent || '';
-                                                        setEntryList([...entryList, { item: selectedItem, content: content, label:conf.items.find(x=>x.value===selectedItem)?.name }]);
+                                                        setEntryList([...entryList, { item: selectedItem, content: content, label:conf.items.find(x=>x.value==selectedItem)?.name }]);
                                                         setSelectedItem('');
                                                         setWysiwygContent('');
                                                     }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "patient_visit_plans",
+        name = "patient_assignments",
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"assigned_officer_id", "next_station_id", "visit_id"}
         )
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PatientAttendingPlan extends SuperEntity {
+public class PatientAssignments extends SuperEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

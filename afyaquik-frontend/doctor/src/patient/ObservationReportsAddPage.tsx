@@ -59,7 +59,7 @@ function groupItemsIntoSteps(items: Item[], visitId:number): StepConfig[] {
         };
     });
 }
-const PatientVisitPlanReportsAddPage = () => {
+const ObservationReportsAddPage = () => {
     const [formConfig, setFormConfig] = useState<StepConfig[]>([]);
     const [loading, setLoading] = useState(true);
     const params = useParams();
@@ -71,7 +71,7 @@ const PatientVisitPlanReportsAddPage = () => {
             setLoading(false);
             return;
         }
-        apiRequest(`/patient/visits/plans/${planId}`, { method:'GET' })
+        apiRequest(`/patient/visits/assignments/${planId}`, { method:'GET' })
             .then((planResponse)=>{
                 console.log('Response:', planResponse);
                 apiRequest(`/search`, { method:'POST'
@@ -136,4 +136,4 @@ const PatientVisitPlanReportsAddPage = () => {
         />
     );
 }
-export default PatientVisitPlanReportsAddPage;
+export default ObservationReportsAddPage;

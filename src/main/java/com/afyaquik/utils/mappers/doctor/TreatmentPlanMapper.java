@@ -19,6 +19,7 @@ public interface TreatmentPlanMapper extends EntityMapper<TreatmentPlan, Treatme
                 .doctorName(entity.getDoctor().getFirstName() + " " + entity.getDoctor().getLastName())
                 .patientVisitId(entity.getPatientVisit().getId())
                 .doctorId(entity.getDoctor().getId())
+                .stationId(entity.getStation().getId())
                 .build();
     }
 }
