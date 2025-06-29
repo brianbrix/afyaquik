@@ -11,8 +11,8 @@ public interface TreatmentPlanReportItemMapper extends EntityMapper<TreatmentPla
     default TreatmentPlanReportItemDto toDto(TreatmentPlanReportItem entity) {
         return TreatmentPlanReportItemDto.builder()
                 .id(entity.getId())
-                .treatmentPlanId(entity.getTreatmentPlan().getId())
                 .treatmentPlanItemId(entity.getTreatmentPlanItem().getId())
+                .treatmentPlanId(entity.getTreatmentPlan().getId())
                 .treatmentPlanItemName(entity.getTreatmentPlanItem().getName())
                 .reportDetails(entity.getReportDetails())
                 .build();

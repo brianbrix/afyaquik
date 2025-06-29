@@ -15,8 +15,8 @@ public class TreatmentPlanReportItem extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
-    @JoinColumn(name = "treatment_plan_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "treatment_plan_id", nullable = false)
     private TreatmentPlan treatmentPlan;
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "treatment_plan_item_id")

@@ -20,6 +20,7 @@ interface DataTableProps<T> {
     detailsTitle?: string;
     detailsClassName?: string;
     dataEndpoint?: string;
+    additionalParams?: Record<string, any>;
     requestMethod?: string;
     searchFields?: FieldConfig[];
     searchEntity?: string;
@@ -60,6 +61,7 @@ function DataTable<T extends { id: number }>({
                                                  searchFields = [],
                                                  searchEntity = 'patients',
                                                  defaultPageSize = 10,
+    additionalParams,
                                                  isSearchable,dateFieldName='createdAt', combinedSearchFieldsAndTerms
                                              }: DataTableProps<T>) {
 
@@ -84,12 +86,13 @@ function DataTable<T extends { id: number }>({
     const fetchData = async (page: number, size: number, sort?: string) => {
         setIsSearching(true);
         try {
-            const params = {
+            let params = {
                 page,
                 size,
                 ...(sort && { sort }),
                 ...((dateFieldValue && dateFieldName) && { dateFilter : dateFieldName?dateFieldName+'#'+dateFieldValue : 'createdAt'+'#'+dateFieldValue }),
-                ...(searchEntity && { searchEntity: searchEntity})
+                ...(searchEntity && { searchEntity: searchEntity}),
+                ...(additionalParams)
             };
 
             let response;
@@ -122,6 +125,7 @@ function DataTable<T extends { id: number }>({
                         searchFields: selectedFields.map(f=>f.name)
                     })
                 };
+
 
                 response = await apiRequest(dataEndpoint+'', {
                     method: 'POST',

@@ -134,6 +134,9 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     public ListFetchDto<PatientAssignmentsDto> getAssignmentsForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {
         PatientVisit patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        if (whichOfficer==null) {
+            throw new EntityNotFoundException("Officer type not specified");
+        }
         if (whichOfficer.equalsIgnoreCase("attending")) {
             return ListFetchDto.<PatientAssignmentsDto>builder()
                     .results(

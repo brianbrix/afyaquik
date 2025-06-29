@@ -19,12 +19,15 @@ interface AssignmentsListProps {
 const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title,userId, whichOfficer='attending'}) => {
     const [plans, setPlans] = useState([]);
     let url = `/patient/visits/${visitId}/assignments`;
+    console.log("AssignmentsList", visitId, userId, whichOfficer);
     if (userId) {
-        url = `/patient/visits/${visitId}/assignments/${userId}?whichOfficer=${whichOfficer}`;
+        url = `/patient/visits/${visitId}/assignments/${userId}`;
 
     }
 
     useEffect(() => {
+        if (userId)
+            url+=`?whichofficer=${whichOfficer}`
         apiRequest(dataEndpoint?dataEndpoint:url, { method: 'GET' })
             .then(data => {
                 setPlans(data);
@@ -40,6 +43,10 @@ const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dat
         requestMethod: 'GET',
         dataEndpoint: url
     };
+    if (userId)
+    {
+       dataTableProps.additionalParams = {whichOfficer: whichOfficer}
+    }
 
     if (addView) {
         dataTableProps.addView = `index.html#/patients/visits/${visitId}/assign`;

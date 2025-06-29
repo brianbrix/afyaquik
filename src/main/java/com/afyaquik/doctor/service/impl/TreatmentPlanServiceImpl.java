@@ -13,7 +13,9 @@ import com.afyaquik.doctor.service.TreatmentPlanService;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.users.entity.Station;
+import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.StationRepository;
+import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.utils.mappers.doctor.TreatmentPlanItemMapper;
 import com.afyaquik.utils.mappers.doctor.TreatmentPlanMapper;
@@ -33,24 +35,34 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
     private final TreatmentPlanMapper treatmentPlanMapper;
     private final TreatmentPlanItemMapper treatmentPlanItemMapper;
     private final StationRepository stationRepository;
+    private final UsersRepository usersRepository;
     @Override
     public TreatmentPlanDto addTreatmentPlan(TreatmentPlanDto treatmentPlanDto) {
 
         PatientVisit patientVisit = patientVisitRepo.findById(treatmentPlanDto.getPatientVisitId()).orElseThrow(()-> new EntityNotFoundException("Patient visit not found"));
-        Station station = stationRepository.findById(treatmentPlanDto.getStationId()).orElseThrow(() -> new EntityNotFoundException("Station not found"));
+        Station station = stationRepository.findByName(treatmentPlanDto.getStation()).orElseThrow(() -> new EntityNotFoundException("Station not found"));
+        User doctor = usersRepository.findById(treatmentPlanDto.getDoctorId()).orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
         List<TreatmentPlanReportItem> treatmentPlanReportItems = treatmentPlanDto.getTreatmentPlanReportItems().stream()
                 .map(item -> TreatmentPlanReportItem.builder()
                         .treatmentPlanItem(treatmentPlanItemRepository.findById(item.getTreatmentPlanItemId())
                                 .orElseThrow(() -> new EntityNotFoundException("One or more treatment plan items not found")))
                         .reportDetails(item.getReportDetails())
+
                         .build())
                 .toList();
-        return treatmentPlanMapper.toDto(treatmentPlanRepository.save(TreatmentPlan.builder()
+        TreatmentPlan treatmentPlan = TreatmentPlan.builder()
                 .description(treatmentPlanDto.getDescription())
                 .patientVisit(patientVisit)
-                        .station(station)
-                .treatmentPlanReportItems(treatmentPlanReportItems)
-                .build()));
+                .doctor(doctor)
+                .station(station)
+                .build();
+
+        for (TreatmentPlanReportItem item : treatmentPlanReportItems) {
+            item.setTreatmentPlan(treatmentPlan);
+        }
+        treatmentPlan.setTreatmentPlanReportItems(treatmentPlanReportItems);
+
+        return treatmentPlanMapper.toDto(treatmentPlanRepository.save(treatmentPlan));
     }
 
 

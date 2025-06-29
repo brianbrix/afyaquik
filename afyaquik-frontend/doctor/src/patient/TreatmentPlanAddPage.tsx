@@ -7,7 +7,7 @@ const TreatmentPlanAddPage = ({planId}:{planId:Number}) => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [patientVisitId, setPatientVisitId] = useState(0);
-    const [stationId, setStationId] = useState(0);
+    const [station, setStation] = useState('');
     const [loading, setLoading] = useState(true);
 
     const [doctorId, setDoctorId] = useState(0);
@@ -21,7 +21,7 @@ const TreatmentPlanAddPage = ({planId}:{planId:Number}) => {
                 console.log('Response:', planResponse);
                 setPatientVisitId(planResponse.patientVisitId)
                 setDoctorId(planResponse.assignedOfficerId)
-                setStationId(planResponse.nextStation)
+                setStation(planResponse.nextStation)
             })
             .catch(error=>{
                 console.error('Error:', error);
@@ -98,17 +98,16 @@ const TreatmentPlanAddPage = ({planId}:{planId:Number}) => {
                 <StepForm
                     config={[formConfig]}
                     onSubmit={(data) => {
-                        console.log("Data ", data);
                         data['patientVisitId'] = patientVisitId;
                         data['doctorId'] = doctorId;
-                        data['stationId'] = stationId;
+                        data['station'] = station;
                         apiRequest('/plan',{
                             method: "POST",
                             body: data
                         }).then(
                             (response) => {
                                 console.log("Response ", response);
-                                window.location.href = `/visits/${patientVisitId}/details`;
+                                window.location.href = `index.html#/visits/${patientVisitId}/details`;
                             }
                         ).catch((error) => {
                             console.error("Error ", error);
