@@ -4,12 +4,14 @@ import com.afyaquik.doctor.dto.TreatmentPlanDto;
 import com.afyaquik.doctor.entity.TreatmentPlan;
 import com.afyaquik.utils.mappers.EntityMapper;
 import org.mapstruct.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", uses = TreatmentPlanItemMapper.class)
-public interface TreatmentPlanMapper extends EntityMapper<TreatmentPlan, TreatmentPlanDto> {
-
+@Mapper(componentModel = "spring", uses = TreatmentPlanReportItemMapper.class)
+public abstract class TreatmentPlanMapper implements EntityMapper<TreatmentPlan, TreatmentPlanDto> {
+    @Autowired
+    protected TreatmentPlanReportItemMapper treatmentPlanReportItemMapper;
     @Override
-    default TreatmentPlanDto toDto(TreatmentPlan entity) {
+    public TreatmentPlanDto toDto(TreatmentPlan entity) {
         return TreatmentPlanDto.builder()
                 .id(entity.getId())
                 .description(entity.getDescription())
@@ -20,6 +22,14 @@ public interface TreatmentPlanMapper extends EntityMapper<TreatmentPlan, Treatme
                 .patientVisitId(entity.getPatientVisit().getId())
                 .doctorId(entity.getDoctor().getId())
                 .stationId(entity.getStation().getId())
+                .station(entity.getStation().getName())
+                .treatmentPlanItemName(null)
+                .treatmentPlanReportItems(
+                        entity.getTreatmentPlanReportItems() != null ?
+                        entity.getTreatmentPlanReportItems().stream()
+                                .map(treatmentPlanReportItemMapper::toDto)
+                                .toList() : null
+                )
                 .build();
     }
 }

@@ -13,7 +13,7 @@ public interface PatientVisitService {
     PatientVisitDto updatePatientVisit(PatientVisitDto patientVisitDto);
     PatientVisitDto getPatientVisitDetails(Long visitId, Set<String> detailsType);
     PatientVisit getPatientVisit(Long visitId);
-    ListFetchDto<PatientAssignmentsDto> getAssignmentss(Long visitId, Pageable pageable);
+    ListFetchDto<PatientAssignmentsDto> getAssignments(Long visitId, Pageable pageable);
     ListFetchDto<PatientAssignmentsDto> getAssignmentsForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable);
 
  PatientAssignmentsDto getAssignments(Long planId);

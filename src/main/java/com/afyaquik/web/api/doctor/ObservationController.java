@@ -38,11 +38,11 @@ public class ObservationController {
         return ResponseEntity.ok(observationService.getObservationReport(itemId));
     }
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<ListFetchDto<ObservationReportDto>> getPatientReports(@PathVariable Long patientId, Pageable pageable) {
+    public ResponseEntity<ListFetchDto<ObservationReportDto>> getPatientObservationReports(@PathVariable Long patientId, Pageable pageable) {
         return ResponseEntity.ok(observationService.getPatientReports(patientId, pageable));
     }
     @GetMapping("/visit/{visitId}")
-    public ResponseEntity<ListFetchDto<ObservationReportDto>> getPatientVisitReports(@PathVariable Long visitId, Pageable pageable) {
+    public ResponseEntity<ListFetchDto<ObservationReportDto>> getPatientVisitObservationReports(@PathVariable Long visitId, Pageable pageable) {
         return ResponseEntity.ok(observationService.getPatientVisitReports(visitId, pageable));
     }
 }

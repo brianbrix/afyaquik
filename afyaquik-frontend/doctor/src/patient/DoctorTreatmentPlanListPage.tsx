@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {apiRequest, DoctorReportList} from "@afyaquik/shared";
 
-const DoctorObservationReportList = function ({visitId}:{visitId:number}){
+const DoctorTreatmentPlanListPage = function ({visitId}:{visitId:number}){
     const [isLoading, setIsLoading] = useState(true);
     const [reportData, setReportDate]= useState([]);
     const [error, setError] = useState<string | null>(null);
@@ -9,7 +9,7 @@ const DoctorObservationReportList = function ({visitId}:{visitId:number}){
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                apiRequest(`/observations/visit/${visitId}?page=0&size=100&sort=createdAt,desc`).then(
+                apiRequest(`/plan/visit/${visitId}?page=0&size=100&sort=createdAt,desc`).then(
                     (response)=>{
                         setReportDate(response.results.content)
                         console.log('Response:', response);
@@ -34,4 +34,4 @@ const DoctorObservationReportList = function ({visitId}:{visitId:number}){
         </div>
     );
 }
-export default DoctorObservationReportList;
+export default DoctorTreatmentPlanListPage;

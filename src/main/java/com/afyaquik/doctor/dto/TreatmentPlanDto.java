@@ -19,6 +19,7 @@ public class TreatmentPlanDto {
     private String patientName;
     private Long doctorId;
     private Long stationId;
+    private String station;
     private String doctorName;
     private String treatmentPlanItemName;
     private List<TreatmentPlanReportItemDto> treatmentPlanReportItems;

@@ -119,7 +119,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
-    public ListFetchDto<PatientAssignmentsDto> getAssignmentss(Long visitId, Pageable pageable) {
+    public ListFetchDto<PatientAssignmentsDto> getAssignments(Long visitId, Pageable pageable) {
         PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
         return ListFetchDto.<PatientAssignmentsDto>builder()
@@ -128,6 +128,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 )
                 .build();
     }
+
 
     @Override
     public ListFetchDto<PatientAssignmentsDto> getAssignmentsForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {

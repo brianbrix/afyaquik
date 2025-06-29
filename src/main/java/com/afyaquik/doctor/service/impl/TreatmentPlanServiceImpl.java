@@ -1,5 +1,6 @@
 package com.afyaquik.doctor.service.impl;
 
+import com.afyaquik.doctor.dto.ObservationReportDto;
 import com.afyaquik.doctor.dto.TreatmentPlanDto;
 import com.afyaquik.doctor.dto.TreatmentPlanItemDto;
 import com.afyaquik.doctor.dto.TreatmentPlanReportItemDto;
@@ -13,10 +14,12 @@ import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.repository.StationRepository;
+import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.utils.mappers.doctor.TreatmentPlanItemMapper;
 import com.afyaquik.utils.mappers.doctor.TreatmentPlanMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -87,5 +90,14 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
     @Override
     public void deleteTreatmentPlanItem(Long id) {
         treatmentPlanItemRepository.findById(id).ifPresent(treatmentPlanItemRepository::delete);
+    }
+
+    @Override
+    public ListFetchDto<TreatmentPlanDto> getTreatmentPlansForVisit(Long visitId, Pageable pageable) {
+        PatientVisit patientVisit = patientVisitRepo.findById(visitId).orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        return ListFetchDto.<TreatmentPlanDto>builder()
+                .results(treatmentPlanRepository.findAllByPatientVisitId(patientVisit.getId(), pageable)
+                        .map(treatmentPlanMapper::toDto))
+                .build();
     }
 }

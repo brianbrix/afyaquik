@@ -3,6 +3,7 @@ import {AssignmentsList, DetailsPage} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React from "react";
 import DoctorObservationReportList from "./DoctorObservationReportList";
+import DoctorTreatmentPlanListPage from "./DoctorTreatmentPlanListPage";
 
 
 const components = function (visitId:any){
@@ -25,15 +26,28 @@ const columns = [
     { header: 'Station', accessor: 'nextStation' }
 ];
 const assignmentList= function (visitId:number){
-return (
-    <AssignmentsList title={'My assignments for this patient visit'} visitId={visitId} columns={columns} editView={"index.html#/assignments/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
+    const userId = Number(localStorage.getItem('userId'));
+    if (!userId) {
+        console.error("Please log in to view assignments.");
+        return (<div>
+            <p>Please log in to view assignments.</p>
+        </div>)
+    }
+    return (
+    <AssignmentsList title={'My assignments for this patient visit'} visitId={visitId} userId={userId} whichOfficer={'assigned'} columns={columns} editView={"index.html#/assignments/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
 )
 
 
 }
-const reportsList= function (visitId:number){
+const observationReportsList= function (visitId:number){
     return (
         <DoctorObservationReportList visitId={visitId} />
+    )
+}
+
+const treatmentPlanReportList= function (visitId:number){
+    return (
+        <DoctorTreatmentPlanListPage visitId={visitId} />
     )
 }
 const DoctorPatientVisitDetailsPage = () => {
@@ -53,7 +67,8 @@ const DoctorPatientVisitDetailsPage = () => {
         <DetailsPage topComponents={[components(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
                      otherComponentsToRender={[
                          {title:'Assignments',content:assignmentList(id)},
-                         {title:'Observation Reports',content:reportsList(id)},
+                         {title:'Observation Reports',content:observationReportsList(id)},
+                         {title:'Treatment Plan',content:treatmentPlanReportList(id)},
                      ]}
         />
     )

@@ -9,7 +9,7 @@ public class DoctorMapperRegistry {
 
     @Autowired
     DoctorMapperRegistry(ObservationItemMapper observationItemMapper, ObservationItemCategoryMapper observationItemCategoryMapper,
-                         TreatmentPlanMapper treatmentPlanMapper, TreatmentPlanItemMapper treatmentPlanItemMapper,
+                         TreatmentPlanMapper treatmentPlanMapper, TreatmentPlanItemMapper treatmentPlanItemMapper, TreatmentPlanReportItemMapper treatmentPlanReportItemMapper,
                          MapperRegistry mapperRegistry)
     {
         {
@@ -17,6 +17,7 @@ public class DoctorMapperRegistry {
             mapperRegistry.registerMapper("observationItemCategories", observationItemCategoryMapper);
             mapperRegistry.registerMapper("treatmentPlans", treatmentPlanMapper);
             mapperRegistry.registerMapper("treatmentPlanItems", treatmentPlanItemMapper);
+            mapperRegistry.registerMapper("treatmentPlanReportItems", treatmentPlanReportItemMapper);
         }
     }
 }

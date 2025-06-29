@@ -23,7 +23,7 @@ public abstract class ObservationReportMapper implements EntityMapper<Observatio
                 .doctorId(observationReport.getDoctor().getId())
                 .createdAt(observationReport.getCreatedAt().toString())
                 .updatedAt(observationReport.getUpdatedAt().toString())
-                .items(
+                .observationReportItems(
                         observationReport.getObservationReportItems().stream()
                                 .map(observationReportItemMapper::toDto)
                                 .toList()

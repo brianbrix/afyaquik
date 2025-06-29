@@ -28,8 +28,9 @@ public class PatientVisitController {
 
     @GetMapping("/{visitId}/assignments")
     public ResponseEntity<ListFetchDto<PatientAssignmentsDto>> getPatientAssignments(@PathVariable Long visitId , Pageable pageable) {
-        return ResponseEntity.ok(patientVisitService.getAssignmentss(visitId, pageable));
+        return ResponseEntity.ok(patientVisitService.getAssignments(visitId, pageable));
     }
+
 
     @GetMapping("/assignments/{planId}")
     public ResponseEntity<PatientAssignmentsDto> getPatientAssignments(@PathVariable Long planId) {

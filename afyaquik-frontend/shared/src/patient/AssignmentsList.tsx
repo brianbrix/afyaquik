@@ -11,13 +11,21 @@ interface AssignmentsListProps {
     addView?: string;
     detailsView?: string;
     title?: string;
+    userId?: number;
+    whichOfficer?: string; // Optional prop to specify which officer's assignments to fetch
 }
 
 
-const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title}) => {
+const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title,userId, whichOfficer='attending'}) => {
     const [plans, setPlans] = useState([]);
+    let url = `/patient/visits/${visitId}/assignments`;
+    if (userId) {
+        url = `/patient/visits/${visitId}/assignments/${userId}?whichOfficer=${whichOfficer}`;
+
+    }
+
     useEffect(() => {
-        apiRequest(dataEndpoint?dataEndpoint:`/patient/visits/${visitId}/assignments`, { method: 'GET' })
+        apiRequest(dataEndpoint?dataEndpoint:url, { method: 'GET' })
             .then(data => {
                 setPlans(data);
             })
@@ -30,11 +38,13 @@ const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dat
         data: plans,
         isSearchable: false,
         requestMethod: 'GET',
-        dataEndpoint: `/patient/visits/${visitId}/assignments`
+        dataEndpoint: url
     };
 
     if (addView) {
         dataTableProps.addView = `index.html#/patients/visits/${visitId}/assign`;
+        dataTableProps.addTitle = 'Add Assignment';
+
     }
 
     if (editView) {

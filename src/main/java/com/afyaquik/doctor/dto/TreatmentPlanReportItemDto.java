@@ -9,5 +9,6 @@ public class TreatmentPlanReportItemDto {
     private Long id;
     private Long treatmentPlanId;
     private Long treatmentPlanItemId;
+    private String treatmentPlanItemName;
     private String reportDetails;
 }

@@ -174,7 +174,7 @@ class ObservationServiceImplTest {
                 .id(1L)
                 .patientVisitId(1L)
                 .doctorId(1L)
-                .items(itemDtos)
+                .observationReportItems(itemDtos)
                 .build();
     }
 

@@ -21,5 +21,5 @@ public class ObservationReportDto {
     private String createdAt;
     private String updatedAt;
     @NotEmpty(message = "At least one observation report item is required")
-    private List<ObservationReportItemDto> items;
+    private List<ObservationReportItemDto> observationReportItems;
 }

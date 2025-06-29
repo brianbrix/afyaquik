@@ -102,8 +102,8 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                     .then((response) => {
                         console.log(response)
                         sendNotification(
-                            response.assignedOfficerId,'New Patient alert',
-                            `You have been assigned a new patient by ${response.attendingOfficer}`,
+                            response.assignedOfficerId,'New Patient Alert',
+                            `You have been assigned a new patient by ${response.attendingOfficerUserName}`,
                             `index.html#/visits/${visitId}/details`,
                             'VISIT', 'DOCTOR'
                         )

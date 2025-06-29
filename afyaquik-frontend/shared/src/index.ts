@@ -11,7 +11,7 @@ export {default as NotificationsBell} from './communication/NotificationsBell'
 export {sendNotification} from './communication/NotificationService'
 export {default as apiRequest } from  './api';
 export {default as PatientList} from './patient/PatientList'
-export {default as ObservationReportList} from './patient/ObservationReportList'
+export {default as DoctorReportList} from './patient/DoctorReportList'
 export {default as AppointmentList} from './appointment/AppointmentList'
 export {default as AppointmentDetailsPage} from './appointment/AppointmentDetailsPage'
 export {default as PatientVisitForm} from './patient/PatientVisitForm'

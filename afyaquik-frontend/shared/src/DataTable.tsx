@@ -14,6 +14,8 @@ interface DataTableProps<T> {
     editTitle?: string;
     editClassName?: string;
     addView?: string;
+    addTitle?: string;
+    addClassName?: string;
     detailsView?: string;
     detailsTitle?: string;
     detailsClassName?: string;
@@ -48,6 +50,8 @@ function DataTable<T extends { id: number }>({
                                                  editTitle = 'Edit',
                                                  editClassName = 'bi bi-pencil',
                                                  addView,
+                                                 addTitle = 'Add Record',
+                                                 addClassName = 'bi bi-plus-circle me-1',
                                                  detailsView,
                                                  detailsTitle = 'Details',
                                                  detailsClassName = 'bi bi-eye',
@@ -205,7 +209,7 @@ function DataTable<T extends { id: number }>({
                     </Button>
                     {addView && (
                         <Button variant="primary" onClick={() => window.location.href = addView}>
-                            <i className="bi bi-plus-circle me-1"></i> Add Record
+                            <i className={addClassName}></i> {addTitle}
                         </Button>
                     )}
                 </div>

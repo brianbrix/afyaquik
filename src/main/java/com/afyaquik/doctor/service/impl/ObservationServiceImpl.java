@@ -143,7 +143,7 @@ public class ObservationServiceImpl implements ObservationService {
                 .doctor(doctor)
                 .build();
         List<ObservationReportItem> items= new ArrayList<>();
-        observationReportDto.getItems()
+        observationReportDto.getObservationReportItems()
                 .forEach(item -> {
             ObservationItem observationItem = observationItemRepository.findById(item.getItemId()).orElseThrow(() -> new EntityExistsException("Observation item not found"));
             ObservationReportItem observationReportItem = ObservationReportItem.builder()
