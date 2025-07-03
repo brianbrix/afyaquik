@@ -3,6 +3,7 @@ package com.afyaquik.web.api.search;
 import com.afyaquik.utils.otherservices.SearchService;
 import com.afyaquik.utils.dto.search.SearchDto;
 import com.afyaquik.utils.dto.search.SearchResponseDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

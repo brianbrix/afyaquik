@@ -3,6 +3,7 @@ package com.afyaquik.web.api.doctor;
 import com.afyaquik.doctor.dto.ObservationItemCategoryDto;
 import com.afyaquik.doctor.service.ObservationService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
+
 import lombok.RequiredArgsConstructor;
 import org.hibernate.query.Page;
 import org.springframework.data.domain.Pageable;

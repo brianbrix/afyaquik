@@ -4,6 +4,7 @@ import com.afyaquik.doctor.dto.ObservationItemDto;
 import com.afyaquik.doctor.entity.ObservationItem;
 import com.afyaquik.doctor.service.ObservationService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

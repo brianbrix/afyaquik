@@ -8,11 +8,14 @@ import org.springframework.stereotype.Component;
 public class PharmacyMapperRegistry {
 
     @Autowired
-    public PharmacyMapperRegistry(DrugInventoryMapper drugInventoryMapper, DrugCategoryMapper drugCategoryMapper, DrugMapper drugMapper, DrugFormMapper drugFormMapper, MapperRegistry mapperRegistry) {
+    public PharmacyMapperRegistry(DrugInventoryMapper drugInventoryMapper, DrugCategoryMapper drugCategoryMapper,
+                                 DrugMapper drugMapper, DrugFormMapper drugFormMapper,
+                                 PatientDrugMapper patientDrugMapper, MapperRegistry mapperRegistry) {
         mapperRegistry.registerMapper("drugInventory", drugInventoryMapper);
         mapperRegistry.registerMapper("drugCategories", drugCategoryMapper);
         mapperRegistry.registerMapper("drugs", drugMapper);
         mapperRegistry.registerMapper("drugForms", drugFormMapper);
+        mapperRegistry.registerMapper("patientDrugs", patientDrugMapper);
 
     }
 

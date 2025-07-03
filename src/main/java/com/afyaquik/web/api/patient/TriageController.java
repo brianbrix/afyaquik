@@ -5,6 +5,7 @@ import com.afyaquik.patients.dto.TriageReportDto;
 import com.afyaquik.patients.dto.TriageReportItemDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.services.TriageService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

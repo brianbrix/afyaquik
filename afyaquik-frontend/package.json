@@ -5,7 +5,8 @@
     "auth",
     "admin",
     "receptionist",
-    "doctor"
+    "doctor",
+    "pharmacy"
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^2.7.0",

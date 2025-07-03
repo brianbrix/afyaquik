@@ -10,6 +10,7 @@ import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.utils.exceptions.DrugServiceException;
 import com.afyaquik.utils.mappers.pharmacy.DrugInventoryMapper;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
     private final DrugRepository drugRepository;
     @Override
     @PreAuthorize("hasAnyRole('PHARMACY', 'ADMIN', 'SUPERADMIN')")
+    @Transactional
     public DrugInventoryDto adjustInventory(Long drugId, String batchNumber, int quantity) {
         // quantity can be negative (to reduce inventory) or positive (to increase inventory)
         //inventory must be active

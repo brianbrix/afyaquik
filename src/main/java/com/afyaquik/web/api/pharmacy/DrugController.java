@@ -3,11 +3,11 @@ package com.afyaquik.web.api.pharmacy;
 import com.afyaquik.pharmacy.dto.DrugDto;
 import com.afyaquik.pharmacy.services.DrugService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/api/drugs")
 @RequiredArgsConstructor

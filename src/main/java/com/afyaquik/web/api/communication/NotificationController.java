@@ -2,6 +2,7 @@ package com.afyaquik.web.api.communication;
 
 import com.afyaquik.communication.dto.NotificationDto;
 import com.afyaquik.communication.service.NotificationService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
