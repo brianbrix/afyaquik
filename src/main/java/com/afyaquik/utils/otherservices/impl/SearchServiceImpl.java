@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -297,6 +296,8 @@ public class SearchServiceImpl implements SearchService {
             case "drugInventory" -> Class.forName("com.afyaquik.pharmacy.entity.DrugInventory");
             case "drugCategories" -> Class.forName("com.afyaquik.pharmacy.entity.DrugCategory");
             case "drugForms" -> Class.forName("com.afyaquik.pharmacy.entity.DrugForm");
+            case "patientAssignments" -> Class.forName("com.afyaquik.patients.entity.PatientAssignment");
+            case "apiPermissions" -> Class.forName("com.afyaquik.users.entity.security.ApiPermission");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -319,6 +320,8 @@ public class SearchServiceImpl implements SearchService {
             case "drugInventory" -> Class.forName("com.afyaquik.pharmacy.dto.DrugInventoryDto");
             case "drugCategories" -> Class.forName("com.afyaquik.pharmacy.dto.DrugCategoryDto");
             case "drugForms" -> Class.forName("com.afyaquik.pharmacy.dto.DrugFormDto");
+            case "patientAssignments" -> Class.forName("com.afyaquik.patients.dto.PatientAssignmentDto");
+            case "apiPermissions" -> Class.forName("com.afyaquik.users.dto.security.ApiPermissionDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }

@@ -1,6 +1,6 @@
 package com.afyaquik.patients.services;
 
-import com.afyaquik.patients.dto.PatientAssignmentsDto;
+import com.afyaquik.patients.dto.PatientAssignmentDto;
 import com.afyaquik.patients.dto.PatientDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
@@ -15,8 +15,8 @@ public interface PatientService {
     void deletePatient(Long id);
     List<PatientDto> filterPatients(PatientDto dto);
     ListFetchDto<PatientVisitDto> getPatientVisits(Pageable pageable, Long patientId);
-    PatientAssignmentsDto createPatientAssignments(PatientAssignmentsDto patientAssignmentsDto);
-    PatientAssignmentsDto updatePatientAssignments(PatientAssignmentsDto patientAssignmentsDto);
+    PatientAssignmentDto createPatientAssignments(PatientAssignmentDto patientAssignmentDto);
+    PatientAssignmentDto updatePatientAssignments(PatientAssignmentDto patientAssignmentDto);
 
 
 }

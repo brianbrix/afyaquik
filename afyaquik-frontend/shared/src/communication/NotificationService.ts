@@ -1,7 +1,7 @@
 import apiRequest from "../api";
 
 export type NotificationType = 'APPOINTMENT' | 'SYSTEM' | 'VISIT';
-export const sendNotification= async (recipientId:number, title:string, message:string, targetUrl:string, type:NotificationType, recipientRole:string)=>{
+export const sendNotification= async (recipientId:any, title:string, message:string, targetUrl:string, type:NotificationType, recipientRole:string)=>{
     const requestBody = {
         recipientId: recipientId,
         title: title,

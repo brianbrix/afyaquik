@@ -10,8 +10,12 @@ const columns = [
 
 const searchFields = [
     {
-        name: 'patientName',
-        label: 'Patient Name',
+        name: 'firstName',
+        label: 'Patient First Name',
+    },
+    {
+        name: 'lastName',
+        label: 'Patient Last Name',
     },
     {
         name: 'status',
@@ -46,6 +50,7 @@ const VisitList = () => {
             combinedSearchFieldsAndTerms={initialQuery}
             isSearchable={true}
             addView="index.html#/visits/add"
+            dataEndpoint={'/search'}
         />
     );
 };

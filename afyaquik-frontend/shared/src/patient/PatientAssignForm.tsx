@@ -105,7 +105,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                             response.assignedOfficerId,'New Patient Alert',
                             `You have been assigned a new patient by ${response.attendingOfficerUserName}`,
                             `index.html#/visits/${visitId}/details`,
-                            'VISIT', 'DOCTOR'
+                            'VISIT', `${response.nextStation}`
                         )
                         window.location.href = `index.html#/patients/visits/${visitId}/details`
                     })

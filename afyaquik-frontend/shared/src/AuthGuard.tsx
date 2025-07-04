@@ -19,12 +19,12 @@ const isAuthenticated = async (): Promise<boolean> => {
             localStorage.setItem('isLoggedIn', 'true');
             return true;
         } else {
-            localStorage.removeItem('isLoggedIn');
+            localStorage.clear();
             return false;
         }
     } catch (error) {
         console.error('Authentication check failed:', error);
-        localStorage.removeItem('isLoggedIn');
+        localStorage.clear();
         return false;
     }
 };

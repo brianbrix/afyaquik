@@ -2,6 +2,7 @@
   "name": "pharmacy",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/client/pharmacy",
   "dependencies": {
     "@afyaquik/shared": "1.0.0",
     "@testing-library/dom": "^10.4.0",

@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { apiRequest, DataTable } from "@afyaquik/shared";
+import { DataTable } from "@afyaquik/shared";
 
 const columns = [
     { header: '#', accessor: 'id' },
@@ -44,6 +43,7 @@ const DrugList = () => {
             searchEntity="drugs"
             isSearchable={true}
             addTitle="Add Drug"
+            dataEndpoint={'/search'}
         />
     );
 };

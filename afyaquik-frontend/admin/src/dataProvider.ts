@@ -25,6 +25,7 @@ const resourceUrlMap: { [key: string]: string } = {
     drugForms: 'drugs/forms',
     drugs: 'drugs',
     drugInventory: 'drugs/inventory',
+    apiPermissions: 'admin/permissions',
 };
 const dataProvider = {
     ...baseDataProvider,

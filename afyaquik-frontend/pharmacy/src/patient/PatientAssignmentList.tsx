@@ -12,15 +12,15 @@ const columns = [
 
 const searchFields = [
     {
-        name: 'patientName',
-        label: 'Patient Name',
+        name: 'patientVisit.patient.firstName',
+        label: 'Patient First Name',
     },
     {
-        name: 'status',
-        label: 'Status',
+        name: 'patientVisit.patient.lastName',
+        label: 'Patient Last Name',
     },
     {
-        name: 'assignedOfficer',
+        name: 'patientVisit.assignedOfficer.username',
         label: 'Assigned Officer',
     }
 ];
@@ -40,14 +40,16 @@ const PatientAssignmentList = () => {
         <DataTable
             title="Pharmacy Assignments"
             columns={columns}
-            detailsView="index.html#/assignments/#patientVisitId/details"
-            editView="index.html#/assignments/#patientVisitId/edit"
+            detailsView="index.html#/assignments/#id/details"
+            editView="index.html#/assignments/#id/edit"
             searchFields={searchFields}
             searchEntity="patientAssignments"
             combinedSearchFieldsAndTerms={initialQuery}
             isSearchable={true}
             addTitle="Add Assignment"
             addView="index.html#/assignments/add"
+            dataEndpoint={'/search'}
+
         />
     );
 };

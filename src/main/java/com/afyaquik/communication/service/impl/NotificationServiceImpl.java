@@ -25,8 +25,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationMapper mapper;
     @Override
     public NotificationDto sendToUser(NotificationDto  notificationDto) {
-        User user = usersRepo.findById(notificationDto.getRecipientId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User user = usersRepo.findById(notificationDto.getRecipientId()).orElse(null);
         Role role = rolesRepository.findByName(notificationDto.getRecipientRole())
                 .orElseThrow(() -> new EntityNotFoundException("Role not found"));
         Notification notification = Notification.builder()

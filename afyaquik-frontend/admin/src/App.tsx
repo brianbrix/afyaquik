@@ -40,12 +40,16 @@ import DrugInventoryCreate from "./pharmacy/drug_inventory/DrugInventoryCreate";
 import DrugFormList from "./pharmacy/drug_forms/DrugFormList";
 import DrugFormCreate from "./pharmacy/drug_forms/DrugFromCreate";
 import DrugFormEdit from "./pharmacy/drug_forms/DrugFormEdit";
+import PermissionList from "./permissions/PermissionList";
+import PermissionEdit from "./permissions/PermissionEdit";
+import PermissionCreate from "./permissions/PermissionCreate";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
     <Admin dataProvider={dataProvider} authProvider={authProvider}>
       <Resource name="users" list={UserList} edit={UserEdit} create={UserCreate} />
       <Resource name="roles" list={RoleList} edit={RoleEdit} create={RoleCreate} />
+      <Resource name="apiPermissions" list={PermissionList} create={PermissionCreate} edit={PermissionEdit} />
       <Resource name="stations" list={StationList} edit={StationEdit} create={StationCreate} />
       <Resource name="generalSettings" list={SettingsList} edit={SettingsEdit} create={SettingsCreate} />
       <Resource name="triageItems" list={TriageItemList} edit={TriageItemEdit} create={TriageItemCreate} />

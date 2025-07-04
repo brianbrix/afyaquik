@@ -15,7 +15,7 @@ public class PatientMapperRegistry {
             mapperRegistry.registerMapper("visits", patientVisitMapper);
             mapperRegistry.registerMapper("triageReportItem", triageReportItemMapper);
             mapperRegistry.registerMapper("triageItems", triageItemMapper);
-            mapperRegistry.registerMapper("assignments", patientAssignmentsMapper);
+            mapperRegistry.registerMapper("patientAssignments", patientAssignmentsMapper);
 
         }
     }

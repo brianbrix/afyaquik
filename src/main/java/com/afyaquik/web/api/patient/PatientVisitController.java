@@ -1,6 +1,6 @@
 package com.afyaquik.web.api.patient;
 
-import com.afyaquik.patients.dto.PatientAssignmentsDto;
+import com.afyaquik.patients.dto.PatientAssignmentDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.services.PatientService;
@@ -28,17 +28,17 @@ public class PatientVisitController {
     }
 
     @GetMapping("/{visitId}/assignments")
-    public ResponseEntity<ListFetchDto<PatientAssignmentsDto>> getPatientAssignments(@PathVariable Long visitId , Pageable pageable) {
+    public ResponseEntity<ListFetchDto<PatientAssignmentDto>> getPatientAssignments(@PathVariable Long visitId , Pageable pageable) {
         return ResponseEntity.ok(patientVisitService.getAssignments(visitId, pageable));
     }
 
 
     @GetMapping("/assignments/{planId}")
-    public ResponseEntity<PatientAssignmentsDto> getPatientAssignments(@PathVariable Long planId) {
+    public ResponseEntity<PatientAssignmentDto> getPatientAssignments(@PathVariable Long planId) {
         return ResponseEntity.ok(patientVisitService.getAssignments(planId));
     }
     @GetMapping("/{visitId}/assignments/{officerId}")
-    public ResponseEntity<ListFetchDto<PatientAssignmentsDto>> getPatientAssignmentsForOfficer(@PathVariable Long visitId , @PathVariable Long officerId, @RequestParam(required = false)String whichOfficer, Pageable  pageable) {
+    public ResponseEntity<ListFetchDto<PatientAssignmentDto>> getPatientAssignmentsForOfficer(@PathVariable Long visitId , @PathVariable Long officerId, @RequestParam(required = false)String whichOfficer, Pageable  pageable) {
         return ResponseEntity.ok(patientVisitService.getAssignmentsForOfficer(visitId,officerId, whichOfficer, pageable));
     }
 
@@ -47,11 +47,11 @@ public class PatientVisitController {
         return ResponseEntity.ok(patientVisitService.updatePatientVisit(patientVisitDto));
     }
     @PostMapping("/assignments/create")
-    public ResponseEntity<PatientAssignmentsDto> createAssignments(@RequestBody PatientAssignmentsDto planDto) {
+    public ResponseEntity<PatientAssignmentDto> createAssignments(@RequestBody PatientAssignmentDto planDto) {
         return ResponseEntity.ok(patientService.createPatientAssignments(planDto));
     }
     @PutMapping("/assignments/update")
-    public ResponseEntity<PatientAssignmentsDto> updateAssignments(@RequestBody PatientAssignmentsDto planDto) {
+    public ResponseEntity<PatientAssignmentDto> updateAssignments(@RequestBody PatientAssignmentDto planDto) {
         return ResponseEntity.ok(patientService.updatePatientAssignments(planDto));
     }
 

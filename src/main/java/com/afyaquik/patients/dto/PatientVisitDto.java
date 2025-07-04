@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,7 +22,7 @@ public class PatientVisitDto {
     private String summaryReasonForVisit;
     private LocalDate visitDate;
     private LocalDate nextVisitDate;
-    private List<PatientAssignmentsDto> assignments;
+    private List<PatientAssignmentDto> assignments;
     private TriageReportDto triageReportDto;
     private String visitStatus;
 

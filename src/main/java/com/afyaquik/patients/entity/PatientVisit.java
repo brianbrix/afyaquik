@@ -41,7 +41,7 @@ public class PatientVisit extends SuperEntity {
     private TriageReport triageReport;
 
     @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PatientAssignments> patientAssignments= new ArrayList<>();
+    private List<PatientAssignment> patientAssignments= new ArrayList<>();
 
     @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PatientVisitNotes> patientVisitNotes;

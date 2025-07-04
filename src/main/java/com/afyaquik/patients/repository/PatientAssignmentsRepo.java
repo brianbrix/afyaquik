@@ -1,6 +1,6 @@
 package com.afyaquik.patients.repository;
 
-import com.afyaquik.patients.entity.PatientAssignments;
+import com.afyaquik.patients.entity.PatientAssignment;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
@@ -12,13 +12,13 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PatientAssignmentsRepo extends JpaRepository<PatientAssignments, Long>{
-    Page<PatientAssignments> findAllByAssignedOfficerId(Long assignedOfficerId, Pageable pageable);
-    Page<PatientAssignments> findAllByAttendingOfficerId(Long attendingOfficerId, Pageable pageable);
-    Page<PatientAssignments> findAllByNextStationId(Long nextStationId, Pageable pageable);
-    Page<PatientAssignments> findAllByPatientVisitId(Long patientVisitId, Pageable pageable);
-    Page<PatientAssignments> findAllByPatientVisitIdAndAssignedOfficerId(Long patientVisitId,Long assignedOfficerId,Pageable pageable);
-    Page<PatientAssignments> findAllByPatientVisitIdAndAttendingOfficerId(Long patientVisitId, Long attendingOfficerId, Pageable pageable);
+public interface PatientAssignmentsRepo extends JpaRepository<PatientAssignment, Long>{
+    Page<PatientAssignment> findAllByAssignedOfficerId(Long assignedOfficerId, Pageable pageable);
+    Page<PatientAssignment> findAllByAttendingOfficerId(Long attendingOfficerId, Pageable pageable);
+    Page<PatientAssignment> findAllByNextStationId(Long nextStationId, Pageable pageable);
+    Page<PatientAssignment> findAllByPatientVisitId(Long patientVisitId, Pageable pageable);
+    Page<PatientAssignment> findAllByPatientVisitIdAndAssignedOfficerId(Long patientVisitId, Long assignedOfficerId, Pageable pageable);
+    Page<PatientAssignment> findAllByPatientVisitIdAndAttendingOfficerId(Long patientVisitId, Long attendingOfficerId, Pageable pageable);
 
-    Optional<PatientAssignments> findByAssignedOfficerAndNextStationAndPatientVisit(User assignedOfficer, Station nextStation, PatientVisit patientVisit);
+    Optional<PatientAssignment> findByAssignedOfficerAndNextStationAndPatientVisit(User assignedOfficer, Station nextStation, PatientVisit patientVisit);
 }

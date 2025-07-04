@@ -1,6 +1,6 @@
 package com.afyaquik.patients.services.impl;
 
-import com.afyaquik.patients.dto.PatientAssignmentsDto;
+import com.afyaquik.patients.dto.PatientAssignmentDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -100,7 +99,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                if (detailsType.contains("assignment"))
                {
                    patientVisitDto.setAssignments(patientVisit.getPatientAssignments()!=null?
-                           patientVisit.getPatientAssignments().stream().map(plan -> PatientAssignmentsDto.builder()
+                           patientVisit.getPatientAssignments().stream().map(plan -> PatientAssignmentDto.builder()
                                    .id(plan.getId())
                                    .patientName(plan.getPatientVisit().getPatient().getPatientName())
                                    .nextStation(plan.getNextStation().getName())
@@ -119,10 +118,10 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
-    public ListFetchDto<PatientAssignmentsDto> getAssignments(Long visitId, Pageable pageable) {
+    public ListFetchDto<PatientAssignmentDto> getAssignments(Long visitId, Pageable pageable) {
         PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
-        return ListFetchDto.<PatientAssignmentsDto>builder()
+        return ListFetchDto.<PatientAssignmentDto>builder()
                 .results(
                         patientAssignmentsRepo.findAllByPatientVisitId(patientVisit.getId(), pageable).map(patientAssignmentsMapper::toDto)
                 )
@@ -131,21 +130,21 @@ public class PatientVisitServiceImpl implements PatientVisitService {
 
 
     @Override
-    public ListFetchDto<PatientAssignmentsDto> getAssignmentsForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {
+    public ListFetchDto<PatientAssignmentDto> getAssignmentsForOfficer(Long visitId, Long officerId, String whichOfficer, Pageable pageable) {
         PatientVisit patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
         if (whichOfficer==null) {
             throw new EntityNotFoundException("Officer type not specified");
         }
         if (whichOfficer.equalsIgnoreCase("attending")) {
-            return ListFetchDto.<PatientAssignmentsDto>builder()
+            return ListFetchDto.<PatientAssignmentDto>builder()
                     .results(
                             patientAssignmentsRepo.findAllByPatientVisitIdAndAttendingOfficerId(patientVisit.getId(), officerId, pageable).map(patientAssignmentsMapper::toDto)
                     )
                     .build();
         }
         else if (whichOfficer.equalsIgnoreCase("assigned")) {
-            return ListFetchDto.<PatientAssignmentsDto>builder()
+            return ListFetchDto.<PatientAssignmentDto>builder()
                     .results(
                             patientAssignmentsRepo.findAllByPatientVisitIdAndAssignedOfficerId(patientVisit.getId(), officerId, pageable).map(patientAssignmentsMapper::toDto)
                     )
@@ -157,7 +156,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
-    public PatientAssignmentsDto getAssignments(Long planId) {
+    public PatientAssignmentDto getAssignments(Long planId) {
         return patientAssignmentsMapper.toDto(patientAssignmentsRepo.findById(planId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient Assignment not found")));
     }

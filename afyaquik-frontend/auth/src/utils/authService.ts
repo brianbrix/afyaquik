@@ -1,7 +1,7 @@
 import {apiRequest} from "@afyaquik/shared";
 
 const data = {
-    roles: undefined,
+    roles: [],
     isLoggedIn: false,
     userId: 0
 };

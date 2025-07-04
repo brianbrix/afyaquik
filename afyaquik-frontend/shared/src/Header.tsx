@@ -8,6 +8,7 @@ interface HeaderProps {
 }
 const Header: React.FC<HeaderProps>  = ({homeUrl, userRole}) => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    let currentRole = localStorage.getItem('currentRole') || 'USER';
 
     const handleLogout = () => {
         apiRequest('/auth/logout',{
@@ -34,7 +35,7 @@ const Header: React.FC<HeaderProps>  = ({homeUrl, userRole}) => {
                 </a>)
             }
             {isLoggedIn ? (
-                <><NotificationsBell userId= {Number(localStorage.getItem('userId'))} userRole={userRole||'USER'} />
+                <><NotificationsBell userId= {Number(localStorage.getItem('userId'))} userRole={userRole|| currentRole} />
                     <button className="btn btn-light text-primary ms-auto" onClick={handleLogout}>
                         <i className="bi-box-arrow-right me-1"></i> Logout
                     </button>

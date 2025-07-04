@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {HashRouter} from "react-router-dom";
+import '@afyaquik/shared/styles';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
