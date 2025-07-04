@@ -31,7 +31,7 @@ public class DrugServiceImpl implements DrugService {
         if (drugRepository.findByName(drugDto.getName()).isPresent()) {
             throw new EntityNotFoundException("Drug with name " + drugDto.getName() + " already exists.");
         }
-        if (drugRepository.findByAtcCode(drugDto.getAtcCode()).isPresent()) {
+        if (drugDto.getAtcCode()!=null && drugRepository.findByAtcCode(drugDto.getAtcCode()).isPresent()) {
             throw new EntityNotFoundException("Drug with ATC code " + drugDto.getAtcCode() + " already exists.");
         }
         DrugCategory drugCategory = drugCategoryRepository.findById(drugDto.getCategoryId())
@@ -44,14 +44,17 @@ public class DrugServiceImpl implements DrugService {
                 .atcCode(drugDto.getAtcCode())
                 .description(drugDto.getDescription())
                 .brandName(drugDto.getBrandName())
-                .enabled(drugDto.isEnabled())
+                .enabled(drugDto.getEnabled())
                 .manufacturer(drugDto.getManufacturer())
                 .sampleDosageInstruction(drugDto.getSampleDosageInstruction())
                 .strength(drugDto.getStrength())
-                .isPrescriptionRequired(drugDto.isPrescriptionRequired())
+                .isPrescriptionRequired(drugDto.getIsPrescriptionRequired())
                 .drugCategory(drugDto.getCategoryId() != null ? drugCategory : null)
                 .build();
-        return drugMapper.toDto(drugRepository.save(drug));
+        DrugDto dto = drugMapper.toDto(drugRepository.save(drug));
+        //update to get correct stock quantity
+        updateDrug(dto.getId(), dto);
+        return dto;
     }
 
     @Override
@@ -101,9 +104,9 @@ public class DrugServiceImpl implements DrugService {
         existingDrug.setManufacturer(drugDto.getManufacturer());
         existingDrug.setSampleDosageInstruction(drugDto.getSampleDosageInstruction());
         existingDrug.setStockQuantity(totalStock);
-        existingDrug.setPrescriptionRequired(drugDto.isPrescriptionRequired());
+        existingDrug.setPrescriptionRequired(drugDto.getIsPrescriptionRequired());
         existingDrug.setAtcCode(drugDto.getAtcCode());
-        existingDrug.setEnabled(drugDto.isEnabled());
+        existingDrug.setEnabled(drugDto.getEnabled());
         existingDrug.setDrugCategory(drugDto.getCategoryId() != null ? drugCategory : null);
         return drugMapper.toDto(drugRepository.save(existingDrug));
     }

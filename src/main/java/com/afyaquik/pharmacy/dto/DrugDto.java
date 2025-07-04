@@ -24,10 +24,10 @@ public class DrugDto {
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private int stockQuantity;//total of all current quantities in inventory for this drug
-    private boolean isPrescriptionRequired=false;
+    private Integer stockQuantity;//total of all current quantities in inventory for this drug
+    private Boolean isPrescriptionRequired=false;
     private String atcCode;
-    private boolean enabled=true;
+    private Boolean enabled=true;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

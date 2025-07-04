@@ -21,15 +21,7 @@ const searchFields = [
     }
 ];
 
-const PatientDrugList = () => {
-    const { patientVisitId } = useParams();
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    if (!patientVisitId) {
-        return <div>Patient Visit ID is required</div>;
-    }
-
+const PatientDrugList = ({visitId, data}:{visitId:number, data: any}) => {
     return (
         <DataTable
             title="Patient Drugs"
@@ -37,11 +29,12 @@ const PatientDrugList = () => {
             detailsView="index.html#/patient-drugs/#id/details"
             editView="index.html#/patient-drugs/#id/edit"
             searchFields={searchFields}
-            searchEntity="patient-drugs"
-            combinedSearchFieldsAndTerms={`patientVisitId=${patientVisitId}`}
-            dataEndpoint={`/patient-drugs/visit/${patientVisitId}`}
+            searchEntity="patientDrugs"
+            combinedSearchFieldsAndTerms={`patientVisitId=${visitId}`}
+            dataEndpoint={`/search`}
+            data={data}
             addTitle="Add Drug"
-            addView={`index.html#/patient-drugs/add/${patientVisitId}`}
+            addView={`index.html#/patient-drugs/add/${visitId}`}
         />
     );
 };

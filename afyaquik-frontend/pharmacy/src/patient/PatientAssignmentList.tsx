@@ -26,16 +26,10 @@ const searchFields = [
 ];
 
 const PatientAssignmentList = () => {
+
     const userId = Number(localStorage.getItem("userId"));
-    const [initialQuery, setInitialQuery] = useState("");
-
-    useEffect(() => {
-        if (userId) {
-            // Set initial query to filter patient assignments where nextStation is PHARMACY and assigned officer is current user
-            setInitialQuery(`nextStation.name=PHARMACY,assignedOfficer.id=${userId}`);
-        }
-    }, [userId]);
-
+    const initialQuery = `nextStation.name=PHARMACY,assignedOfficer.id=${userId}`;
+    console.log("Init query", initialQuery)
     return (
         <DataTable
             title="Pharmacy Assignments"

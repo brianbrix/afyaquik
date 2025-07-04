@@ -3,11 +3,10 @@ import { DataTable } from "@afyaquik/shared";
 const columns = [
     { header: '#', accessor: 'id' },
     { header: 'Name', accessor: 'name' },
-    { header: 'Category', accessor: 'category.name' },
-    { header: 'Form', accessor: 'form.name' },
+    { header: 'Category', accessor: 'categoryName' },
+    { header: 'Form', accessor: 'drugFormName' },
     { header: 'Strength', accessor: 'strength' },
-    { header: 'Unit', accessor: 'unit' },
-    { header: 'Available Quantity', accessor: 'availableQuantity' }
+    { header: 'Available Quantity', accessor: 'stockQuantity' }
 ];
 
 const searchFields = [

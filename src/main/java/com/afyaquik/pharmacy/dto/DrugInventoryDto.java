@@ -1,9 +1,7 @@
 package com.afyaquik.pharmacy.dto;
 
 
-import jakarta.validation.constraints.NegativeOrZero;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,14 +14,14 @@ public class DrugInventoryDto {
     private Long id;
     private Long drugId;
     private int currentQuantity;
-    @NegativeOrZero(message = "Initial quantity cannot be negative or zero")
+    @PositiveOrZero(message = "Initial quantity cannot be less than zero")
     private int initialQuantity;
     private String batchNumber;
     private LocalDate expiryDate;
     private LocalDateTime receivedDate;
-    @NegativeOrZero(message = "Initial quantity cannot be negative or zero")
+    @PositiveOrZero(message = "Initial quantity cannot be less than zero")
     private double sellingPrice;
-    @NegativeOrZero(message = "Initial quantity cannot be negative or zero")
+    @PositiveOrZero(message = "Initial quantity cannot be less than zero")
     private double buyingPrice;
     private boolean isActive;
     private String drugName;

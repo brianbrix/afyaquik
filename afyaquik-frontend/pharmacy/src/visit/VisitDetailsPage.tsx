@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
-import { DetailsPage, apiRequest } from "@afyaquik/shared";
-import { Button, Table } from "react-bootstrap";
+import { DetailsPage, apiRequest, DataTable } from "@afyaquik/shared";
+import { Button } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import PatientAssignmentList from "../patient/PatientAssignmentList";
+import PatientDrugList from "../patient-drug/PatientDrugList";
 
 interface PatientAssignment {
     id: number;
@@ -58,7 +59,7 @@ const VisitDetailsPage = () => {
     const [drugs, setDrugs] = useState<PatientDrug[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const endpoint = `/visits/${id}`;
+    const endpoint = `/patient/visits/${id}`;
     const fields = [
         { label: "Patient Name", accessor: "patientName" },
         { label: "Visit Date", accessor: "visitDate", type: 'date' },
@@ -87,76 +88,13 @@ const VisitDetailsPage = () => {
             });
     }, [endpoint]);
 
-    const drugAssignments =()=>{
-        return(
-    <div className="mt-5">
-        <h5 className="text-primary fw-semibold mb-3">Drugs for this Visit</h5>
-        <Table bordered hover responsive className="table-sm align-middle">
-            <thead className="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Drug Name</th>
-                <th>Quantity</th>
-                <th>Dosage Instructions</th>
-                <th>Dispensed</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {drugs.length === 0 ? (
-                <tr>
-                    <td colSpan={6} className="text-center">No drugs found</td>
-                </tr>
-            ) : (
-                drugs.map(drug => (
-                    <tr key={drug.id}>
-                        <td>{drug.id}</td>
-                        <td>{drug.drugName}</td>
-                        <td>{drug.quantity}</td>
-                        <td dangerouslySetInnerHTML={{ __html: drug.dosageInstructions }}></td>
-                        <td>{drug.dispensed ? 'Yes' : 'No'}</td>
-                        <td>
-                            {!drug.dispensed && (
-                                <Button
-                                    variant="success"
-                                    size="sm"
-                                    onClick={() => handleDispense(drug.id)}
-                                >
-                                    Dispense
-                                </Button>
-                            )}
-                        </td>
-                    </tr>
-                ))
-            )}
-            </tbody>
-        </Table>
-    </div>
-        )
-    }
-    const handleDispense = (drugId: number) => {
-        apiRequest(`/patient-drugs/${drugId}/dispense`, {
-            method: 'PUT'
-        })
-        .then(response => {
-            alert('Drug dispensed successfully');
-            // Update the drugs list
-            setDrugs(drugs.map(d =>
-                d.id === drugId ? { ...d, dispensed: true } : d
-            ));
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while dispensing the drug');
-        });
-    };
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!visit) return <div>No visit found</div>;
 
     return (
-        <div className="container my-4">
+        drugs?
             <DetailsPage
                 topComponents={[components(id)]}
                 title={"Visit Details"}
@@ -164,10 +102,9 @@ const VisitDetailsPage = () => {
                 fields={fields}
                 otherComponentsToRender={[
                     {title:"Patient Assignments", content: <PatientAssignmentList />},
-                    {title:"Drugs", content: drugAssignments()}
+                    {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.id}/>}
                 ]}
-            />
-        </div>
+            />:<div>Drugs not loaded</div>
     )
 }
 

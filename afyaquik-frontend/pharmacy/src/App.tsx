@@ -14,6 +14,7 @@ import DrugDetailsPage from './drug/DrugDetailsPage';
 import {AuthGuard, Header, ToastProvider} from "@afyaquik/shared";
 import VisitAssign from './visit/VisitAssign';
 import VisitDetailsPage from './visit/VisitDetailsPage';
+import VisitList from "./visit/VisitList";
 
 function App() {
   return (
@@ -22,7 +23,6 @@ function App() {
           <Header homeUrl="/client/pharmacy/index.html" userRole={'PHARMACIST'} />
           <div className="container my-4">
             <Routes>
-          <Route path="/patient-drugs/visit/:patientVisitId" element={<PatientDrugList />} />
           <Route path="/patient-drugs/:id/details" element={<PatientDrugDetailsPage />} />
           <Route path="/patient-drugs/:id/edit" element={<PatientDrugEditPage />} />
           <Route path="/patient-drugs/add/:patientVisitId" element={<PatientDrugAddPage />} />
@@ -30,7 +30,7 @@ function App() {
           <Route path="/assignments" element={<PatientAssignmentList />} />
           <Route path="/assignments/:id/details" element={<PatientAssignmentDetailsPage />} />
 
-          <Route path="/visits" element={<PatientAssignmentList />} />
+          <Route path="/visits" element={<VisitList />} />
           <Route path="/visits/:id/details" element={<VisitDetailsPage />} />
           <Route path="/visits/:id/assign" element={<VisitAssign />} />
           <Route path="/drugs" element={<DrugList />} />

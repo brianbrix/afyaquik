@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
-import { DetailsPage, apiRequest } from "@afyaquik/shared";
-import { Button, Table } from "react-bootstrap";
+import { DetailsPage, apiRequest, DataTable } from "@afyaquik/shared";
+import { Button } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
+import PatientDrugList from "../patient-drug/PatientDrugList";
 
 interface PatientAssignment {
     id: number;
@@ -13,12 +14,13 @@ interface PatientAssignment {
     status: string;
 }
 
-interface Visit {
+interface Assignment {
     id: number;
+    patientVisitId:number;
     patientName: string;
     visitDate: string;
     status: string;
-    assignedTo: string;
+    assignedOfficer: string;
     notes: string;
 }
 
@@ -53,7 +55,7 @@ const components = function (id: any) {
 const PatientAssignmentDetailsPage = () => {
     let params = useParams();
     const id = Number(params.id);
-    const [visit, setVisit] = useState<Visit | null>(null);
+    const [visit, setVisit] = useState<Assignment | null>(null);
     const [drugs, setDrugs] = useState<PatientDrug[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -86,86 +88,30 @@ const PatientAssignmentDetailsPage = () => {
             });
     }, [endpoint]);
 
-    const drugAssignments =()=>{
-        return(
-    <div className="mt-5">
-        <h5 className="text-primary fw-semibold mb-3">Drugs for this Visit</h5>
-        <Table bordered hover responsive className="table-sm align-middle">
-            <thead className="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Drug Name</th>
-                <th>Quantity</th>
-                <th>Dosage Instructions</th>
-                <th>Dispensed</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {drugs.length === 0 ? (
-                <tr>
-                    <td colSpan={6} className="text-center">No drugs found</td>
-                </tr>
-            ) : (
-                drugs.map(drug => (
-                    <tr key={drug.id}>
-                        <td>{drug.id}</td>
-                        <td>{drug.drugName}</td>
-                        <td>{drug.quantity}</td>
-                        <td dangerouslySetInnerHTML={{ __html: drug.dosageInstructions }}></td>
-                        <td>{drug.dispensed ? 'Yes' : 'No'}</td>
-                        <td>
-                            {!drug.dispensed && (
-                                <Button
-                                    variant="success"
-                                    size="sm"
-                                    onClick={() => handleDispense(drug.id)}
-                                >
-                                    Dispense
-                                </Button>
-                            )}
-                        </td>
-                    </tr>
-                ))
-            )}
-            </tbody>
-        </Table>
-    </div>
-        )
-    }
-    const handleDispense = (drugId: number) => {
-        apiRequest(`/patient-drugs/${drugId}/dispense`, {
-            method: 'PUT'
-        })
-        .then(response => {
-            alert('Drug dispensed successfully');
-            // Update the drugs list
-            setDrugs(drugs.map(d =>
-                d.id === drugId ? { ...d, dispensed: true } : d
-            ));
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while dispensing the drug');
-        });
-    };
+    // Define columns for the DataTable
+    const drugColumns = [
+        { header: 'ID', accessor: 'id' },
+        { header: 'Drug Name', accessor: 'drugName' },
+        { header: 'Quantity', accessor: 'quantity' },
+        { header: 'Dosage Instructions', accessor: 'formattedDosageInstructions' },
+        { header: 'Dispensed', accessor: 'dispensed' }
+    ];
+
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!visit) return <div>No visit found</div>;
 
-    return (
-        <div className="container my-4">
+    return (drugs && visit?
             <DetailsPage
                 topComponents={[components(id)]}
                 title={"Patient Assignment Details"}
                 endpoint={endpoint}
                 fields={fields}
                 otherComponentsToRender={[
-                    {title:"Drugs", content: drugAssignments()}
+                    {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.patientVisitId}/>}
                 ]}
-            />
-        </div>
+            />:<div>Drugs not loaded</div>
     )
 }
 

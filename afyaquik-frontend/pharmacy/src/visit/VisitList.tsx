@@ -42,8 +42,8 @@ const VisitList = () => {
         <DataTable
             title="Patient Visits"
             columns={columns}
-            detailsView="index.html#/visits/#patientVisitId/details"
-            editView="index.html#/visits/#patientVisitId/assign"
+            detailsView="index.html#/visits/#id/details"
+            editView="index.html#/visits/#id/assign"
             editTitle={"Assign Visit"}
             searchFields={searchFields}
             searchEntity="visits"

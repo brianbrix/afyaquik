@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 public class Drug extends SuperEntity {
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String brandName;
@@ -27,7 +27,7 @@ public class Drug extends SuperEntity {
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private int stockQuantity;
+    private int stockQuantity=0;
     private boolean isPrescriptionRequired=false;
     private String atcCode;
     private boolean enabled=true;

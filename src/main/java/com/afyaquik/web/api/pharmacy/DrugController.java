@@ -20,7 +20,7 @@ public class DrugController {
         return ResponseEntity.ok(drugs);
     }
     @PostMapping
-    public ResponseEntity<DrugDto> createDrug(DrugDto drugDto) {
+    public ResponseEntity<DrugDto> createDrug(@RequestBody DrugDto drugDto) {
         DrugDto createdDrug = drugService.createDrug(drugDto);
         return ResponseEntity.ok(createdDrug);
     }
