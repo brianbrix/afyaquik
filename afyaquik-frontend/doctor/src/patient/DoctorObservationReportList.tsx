@@ -3,7 +3,7 @@ import {apiRequest, DoctorReportList} from "@afyaquik/shared";
 
 const DoctorObservationReportList = function ({visitId}:{visitId:number}){
     const [isLoading, setIsLoading] = useState(true);
-    const [reportData, setReportDate]= useState([]);
+    const [reportData, setReportData]= useState([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -11,7 +11,7 @@ const DoctorObservationReportList = function ({visitId}:{visitId:number}){
             try {
                 apiRequest(`/observations/visit/${visitId}?page=0&size=100&sort=createdAt,desc`).then(
                     (response)=>{
-                        setReportDate(response.results.content)
+                        setReportData(response.results.content)
                         console.log('Response:', response);
                     }
                 )

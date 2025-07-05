@@ -134,7 +134,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         PatientVisit patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
         if (whichOfficer==null) {
-            throw new EntityNotFoundException("Officer type not specified");
+            throw new IllegalArgumentException("Officer type not specified");
         }
         if (whichOfficer.equalsIgnoreCase("attending")) {
             return ListFetchDto.<PatientAssignmentDto>builder()

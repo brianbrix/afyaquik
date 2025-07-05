@@ -96,6 +96,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
     };
 
     return (
+
         <div>
             <div className="d-flex justify-content-end mb-3">
                 <Button
@@ -105,6 +106,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                     {showSelectionMode ? 'Cancel' : 'Dispense Multiple Drugs'}
                 </Button>
             </div>
+
             <DataTable
                 title="Patient Drugs"
                 columns={columns}
@@ -113,6 +115,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 searchFields={searchFields}
                 detailsButtonAction={!showSelectionMode ? handleDispense : undefined}
                 detailsTitle={'Dispense Drug'}
+                detailsButtonEnabled={(drug) => !drug.dispensed}
                 searchEntity="patientDrugs"
                 combinedSearchFieldsAndTerms={`patientVisitId=${visitId}`}
                 dataEndpoint={`/search`}

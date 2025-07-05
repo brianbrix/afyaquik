@@ -27,7 +27,7 @@ const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dat
 
     useEffect(() => {
         if (userId)
-            url+=`?whichofficer=${whichOfficer}`
+            url+=`?whichOfficer=${whichOfficer}`
         apiRequest(dataEndpoint?dataEndpoint:url, { method: 'GET' })
             .then(data => {
                 setPlans(data);

@@ -23,7 +23,6 @@ function App() {
           <Header homeUrl="/client/pharmacy/index.html" userRole={'PHARMACIST'} />
           <div className="container my-4">
             <Routes>
-          <Route path="/patient-drugs/:id/details" element={<PatientDrugDetailsPage />} />
           <Route path="/patient-drugs/:id/edit" element={<PatientDrugEditPage />} />
           <Route path="/patient-drugs/add/:patientVisitId" element={<PatientDrugAddPage />} />
 

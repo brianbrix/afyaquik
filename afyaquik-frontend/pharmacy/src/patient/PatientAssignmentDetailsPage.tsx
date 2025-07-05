@@ -3,6 +3,8 @@ import { DetailsPage, apiRequest, DataTable } from "@afyaquik/shared";
 import { Button } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import PatientDrugList from "../patient-drug/PatientDrugList";
+import PharmacyObservationReportList from "./PharmacyObservationReportList";
+import PharmacyTreatmentPlanListPage from "./PharmacyTreatmentPlanListPage";
 
 interface PatientAssignment {
     id: number;
@@ -41,12 +43,6 @@ const components = function (id: any) {
                 onClick={() => window.location.href = `index.html#/assignments`}
             >
                 Go to Assignments
-            </Button>
-            <Button
-                variant="outline-primary"
-                onClick={() => window.location.href = `index.html#/assignments/${id}/edit`}
-            >
-                Edit
             </Button>
         </div>
     )
@@ -109,6 +105,8 @@ const PatientAssignmentDetailsPage = () => {
                 endpoint={endpoint}
                 fields={fields}
                 otherComponentsToRender={[
+                    {title:'Observation Report',content: <PharmacyObservationReportList visitId={visit.patientVisitId}/>},
+                    {title:'Treatment Plan Report', content: <PharmacyTreatmentPlanListPage visitId={visit.patientVisitId}/>},
                     {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.patientVisitId}/>}
                 ]}
             />:<div>Drugs not loaded</div>

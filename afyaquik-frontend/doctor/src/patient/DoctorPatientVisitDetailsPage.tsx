@@ -34,7 +34,7 @@ const assignmentList= function (visitId:number){
         </div>)
     }
     return (
-    <AssignmentsList title={'My assignments for this patient visit'} visitId={visitId} userId={userId} whichOfficer={'assigned'} columns={columns} editView={"index.html#/assignments/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
+    <AssignmentsList title={'My assignments for this patient visit'} visitId={visitId} userId={userId} whichOfficer={'assigned'} columns={columns} addView={'assign'} editView={"index.html#/assignments/#id/edit"} detailsView={"index.html#/visits/#id/treatment/plans/create"}/>
 )
 
 

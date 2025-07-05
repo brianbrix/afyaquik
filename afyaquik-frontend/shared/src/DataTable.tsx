@@ -15,6 +15,7 @@ interface DataTableProps<T> {
     editButtonAction?: (rowData: T) => void;
     editTitle?: string;
     editClassName?: string;
+    editButtonEnabled?: boolean | ((row: T) => boolean);
     addView?: string;
     addTitle?: string;
     addClassName?: string;
@@ -22,6 +23,7 @@ interface DataTableProps<T> {
     detailsButtonAction?: (rowData: T) => void;
     detailsTitle?: string;
     detailsClassName?: string;
+    detailsButtonEnabled?: boolean | ((row: T) => boolean);
     dataEndpoint?: string;
     additionalParams?: Record<string, any>;
     requestMethod?: string;
@@ -71,6 +73,8 @@ function DataTable<T extends { id: number }>({
                                                  editButtonAction,
                                                  detailsButtonAction,
     additionalParams,
+                                                 editButtonEnabled = true,
+                                                 detailsButtonEnabled = true,
                                                  isSearchable,dateFieldName='createdAt', combinedSearchFieldsAndTerms,
                                                  showSelectionMode = false,
                                                  selectionModeAction,
@@ -91,6 +95,7 @@ function DataTable<T extends { id: number }>({
     const [dateFieldValue, setDateFieldValue] = useState('');
     const [selectedRows, setSelectedRows] = useState<T[]>([]);
     const [selectAll, setSelectAll] = useState(false);
+
 
     const onResetFilters = () => {
         setSearchTerm('');
@@ -362,7 +367,10 @@ function DataTable<T extends { id: number }>({
                             {(editView || detailsView || (!showSelectionMode && (detailsButtonAction || editButtonAction))) && (
                                 <td>
                                     {(detailsView || detailsButtonAction) && (
-                                        <Button
+                                        <Button disabled={ typeof detailsButtonEnabled === 'function'
+                                            ? !detailsButtonEnabled(record)
+                                            : !detailsButtonEnabled
+                                        }
                                             variant="secondary"
                                             className="me-2"
                                             onClick={() => {
@@ -379,6 +387,10 @@ function DataTable<T extends { id: number }>({
                                     )}
                                     {(editView || editButtonAction) && (
                                         <Button
+                                            disabled={  typeof editButtonEnabled === 'function'
+                                                ? !editButtonEnabled(record)
+                                                : !editButtonEnabled
+                                            }
                                             variant="primary"
                                             onClick={() => {
                                                 if (editButtonAction) {
