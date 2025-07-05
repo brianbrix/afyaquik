@@ -33,7 +33,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
         return (  <Button
             variant="outline-info"
             className="btn btn-success mb-4"
-            onClick={() => window.location.href = `index.html#/patients/visits/${visitId}/details`}
+            onClick={() => window.location.href = `index.html#/visits/${visitId}/details`}
         >
             <i className="bi bi-arrow-left me-1"></i> Back to Summary
         </Button>)
@@ -107,7 +107,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
                             `index.html#/visits/${visitId}/details`,
                             'VISIT', `${response.nextStation}`
                         )
-                        window.location.href = `index.html#/patients/visits/${visitId}/details`
+                        window.location.href = `index.html#/visits/${visitId}/details`
                     })
                     .catch((err) => console.error(err));
             }}

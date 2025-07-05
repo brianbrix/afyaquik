@@ -25,7 +25,7 @@ public class PatientDrug extends SuperEntity {
     @JoinColumn(name = "drug_id", nullable = false)
     private Drug drug;
 
-    private Integer quantity;
+    private Double quantity;
 
     private String dosageInstructions;
 

@@ -9,6 +9,8 @@ export interface FieldConfig {
     disabled?: boolean;
     onChange?: (value: any) => void;
     colSpan?:number,
+    step?:string,//for number input
+    value?:any,
     multiple?: boolean;//for select
     options?: { label: string; value: string | number }[];
 }

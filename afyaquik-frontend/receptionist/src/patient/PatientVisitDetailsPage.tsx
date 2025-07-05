@@ -10,7 +10,7 @@ const components = function (visitId:any){
         <div className="d-flex justify-content-between">
             <Button
                 variant="outline-info"
-                onClick={() => window.location.href = `index.html#/patients/visits/${visitId}/details`}
+                onClick={() => window.location.href = `index.html#/visits/${visitId}/details`}
             >
                 Got to Visits
             </Button>

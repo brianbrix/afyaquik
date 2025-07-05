@@ -49,7 +49,7 @@ const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dat
     }
 
     if (addView) {
-        dataTableProps.addView = `index.html#/patients/visits/${visitId}/assign`;
+        dataTableProps.addView = `index.html#/visits/${visitId}/assign`;
         dataTableProps.addTitle = 'Add Assignment';
 
     }

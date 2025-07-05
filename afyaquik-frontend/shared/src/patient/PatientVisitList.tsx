@@ -54,9 +54,9 @@ const PatientVisitList: React.FC<PatientVisitListProps> = ({patientId}) => {
             title={`Visits by ${patientName}`}
             columns={columns}
             data={patientVisits}
-            editView={"index.html#/patients/visits/#id/edit"}
+            editView={"index.html#/visits/#id/edit"}
             addView={`index.html#/patients/${patientId}/visits/add`}
-            detailsView={"index.html#/patients/visits/#id/details"}
+            detailsView={"index.html#/visits/#id/details"}
             searchFields={searchFields}
             // searchEntity={'visits'}
             requestMethod={'GET'}

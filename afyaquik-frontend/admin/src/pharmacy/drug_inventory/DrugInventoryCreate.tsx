@@ -18,8 +18,8 @@ const DrugInventoryCreate = () => (
                <SelectInput optionText="name" optionValue="id" />
            </ReferenceInput>
 
-           <NumberInput source="currentQuantity" label="Current Quantity" />
-           <NumberInput
+           <NumberInput source="currentQuantity" label="Current Quantity" step="0.01" />
+           <NumberInput step="0.01"
                source="initialQuantity"
                label="Initial Quantity"
                validate={[required(), validatePositive]}
@@ -30,13 +30,13 @@ const DrugInventoryCreate = () => (
            <DateInput source="expiryDate" label="Expiry Date" />
            <DateTimeInput source="receivedDate" label="Received Date" />
 
-           <NumberInput
+           <NumberInput step="0.01"
                source="sellingPrice"
                label="Selling Price"
                validate={[required(), validatePositive]}
            />
 
-           <NumberInput
+           <NumberInput step="0.01"
                source="buyingPrice"
                label="Buying Price"
                validate={[required(), validatePositive]}

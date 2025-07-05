@@ -55,7 +55,9 @@ const PatientDrugEditPage = () => {
                 name: "quantity",
                 label: "Quantity",
                 type: "number",
+                step:"0.01",
                 required: true,
+                disabled: patientDrug.dispensed
             },
             {
                 name: "dosageInstructions",
@@ -67,6 +69,7 @@ const PatientDrugEditPage = () => {
                 name: "dispensed",
                 label: "Dispensed",
                 type: "checkbox",
+                disabled: patientDrug.dispensed
             }
         ];
 

@@ -5,9 +5,9 @@ import com.afyaquik.utils.dto.search.ListFetchDto;
 import org.springframework.data.domain.Pageable;
 
 public interface DrugInventoryService {
-    DrugInventoryDto adjustInventory(Long drugId, String batchNumber, int quantity);//quantity can be negative/positive for adjustments
+    DrugInventoryDto adjustInventory(Long drugId, String batchNumber, double quantity);//quantity can be negative/positive for adjustments
     boolean isDrugInStock(Long drugId);
-    int getCurrentInventoryCountForDrug(Long drugId);
+    double getCurrentInventoryCountForDrug(Long drugId);
     DrugInventoryDto getDrugInventoryById(Long id);
     DrugInventoryDto getDrugInventoryByBatchNumber(Long drugId, String batchNumber);
     DrugInventoryDto updateDrugInventory(Long id, DrugInventoryDto drugInventoryDto);

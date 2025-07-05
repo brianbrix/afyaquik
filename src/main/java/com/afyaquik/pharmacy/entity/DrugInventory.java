@@ -21,8 +21,8 @@ public class DrugInventory extends SuperEntity {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "drug_id")
     private Drug drug;
-    private int initialQuantity;// initial quantity of the drug in stock for this batch
-    private int currentQuantity;// current quantity of the drug in stock for this batch
+    private double initialQuantity;// initial quantity of the drug in stock for this batch
+    private double currentQuantity;// current quantity of the drug in stock for this batch
     @Column(length = 13, unique = true)
     private String batchNumber;
     private LocalDate expiryDate;

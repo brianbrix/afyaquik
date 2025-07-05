@@ -12,6 +12,7 @@ import com.afyaquik.pharmacy.repository.PatientDrugRepository;
 import com.afyaquik.pharmacy.services.DrugInventoryService;
 import com.afyaquik.pharmacy.services.PatientDrugService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
+import com.afyaquik.utils.exceptions.DrugServiceException;
 import com.afyaquik.utils.mappers.pharmacy.PatientDrugMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -124,7 +125,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         // Only update inventory if the drug wasn't already dispensed
         if (!patientDrug.isDispensed()) {
             Drug drug = patientDrug.getDrug();
-            int quantityToDispense = patientDrug.getQuantity();
+            double quantityToDispense = patientDrug.getQuantity();
 
             // Find active inventory entries for this drug
             List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugId(drug.getId()).stream()
@@ -137,7 +138,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                 throw new EntityNotFoundException("No active inventory found for drug: " + drug.getName());
             }
 
-            int remainingQuantity = quantityToDispense;
+            double remainingQuantity = quantityToDispense;
 
             // Dispense from each inventory batch until the required quantity is met
             for (DrugInventory inventory : activeInventories) {
@@ -145,7 +146,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                     break;
                 }
 
-                int quantityFromThisBatch = Math.min(remainingQuantity, inventory.getCurrentQuantity());
+                double quantityFromThisBatch = Math.min(remainingQuantity, inventory.getCurrentQuantity());
 
                 // Adjust inventory for this batch
                 drugInventoryService.adjustInventory(drug.getId(), inventory.getBatchNumber(), -quantityFromThisBatch);
@@ -154,7 +155,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
             }
 
             if (remainingQuantity > 0) {
-                throw new IllegalStateException("Not enough inventory to dispense drug: " + drug.getName());
+                throw new DrugServiceException("Not enough inventory to dispense drug: " + drug.getName());
             }
         }
 

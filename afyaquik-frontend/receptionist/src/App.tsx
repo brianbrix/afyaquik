@@ -31,9 +31,9 @@ function App() {
           <Route path="/patients/:id/edit" element={<PatientEditForm />} />
           <Route path="/patients/:id/details" element={<PatientDetailsPage />} />
           <Route path="/patients/:id/visits/add" element={<ReceptionPatientVisitForm />} />
-          <Route path="/patients/visits/:id/edit" element={<PatientVisitEditForm />} />
-          <Route path="/patients/visits/:id/details" element={<PatientVisitDetailsPage />} />
-          <Route path="/patients/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
+          <Route path="/visits/:id/edit" element={<PatientVisitEditForm />} />
+          <Route path="/visits/:id/details" element={<PatientVisitDetailsPage />} />
+          <Route path="/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
 
           <Route path="/patients/:id/appointments/add" element={<AppointmentCreateForm />} />
           <Route path="/appointments/:id/edit" element={<AppointmentEditForm />} />

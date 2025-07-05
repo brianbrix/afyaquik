@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 public class DrugInventoryDto {
     private Long id;
     private Long drugId;
-    private int currentQuantity;
+    private double currentQuantity;
     @PositiveOrZero(message = "Initial quantity cannot be less than zero")
-    private int initialQuantity;
+    private double initialQuantity;
     private String batchNumber;
     private LocalDate expiryDate;
     private LocalDateTime receivedDate;

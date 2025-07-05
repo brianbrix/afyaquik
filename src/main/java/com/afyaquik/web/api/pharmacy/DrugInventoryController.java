@@ -45,7 +45,7 @@ public class DrugInventoryController {
         return ResponseEntity.ok(drugInventoryService.isDrugInStock(drugId));
     }
     @GetMapping("/current-count/{drugId}")
-    ResponseEntity<Integer> getCurrentInventoryCountForDrug(@PathVariable Long drugId) {
+    ResponseEntity<Double> getCurrentInventoryCountForDrug(@PathVariable Long drugId) {
         return ResponseEntity.ok(drugInventoryService.getCurrentInventoryCountForDrug(drugId));
     }
     @GetMapping

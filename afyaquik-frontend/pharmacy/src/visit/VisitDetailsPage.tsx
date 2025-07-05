@@ -77,6 +77,7 @@ const VisitDetailsPage = () => {
                 return apiRequest(`/patient-drugs/visit/${response.id}`);
             })
             .then(response => {
+
                 setDrugs(response);
             })
             .catch(error => {

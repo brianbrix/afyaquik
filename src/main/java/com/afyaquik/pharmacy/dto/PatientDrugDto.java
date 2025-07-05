@@ -14,7 +14,7 @@ public class PatientDrugDto {
     private Long patientVisitId;
     private Long drugId;
     private String drugName;
-    private Integer quantity;
+    private Double quantity;
     private String dosageInstructions;
     private boolean dispensed;
 }

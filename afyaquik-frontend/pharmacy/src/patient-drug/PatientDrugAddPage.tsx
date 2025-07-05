@@ -60,6 +60,7 @@ const PatientDrugAddPage = () => {
                 name: "quantity",
                 label: "Quantity",
                 type: "number",
+                step:"0.01",
                 required: true
             },
             {

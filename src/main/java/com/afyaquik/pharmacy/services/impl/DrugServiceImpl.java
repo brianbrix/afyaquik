@@ -87,9 +87,9 @@ public class DrugServiceImpl implements DrugService {
                 .filter(drug -> !drug.getId().equals(id)).isPresent()) {
             throw new RuntimeException("Drug with ATC code " + drugDto.getAtcCode() + " already exists.");
         }
-        int totalStock = drugInventoryRepository.findByDrugId(id)
+        double totalStock = drugInventoryRepository.findByDrugId(id)
                 .stream()
-                .mapToInt(DrugInventory::getCurrentQuantity)
+                .mapToDouble(DrugInventory::getCurrentQuantity)
                 .sum();
         DrugForm drugForm = drugFormRepository.findById(drugDto.getDrugFormId())
                 .orElseThrow(() -> new RuntimeException("Drug form not found with id: " + drugDto.getDrugFormId()));

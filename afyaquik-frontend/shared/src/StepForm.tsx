@@ -121,6 +121,17 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                                 />
                             );
                         }
+                        else if (field.type==='number' && field.step)
+                            {
+                                return (
+                                    <input hidden={field.hidden} disabled={field.disabled}
+                                           {...controllerField}
+                                           type={field.type}
+                                           step={field.step}
+                                           className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
+                                    />
+                                );
+                            }
                         else {
                             return (
                                 <input hidden={field.hidden} disabled={field.disabled}

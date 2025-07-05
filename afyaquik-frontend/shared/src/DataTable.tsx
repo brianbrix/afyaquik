@@ -5,18 +5,21 @@ import apiRequest from "./api";
 import {FieldConfig, FieldType} from "./StepConfig";
 import {SearchBar} from "./index";
 import formatDate, {formatForDatetimeLocal, formatJustDate} from "./dateFormatter";
+import {formatCurrency, formatNumber, formatPercentage, formatWysiwyg} from "./formaterUtils";
 
 interface DataTableProps<T> {
     title: string;
     columns: { header: string; accessor: string, sortable?: boolean, type?:string }[];
     data?: T[];
     editView?: string;
+    editButtonAction?: (rowData: T) => void;
     editTitle?: string;
     editClassName?: string;
     addView?: string;
     addTitle?: string;
     addClassName?: string;
     detailsView?: string;
+    detailsButtonAction?: (rowData: T) => void;
     detailsTitle?: string;
     detailsClassName?: string;
     dataEndpoint?: string;
@@ -28,6 +31,10 @@ interface DataTableProps<T> {
     defaultPageSize?: number;
     isSearchable?: boolean;
     dateFieldName?:string;
+    showSelectionMode?: boolean;
+    selectionModeAction?: (selectedItems: T[]) => void;
+    selectionModeActionTitle?: string;
+    selectionModeActionDisabled?: (selectedItems: T[]) => boolean;
 }
 
 interface PaginatedResponse<T> {
@@ -61,8 +68,14 @@ function DataTable<T extends { id: number }>({
                                                  searchFields = [],
                                                  searchEntity = 'patients',
                                                  defaultPageSize = 10,
+                                                 editButtonAction,
+                                                 detailsButtonAction,
     additionalParams,
-                                                 isSearchable,dateFieldName='createdAt', combinedSearchFieldsAndTerms
+                                                 isSearchable,dateFieldName='createdAt', combinedSearchFieldsAndTerms,
+                                                 showSelectionMode = false,
+                                                 selectionModeAction,
+                                                 selectionModeActionTitle = 'Process Selected',
+                                                 selectionModeActionDisabled = (selectedItems) => selectedItems.length === 0
                                              }: DataTableProps<T>) {
 
     let [searchTerm, setSearchTerm] = useState('');
@@ -76,12 +89,37 @@ function DataTable<T extends { id: number }>({
     const [selectedFields, setSelectedFields] = useState<FieldConfig[]>(searchFields);
     const [showFieldSelector, setShowFieldSelector] = useState(false);
     const [dateFieldValue, setDateFieldValue] = useState('');
+    const [selectedRows, setSelectedRows] = useState<T[]>([]);
+    const [selectAll, setSelectAll] = useState(false);
 
     const onResetFilters = () => {
         setSearchTerm('');
         setDateFieldValue('');
         setSelectedFields([]);
         setCurrentPage(0);
+    };
+
+    // Selection mode handlers
+    const handleSelectRow = (row: T, isSelected: boolean) => {
+        if (isSelected) {
+            setSelectedRows([...selectedRows, row]);
+        } else {
+            setSelectedRows(selectedRows.filter(r => r.id !== row.id));
+        }
+    };
+
+    const handleSelectAll = (isSelected: boolean) => {
+        setSelectAll(isSelected);
+        if (isSelected) {
+            setSelectedRows([...data]);
+        } else {
+            setSelectedRows([]);
+        }
+    };
+
+    // Check if a row is selected
+    const isRowSelected = (row: T) => {
+        return selectedRows.some(r => r.id === row.id);
     };
     const fetchData = async (page: number, size: number, sort?: string) => {
         setIsSearching(true);
@@ -203,11 +241,22 @@ function DataTable<T extends { id: number }>({
         document.body.removeChild(link);
     };
 
+
     return (
         <div className="container my-4">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="text-primary fw-semibold m-0">{title}</h5>
                 <div>
+                    {showSelectionMode && selectionModeAction && (
+                        <Button
+                            variant="success"
+                            className="me-2"
+                            onClick={() => selectionModeAction(selectedRows)}
+                            disabled={selectionModeActionDisabled(selectedRows)}
+                        >
+                            {selectionModeActionTitle}
+                        </Button>
+                    )}
                     <Button variant="success" className="me-2" onClick={downloadCSV}>
                         <i className="bi bi-download me-1"></i> Download CSV
                     </Button>
@@ -218,6 +267,17 @@ function DataTable<T extends { id: number }>({
                     )}
                 </div>
             </div>
+
+            {showSelectionMode && (
+                <div className="mb-3">
+                    <Form.Check
+                        type="checkbox"
+                        label="Select All"
+                        checked={selectAll}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                    />
+                </div>
+            )}
 
             {/* Search and Field Selection */}
             {isSearchable && (
@@ -244,6 +304,11 @@ function DataTable<T extends { id: number }>({
             <Table bordered hover responsive className="table-sm align-middle">
                 <thead className="table-light">
                 <tr>
+                    {showSelectionMode && (
+                        <th className="py-3 ps-4" style={{ width: '50px' }}>
+                            Select
+                        </th>
+                    )}
                     {columns.map(col => (
                         <th
                             key={col.accessor}
@@ -257,45 +322,72 @@ function DataTable<T extends { id: number }>({
                             )}
                         </th>
                     ))}
-                    {(editView || detailsView) && <th>Actions</th>}
+                    {(editView || detailsView || (!showSelectionMode && (detailsButtonAction || editButtonAction))) && <th>Actions</th>}
                 </tr>
                 </thead>
                 <tbody>
                 {data.length === 0 ? (
                     <tr>
-                        <td colSpan={columns.length + ((editView || detailsView) ? 1 : 0)} className="text-center">
+                        <td colSpan={columns.length + (showSelectionMode ? 1 : 0) + ((editView || detailsView || (!showSelectionMode && (detailsButtonAction || editButtonAction))) ? 1 : 0)} className="text-center">
                             No records found
                         </td>
                     </tr>
                 ) : (
                     data.map(record => (
                         <tr key={record.id}>
+                            {showSelectionMode && (
+                                <td>
+                                    <Form.Check
+                                        type="checkbox"
+                                        checked={isRowSelected(record)}
+                                        onChange={(e) => handleSelectRow(record, e.target.checked)}
+                                    />
+                                </td>
+                            )}
                             {columns.map(col => {
                                 const value = resolveValue(record, col.accessor);
                                 let display = col.type === 'date' ? formatDate(value, true) : value;
                                 display = col.type === 'datetime'?formatDate(value):display;
-
+                                display = col.type === 'boolean' ? (value ? 'Yes' : 'No') : display;
+                                display = col.type === 'currency' ? formatCurrency(value) : display;
+                                display = col.type === 'number' ? formatNumber(value) : display;
+                                display = col.type === 'percentage' ? formatPercentage(value) : display;
+                                display = col.type =='wysiwyg'? formatWysiwyg(value):display;
                                 return (
                                     <td key={`${record.id}-${col.accessor}`}>
                                         {display}
                                     </td>
                                 );
                             })}
-                            {(editView || detailsView) && (
+                            {(editView || detailsView || (!showSelectionMode && (detailsButtonAction || editButtonAction))) && (
                                 <td>
-                                    {detailsView && (
+                                    {(detailsView || detailsButtonAction) && (
                                         <Button
                                             variant="secondary"
                                             className="me-2"
-                                            onClick={() => window.location.href = detailsView.replace("#id", String(record.id))}
+                                            onClick={() => {
+                                                if (detailsButtonAction) {
+                                                    detailsButtonAction(record);
+                                                }
+                                                else if (detailsView) {
+                                                    window.location.href = detailsView.replace("#id", String(record.id))
+                                                }
+                                            }}
                                         >
                                             <i className={detailsClassName}></i> {detailsTitle}
                                         </Button>
                                     )}
-                                    {editView && (
+                                    {(editView || editButtonAction) && (
                                         <Button
                                             variant="primary"
-                                            onClick={() => window.location.href = editView.replace("#id", String(record.id))}
+                                            onClick={() => {
+                                                if (editButtonAction) {
+                                                    editButtonAction(record);
+                                                }
+                                                else if (editView) {
+                                                    window.location.href = editView.replace("#id", String(record.id))
+                                                }
+                                            }}
                                         >
                                             <i className={editClassName}></i> {editTitle}
                                         </Button>

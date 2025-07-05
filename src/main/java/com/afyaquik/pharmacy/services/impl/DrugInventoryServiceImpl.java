@@ -29,7 +29,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
     @Override
     @PreAuthorize("hasAnyRole('PHARMACY', 'ADMIN', 'SUPERADMIN')")
     @Transactional
-    public DrugInventoryDto adjustInventory(Long drugId, String batchNumber, int quantity) {
+    public DrugInventoryDto adjustInventory(Long drugId, String batchNumber, double quantity) {
         // quantity can be negative (to reduce inventory) or positive (to increase inventory)
         //inventory must be active
         Drug drug = drugRepository.findById(drugId)
@@ -57,11 +57,11 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
     }
 
     @Override
-    public int getCurrentInventoryCountForDrug(Long drugId) {
+    public double getCurrentInventoryCountForDrug(Long drugId) {
         drugRepository.findById(drugId)
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + drugId));
         return drugInventoryRepository.findByDrugId(drugId).stream()
-                .mapToInt(DrugInventory::getCurrentQuantity)
+                .mapToDouble(DrugInventory::getCurrentQuantity)
                 .sum();
     }
 
