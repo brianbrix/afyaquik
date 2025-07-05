@@ -270,9 +270,7 @@ public class SearchServiceImpl implements SearchService {
                 }
             }
 
-            if (!termPredicates.isEmpty()) {
-                predicates.add(cb.or(termPredicates.toArray(new Predicate[0])));
-            }
+            predicates.addAll(termPredicates);
         }
 
         return predicates.isEmpty() ? null : cb.and(predicates.toArray(new Predicate[0]));

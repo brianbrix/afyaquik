@@ -20,16 +20,22 @@ const searchFields = [
         label: 'Patient Last Name',
     },
     {
-        name: 'patientVisit.assignedOfficer.username',
+        name: 'assignedOfficer.username',
         label: 'Assigned Officer',
     }
 ];
 
-const PatientAssignmentList = () => {
+const PatientAssignmentList = ({query}:{query?:string}) => {
 
     const userId = Number(localStorage.getItem("userId"));
-    const initialQuery = `nextStation.name=PHARMACY,assignedOfficer.id=${userId}`;
-    console.log("Init query", initialQuery)
+    if (!query) {
+        query = `nextStation.name=PHARMACY,assignedOfficer.id=${userId}`
+    }
+    else {
+        query = `${query},nextStation.name=PHARMACY,assignedOfficer.id=${userId}`
+    }
+
+    console.log("Assignments query", query)
     return (
         <DataTable
             title="Pharmacy Assignments"
@@ -38,7 +44,7 @@ const PatientAssignmentList = () => {
             editView="index.html#/assignments/#id/edit"
             searchFields={searchFields}
             searchEntity="patientAssignments"
-            combinedSearchFieldsAndTerms={initialQuery}
+            combinedSearchFieldsAndTerms={query}
             isSearchable={true}
             addTitle="Add Assignment"
             addView="index.html#/assignments/add"

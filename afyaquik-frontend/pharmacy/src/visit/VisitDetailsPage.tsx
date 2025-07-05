@@ -101,7 +101,7 @@ const VisitDetailsPage = () => {
                 endpoint={endpoint}
                 fields={fields}
                 otherComponentsToRender={[
-                    {title:"Patient Assignments", content: <PatientAssignmentList />},
+                    {title:"Patient Assignments", content: <PatientAssignmentList query={`patientVisitId=${visit.id}`} />},
                     {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.id}/>}
                 ]}
             />:<div>Drugs not loaded</div>

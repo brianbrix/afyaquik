@@ -29,14 +29,7 @@ const searchFields = [
 
 const VisitList = () => {
     const  userId  = Number(localStorage.getItem("userId"));
-    const [initialQuery, setInitialQuery] = useState("");
-
-    useEffect(() => {
-        if (userId) {
-            // Set initial query to filter patient assignments where nextStation is PHARMACY and assigned officer is current user
-            setInitialQuery(`patientAssignments.nextStation.name=PHARMACY,patientAssignments.assignedOfficer.id=${userId}`);
-        }
-    }, [userId]);
+    const query=`patientAssignments.nextStation.name=PHARMACY,patientAssignments.assignedOfficer.id=${userId}`;
 
     return (
         <DataTable
@@ -47,7 +40,7 @@ const VisitList = () => {
             editTitle={"Assign Visit"}
             searchFields={searchFields}
             searchEntity="visits"
-            combinedSearchFieldsAndTerms={initialQuery}
+            combinedSearchFieldsAndTerms={query}
             isSearchable={true}
             addView="index.html#/visits/add"
             dataEndpoint={'/search'}
