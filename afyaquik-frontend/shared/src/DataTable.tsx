@@ -37,6 +37,7 @@ interface DataTableProps<T> {
     selectionModeAction?: (selectedItems: T[]) => void;
     selectionModeActionTitle?: string;
     selectionModeActionDisabled?: (selectedItems: T[]) => boolean;
+    showPagination?:boolean;
 }
 
 interface PaginatedResponse<T> {
@@ -79,7 +80,8 @@ function DataTable<T extends { id: number }>({
                                                  showSelectionMode = false,
                                                  selectionModeAction,
                                                  selectionModeActionTitle = 'Process Selected',
-                                                 selectionModeActionDisabled = (selectedItems) => selectedItems.length === 0
+                                                 selectionModeActionDisabled = (selectedItems) => selectedItems.length === 0,
+    showPagination=true
                                              }: DataTableProps<T>) {
 
     let [searchTerm, setSearchTerm] = useState('');
@@ -411,76 +413,81 @@ function DataTable<T extends { id: number }>({
                 )}
                 </tbody>
             </Table>
+            {
+                showPagination && (
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <small className="text-muted">
+                                Showing {data.length} of {totalElements} records
+                            </small>
+                        </div>
 
-            <div className="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                    <small className="text-muted">
-                        Showing {data.length} of {totalElements} records
-                    </small>
-                </div>
+                        <div className="d-flex align-items-center">
+                            <select
+                                className="form-select form-select-sm me-2"
+                                style={{ width: 'auto' }}
+                                value={pageSize}
+                                onChange={(e) => {
+                                    setPageSize(Number(e.target.value));
+                                    setCurrentPage(0);
+                                }}
+                            >
+                                {[5, 10, 20, 50].map(size => (
+                                    <option key={size} value={size}>{size} per page</option>
+                                ))}
+                            </select>
 
-                <div className="d-flex align-items-center">
-                    <select
-                        className="form-select form-select-sm me-2"
-                        style={{ width: 'auto' }}
-                        value={pageSize}
-                        onChange={(e) => {
-                            setPageSize(Number(e.target.value));
-                            setCurrentPage(0);
-                        }}
-                    >
-                        {[5, 10, 20, 50].map(size => (
-                            <option key={size} value={size}>{size} per page</option>
-                        ))}
-                    </select>
-
-                    <nav>
-                        <ul className="pagination pagination-sm mb-0">
-                            <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
-                                <button
-                                    className="page-link"
-                                    onClick={() => setCurrentPage(p => p - 1)}
-                                    disabled={currentPage === 0}
-                                >
-                                    Prev
-                                </button>
-                            </li>
-                            {Array.from({ length: Math.min(5, Math.ceil(totalElements / pageSize)) }, (_, i) => {
-                                // Show pages around current page
-                                let pageNum = i;
-                                if (currentPage >= 3 && currentPage < Math.ceil(totalElements / pageSize) - 3) {
-                                    pageNum = currentPage - 2 + i;
-                                } else if (currentPage >= Math.ceil(totalElements / pageSize) - 3) {
-                                    pageNum = Math.max(0, Math.ceil(totalElements / pageSize) - 5) + i;
-                                }
-                                return (
-                                    <li
-                                        key={pageNum}
-                                        className={`page-item ${pageNum === currentPage ? 'active' : ''}`}
-                                    >
+                            <nav>
+                                <ul className="pagination pagination-sm mb-0">
+                                    <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
                                         <button
                                             className="page-link"
-                                            onClick={() => setCurrentPage(pageNum)}
-                                            disabled={pageNum >= Math.ceil(totalElements / pageSize)}
+                                            onClick={() => setCurrentPage(p => p - 1)}
+                                            disabled={currentPage === 0}
                                         >
-                                            {pageNum + 1}
+                                            Prev
                                         </button>
                                     </li>
-                                );
-                            })}
-                            <li className={`page-item ${currentPage >= Math.ceil(totalElements / pageSize) - 1 ? 'disabled' : ''}`}>
-                                <button
-                                    className="page-link"
-                                    onClick={() => setCurrentPage(p => p + 1)}
-                                    disabled={currentPage >= Math.ceil(totalElements / pageSize) - 1}
-                                >
-                                    Next
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+                                    {Array.from({ length: Math.min(5, Math.ceil(totalElements / pageSize)) }, (_, i) => {
+                                        // Show pages around current page
+                                        let pageNum = i;
+                                        if (currentPage >= 3 && currentPage < Math.ceil(totalElements / pageSize) - 3) {
+                                            pageNum = currentPage - 2 + i;
+                                        } else if (currentPage >= Math.ceil(totalElements / pageSize) - 3) {
+                                            pageNum = Math.max(0, Math.ceil(totalElements / pageSize) - 5) + i;
+                                        }
+                                        return (
+                                            <li
+                                                key={pageNum}
+                                                className={`page-item ${pageNum === currentPage ? 'active' : ''}`}
+                                            >
+                                                <button
+                                                    className="page-link"
+                                                    onClick={() => setCurrentPage(pageNum)}
+                                                    disabled={pageNum >= Math.ceil(totalElements / pageSize)}
+                                                >
+                                                    {pageNum + 1}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                    <li className={`page-item ${currentPage >= Math.ceil(totalElements / pageSize) - 1 ? 'disabled' : ''}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setCurrentPage(p => p + 1)}
+                                            disabled={currentPage >= Math.ceil(totalElements / pageSize) - 1}
+                                        >
+                                            Next
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                )
+            }
+
+
         </div>
     );
 }
