@@ -178,8 +178,7 @@ function DataTable<T extends { id: number }>({
                 });
             }
 
-            console.log("Response", response);
-            const result: PaginatedResponse<T> =  response;
+            const result: PaginatedResponse<T> = response;
             setData(result.results.content);
             setTotalElements(result.results.page.totalElements);
             setCurrentPage(result.results.page.number);
@@ -225,8 +224,46 @@ function DataTable<T extends { id: number }>({
         setSelectedFields(selectedFields.length === searchFields.length ? [] : [...searchFields]);
         setCurrentPage(0);
     };
+    /**
+     * Resolves a value from an object using a dot-notation path
+     * @param obj - The object to extract value from
+     * @param path - Dot-notation path (e.g., 'user.address.city')
+     * @param fallback - Value to return if path doesn't exist
+     * @returns The resolved value or fallback
+     */
     function resolveValue(obj: any, path: string, fallback: string = 'N/A'): any {
         return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : fallback, obj);
+    }
+
+    /**
+     * Formats a cell value based on its type
+     * @param value - The raw value to format
+     * @param type - The type of formatting to apply
+     * @returns The formatted value
+     */
+    function formatCellValue(value: any, type?: string): any {
+        if (value === undefined || value === null) {
+            return 'N/A';
+        }
+
+        switch (type) {
+            case 'date':
+                return formatDate(value, true);
+            case 'datetime':
+                return formatDate(value);
+            case 'boolean':
+                return value ? 'Yes' : 'No';
+            case 'currency':
+                return formatCurrency(value);
+            case 'number':
+                return formatNumber(value);
+            case 'percentage':
+                return formatPercentage(value);
+            case 'wysiwyg':
+                return formatWysiwyg(value);
+            default:
+                return value;
+        }
     }
     const downloadCSV = () => {
         const csvData = (data).map(record => {
@@ -353,13 +390,7 @@ function DataTable<T extends { id: number }>({
                             )}
                             {columns.map(col => {
                                 const value = resolveValue(record, col.accessor);
-                                let display = col.type === 'date' ? formatDate(value, true) : value;
-                                display = col.type === 'datetime'?formatDate(value):display;
-                                display = col.type === 'boolean' ? (value ? 'Yes' : 'No') : display;
-                                display = col.type === 'currency' ? formatCurrency(value) : display;
-                                display = col.type === 'number' ? formatNumber(value) : display;
-                                display = col.type === 'percentage' ? formatPercentage(value) : display;
-                                display = col.type =='wysiwyg'? formatWysiwyg(value):display;
+                                const display = formatCellValue(value, col.type);
                                 return (
                                     <td key={`${record.id}-${col.accessor}`}>
                                         {display}

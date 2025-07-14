@@ -144,24 +144,30 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
     }
   };
 
+  /**
+   * Handles API errors and extracts the appropriate error message
+   * @param err The error object
+   * @param defaultMessage Default message to show if error can't be parsed
+   * @returns The formatted error message
+   */
+  const handleApiError = (err: any, defaultMessage: string): string => {
+    console.error(defaultMessage, err);
+    const errorMessage = err.message || defaultMessage;
+    // Extract the actual error message if it's in the format "Error XXX: actual message"
+    const match = errorMessage.match(/Error \d+: (.*)/);
+    return match ? match[1] : errorMessage;
+  };
+
   const handleAddBillingDetail = async (formData: any) => {
-    console.log('Form data received:', formData);
     if (!billing || !selectedBillingItem) return;
 
     try {
-      console.log('Selected billing item:', selectedBillingItem);
-      console.log('Detail amount:', detailAmount);
-      console.log('Detail description:', detailDescription);
-      console.log('Detail quantity:', detailQuantity);
-
       const requestBody = {
         billingItemId: selectedBillingItem.id,
         amount: formData.amount || detailAmount,
         description: formData.description || detailDescription,
         quantity: formData.quantity || detailQuantity
       };
-
-      console.log('Request body:', requestBody);
 
       await apiRequest(`/billing/${billing.id}/details`, {
         method: 'POST',
@@ -174,32 +180,20 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       resetDetailForm();
       showAlert('Billing item added successfully', 'Success', 'success');
     } catch (err: any) {
-      console.error('Error adding billing detail:', err);
-      const errorMessage = err.message || 'Failed to add billing item. Please try again.';
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to add billing item. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
 
   const handleUpdateBillingDetail = async (formData: any) => {
-    console.log('Form data received for update:', formData);
     if (!selectedBillingDetail) return;
 
     try {
-      console.log('Selected billing detail:', selectedBillingDetail);
-      console.log('Detail amount for update:', detailAmount);
-      console.log('Detail description for update:', detailDescription);
-      console.log('Detail quantity for update:', detailQuantity);
-
       const requestBody = {
         amount: formData.amount || detailAmount,
         description: formData.description || detailDescription,
         quantity: formData.quantity || detailQuantity
       };
-
-      console.log('Request body for update:', requestBody);
 
       await apiRequest(`/billing/details/${selectedBillingDetail.id}`, {
         method: 'PUT',
@@ -213,11 +207,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       resetDetailForm();
       showAlert('Billing item updated successfully', 'Success', 'success');
     } catch (err: any) {
-      console.error('Error updating billing detail:', err);
-      const errorMessage = err.message || 'Failed to update billing item. Please try again.';
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to update billing item. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
@@ -239,11 +229,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
 
       showAlert('Billing item removed successfully', 'Success', 'success');
     } catch (err: any) {
-      console.error('Error removing billing detail:', err);
-      const errorMessage = err.message || 'Failed to remove billing item. Please try again.';
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to remove billing item. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
@@ -272,13 +258,9 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       // Refresh billing data to get updated information
       await fetchBilling();
       setShowCreateModal(false);
-      showAlert('Billing created successfully', 'Success');
+      showAlert('Billing created successfully', 'Success', 'success');
     } catch (err: any) {
-      console.error('Error creating billing:', err);
-      const errorMessage = err.message || 'Failed to create billing. Please try again.';
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to create billing. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
@@ -287,8 +269,6 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
     if (!billing) return;
 
     try {
-      console.log('Form data for update billing:', formData);
-
       const requestBody = {
         patientVisitId: billing.patientVisitId,
         amount: billing.amount, // Keep the original amount
@@ -296,8 +276,6 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
         totalAmount: billing.amount - (formData.discount || discount),
         description: formData.description || description
       };
-
-      console.log('Request body for update billing:', requestBody);
 
       await apiRequest(`/billing/${billing.id}`, {
         method: 'PUT',
@@ -309,11 +287,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       setShowEditBillingModal(false);
       showAlert('Billing updated successfully', 'Success', 'success');
     } catch (err: any) {
-      console.error('Error updating billing:', err);
-      const errorMessage = err.message || 'Failed to update billing. Please try again.';
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to update billing. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
@@ -322,17 +296,15 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
     if (!billing) return;
 
     try {
-      console.log('Form data for payment:', formData);
-
       // Validate payment amount
       const amount = formData.paymentAmount || paymentAmount;
       if (amount <= 0) {
-        showAlert('Payment amount must be greater than zero', 'Validation Error');
+        showAlert('Payment amount must be greater than zero', 'Validation Error', 'error');
         return;
       }
 
       if (amount > billing.amountDue) {
-        showAlert('Payment amount cannot be greater than amount due', 'Validation Error');
+        showAlert('Payment amount cannot be greater than amount due', 'Validation Error', 'error');
         return;
       }
 
@@ -344,7 +316,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
         ...(formData.paymentNotes && { notes: formData.paymentNotes })
       });
 
-      const response = await apiRequest(`/billing/payments/${billing.id}?${queryParams.toString()}`, {
+      await apiRequest(`/billing/payments/${billing.id}?${queryParams.toString()}`, {
         method: 'POST'
       });
 
@@ -357,11 +329,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       setPaymentNotes('');
       showAlert('Payment recorded successfully', 'Success', 'success');
     } catch (err: any) {
-      console.error('Error recording payment:', err);
-      const errorMessage = err.message || 'Failed to record payment. Please try again.';
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to record payment. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
@@ -378,12 +346,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       await fetchBilling();
       showAlert(`Billing status updated to ${status}`, 'Status Update', 'info');
     } catch (err: any) {
-      console.error('Error updating status:', err);
-      const errorMessage = err.message || 'Failed to update status. Please try again.';
-      console.error("Message", errorMessage)
-      // Extract the actual error message if it's in the format "Error XXX: actual message"
-      const match = errorMessage.match(/Error \d+: (.*)/);
-      const displayMessage = match ? match[1] : errorMessage;
+      const displayMessage = handleApiError(err, 'Failed to update status. Please try again.');
       showAlert(displayMessage, 'Error', 'error');
     }
   };
@@ -753,14 +716,13 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                     {
                       name: "description",
                       label: "Description",
-                      type: "wysiwyg",
+                      type: "text",
                       value: detailDescription,
                       onChange: (value) => setDetailDescription(value)
                     }
                   ]
                 }
               ]}
-              defaultValues={{billingItemName:selectedBillingDetail ? selectedBillingDetail.billingItemName : '',amount:detailAmount,quantity:detailQuantity, description: detailDescription}}
               onSubmit={handleUpdateBillingDetail}
               submitButtonLabel="Update Item"
               bottomComponents={[
@@ -818,7 +780,6 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                   ]
                 }
               ]}
-              defaultValues={{totalAmount: billing ? (billing.amount - (billing.discount || 0)) : 0,amount: billing ? billing.amount : 0, discount:billing ? billing.discount : 0 }}
               onSubmit={handleUpdateBilling}
               submitButtonLabel="Update Billing"
               bottomComponents={[
