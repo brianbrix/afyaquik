@@ -380,6 +380,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
     } catch (err: any) {
       console.error('Error updating status:', err);
       const errorMessage = err.message || 'Failed to update status. Please try again.';
+      console.error("Message", errorMessage)
       // Extract the actual error message if it's in the format "Error XXX: actual message"
       const match = errorMessage.match(/Error \d+: (.*)/);
       const displayMessage = match ? match[1] : errorMessage;

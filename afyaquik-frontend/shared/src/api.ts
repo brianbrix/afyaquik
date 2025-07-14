@@ -23,12 +23,18 @@ export default async function apiRequest<T = any>(endpoint: string, options: Api
     });
 
     if (!response.ok) {
-        if(response.status === 400 && showToast ){
-            response.json().then(
-                (data) => {
-                    showToast(data.message, 'error');
-                }
-            )
+        if(response.status === 400 ){
+            if (showToast) {
+                response.json().then(
+                    (data) => {
+                        showToast(data.message, 'error');
+                    }
+                )
+            }
+            else
+            {
+                return response.json();
+            }
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         const errorText = await response.text();
