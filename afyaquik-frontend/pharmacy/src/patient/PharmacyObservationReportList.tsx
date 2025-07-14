@@ -24,9 +24,10 @@ interface DoctorReport {
 
 interface PharmacyObservationReportListProps {
     visitId: number;
+    title?: string;
 }
 
-const PharmacyObservationReportList: React.FC<PharmacyObservationReportListProps> = ({ visitId }) => {
+const PharmacyObservationReportList: React.FC<PharmacyObservationReportListProps> = ({ visitId, title }) => {
     const [reports, setReports] = useState<DoctorReport[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -52,7 +53,7 @@ const PharmacyObservationReportList: React.FC<PharmacyObservationReportListProps
     if (error) return <div>Error: {error}</div>;
     if (reports.length === 0) return <div>No observation reports found</div>;
 
-    return <DoctorReportList reports={reports} />;
+    return <DoctorReportList reports={reports} title={title} />;
 };
 
 export default PharmacyObservationReportList;

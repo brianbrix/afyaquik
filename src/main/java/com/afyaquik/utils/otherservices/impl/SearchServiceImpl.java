@@ -297,6 +297,10 @@ public class SearchServiceImpl implements SearchService {
             case "patientAssignments" -> Class.forName("com.afyaquik.patients.entity.PatientAssignment");
             case "patientDrugs" -> Class.forName("com.afyaquik.pharmacy.entity.PatientDrug");
             case "apiPermissions" -> Class.forName("com.afyaquik.users.entity.security.ApiPermission");
+            case "billingItems" -> Class.forName("com.afyaquik.billing.entity.BillingItem");
+            case "billings" -> Class.forName("com.afyaquik.billing.entity.Billing");
+            case "billingDetails" -> Class.forName("com.afyaquik.billing.entity.BillingDetail");
+            case "currencies" -> Class.forName("com.afyaquik.billing.entity.Currency");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -322,6 +326,10 @@ public class SearchServiceImpl implements SearchService {
             case "patientAssignments" -> Class.forName("com.afyaquik.patients.dto.PatientAssignmentDto");
             case "patientDrugs" -> Class.forName("com.afyaquik.pharmacy.dto.PatientDrugDto");
             case "apiPermissions" -> Class.forName("com.afyaquik.users.dto.security.ApiPermissionDto");
+            case "billingItems" -> Class.forName("com.afyaquik.billing.dto.BillingItemDto");
+            case "billings" -> Class.forName("com.afyaquik.billing.dto.BillingDto");
+            case "billingDetails" -> Class.forName("com.afyaquik.billing.dto.BillingDetailDto");
+            case "currencies" -> Class.forName("com.afyaquik.billing.dto.CurrencyDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }

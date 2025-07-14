@@ -2,10 +2,11 @@ package com.afyaquik.patients.services.impl;
 
 import com.afyaquik.patients.dto.PatientAssignmentDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.patients.entity.PatientAssignment;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.entity.PatientVisit;
-import com.afyaquik.patients.enums.VisitStatus;
+import com.afyaquik.patients.enums.Status;
 import com.afyaquik.patients.enums.VisitType;
 import com.afyaquik.utils.mappers.patients.PatientAssignmentsMapper;
 import com.afyaquik.patients.repository.PatientAssignmentsRepo;
@@ -13,6 +14,7 @@ import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.patients.services.PatientVisitService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,7 +42,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitDate(LocalDate.now())
                 .visitType(VisitType.valueOf(patientVisitDto.getVisitType()))
                 .build();
-        patientVisit.setVisitStatus(VisitStatus.STARTED);
+        patientVisit.setVisitStatus(Status.STARTED);
         PatientVisit savedVisit = patientVisitRepository.save(patientVisit);
 
         return PatientVisitDto.builder()
@@ -64,10 +66,10 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         patientVisit.setVisitType(VisitType.valueOf(patientVisitDto.getVisitType()));
         patientVisit.setNextVisitDate(patientVisitDto.getNextVisitDate());
         if (patientVisitDto.getVisitStatus()!=null) {
-            patientVisit.setVisitStatus(VisitStatus.valueOf(patientVisitDto.getVisitStatus()));
+            patientVisit.setVisitStatus(Status.valueOf(patientVisitDto.getVisitStatus()));
         }
         else {
-            patientVisit.setVisitStatus(VisitStatus.STARTED); //todo work on this status
+            patientVisit.setVisitStatus(Status.STARTED); //todo work on this status
         }
         patientVisitRepository.save(patientVisit);
         return PatientVisitDto.builder()
@@ -78,6 +80,21 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitDate(patientVisit.getVisitDate())
                 .visitType(patientVisit.getVisitType().name())
                 .build();
+    }
+
+    @Override
+    public void updatePatientVisitStatus(Long visitId, String status) {
+        PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        patientVisit.setVisitStatus(Status.valueOf(status));
+        if (patientVisit.getVisitStatus().equals(Status.COMPLETED) || patientVisit.getVisitStatus().equals(Status.CANCELLED)) {
+            patientVisit.getPatientAssignments()
+                    .forEach(assignment -> {
+                        assignment.setAssignmentStatus(Status.COMPLETED);
+//                        patientAssignmentsRepo.save(assignment);
+                    });
+        }
+        patientVisitRepository.save(patientVisit);
     }
 
 
@@ -153,6 +170,37 @@ public class PatientVisitServiceImpl implements PatientVisitService {
         else {
             throw new EntityNotFoundException("Invalid officer type");
         }
+    }
+
+    @Transactional
+    @Override
+    public void updateAssignmentStatus(Long assignmentId, String status) {
+        Status newStatus;
+        try {
+            newStatus = Status.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status: " + status);
+        }
+
+        patientAssignmentsRepo.findByIdWithVisitAndAssignments(assignmentId)
+                .ifPresentOrElse(assignment -> {
+                    assignment.setAssignmentStatus(newStatus);
+                    patientAssignmentsRepo.save(assignment);
+
+                    if (newStatus == Status.COMPLETED) {
+                        boolean allCompleted = assignment.getPatientVisit()
+                                .getPatientAssignments()
+                                .stream()
+                                .allMatch(a -> a.getAssignmentStatus() == Status.COMPLETED);
+
+                        if (allCompleted) {
+                            assignment.getPatientVisit().setVisitStatus(Status.COMPLETED);
+                            patientVisitRepository.save(assignment.getPatientVisit());
+                        }
+                    }
+                }, () -> {
+                    throw new EntityNotFoundException("Patient assignment not found");
+                });
     }
 
     @Override

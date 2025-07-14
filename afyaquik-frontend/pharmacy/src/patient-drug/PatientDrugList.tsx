@@ -117,7 +117,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 detailsTitle={'Dispense Drug'}
                 detailsButtonEnabled={(drug) => !drug.dispensed}
                 searchEntity="patientDrugs"
-                combinedSearchFieldsAndTerms={`patientVisitId=${visitId}`}
+                combinedSearchFieldsAndTerms={`patientVisit.id=${visitId}`}
                 dataEndpoint={`/search`}
                 data={data}
                 addTitle="Add Drug"

@@ -41,13 +41,13 @@ const assignmentList= function (visitId:number){
 }
 const observationReportsList= function (visitId:number){
     return (
-        <DoctorObservationReportList visitId={visitId} />
+        <DoctorObservationReportList visitId={visitId} title="Observation Reports" />
     )
 }
 
 const treatmentPlanReportList= function (visitId:number){
     return (
-        <DoctorTreatmentPlanListPage visitId={visitId} />
+        <DoctorTreatmentPlanListPage visitId={visitId} title="Treatment Plan" />
     )
 }
 const DoctorPatientVisitDetailsPage = () => {

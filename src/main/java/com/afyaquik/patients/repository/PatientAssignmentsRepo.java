@@ -7,6 +7,8 @@ import com.afyaquik.users.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -21,4 +23,7 @@ public interface PatientAssignmentsRepo extends JpaRepository<PatientAssignment,
     Page<PatientAssignment> findAllByPatientVisitIdAndAttendingOfficerId(Long patientVisitId, Long attendingOfficerId, Pageable pageable);
 
     Optional<PatientAssignment> findByAssignedOfficerAndNextStationAndPatientVisit(User assignedOfficer, Station nextStation, PatientVisit patientVisit);
+
+    @Query("SELECT pa FROM PatientAssignment pa JOIN FETCH pa.patientVisit pv JOIN FETCH pv.patientAssignments WHERE pa.id = :id")
+    Optional<PatientAssignment> findByIdWithVisitAndAssignments(@Param("id") Long id);
 }

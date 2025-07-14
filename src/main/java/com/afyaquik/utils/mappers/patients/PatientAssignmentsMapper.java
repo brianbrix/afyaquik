@@ -25,6 +25,7 @@ public interface PatientAssignmentsMapper extends EntityMapper<PatientAssignment
                 .assignedOfficer(entity.getAssignedOfficer().getUsername())
                 .assignedOfficerId(entity.getAssignedOfficer().getId())
                 .nextStation(entity.getNextStation().getName())
+                .assignmentStatus(entity.getAssignmentStatus()!=null?entity.getAssignmentStatus().name():null)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

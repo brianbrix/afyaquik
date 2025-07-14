@@ -43,6 +43,12 @@ import DrugFormEdit from "./pharmacy/drug_forms/DrugFormEdit";
 import PermissionList from "./permissions/PermissionList";
 import PermissionEdit from "./permissions/PermissionEdit";
 import PermissionCreate from "./permissions/PermissionCreate";
+import BillingItemList from "./billing/items/BillingItemList";
+import BillingItemCreate from "./billing/items/BillingItemCreate";
+import BillingItemEdit from "./billing/items/BillingItemEdit";
+import CurrencyList from "./billing/currencies/CurrencyList";
+import CurrencyCreate from "./billing/currencies/CurrencyCreate";
+import CurrencyEdit from "./billing/currencies/CurrencyEdit";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
@@ -60,6 +66,8 @@ const App = () => (
         <Resource name="drugs" list={DrugList} create={DrugCreate} edit={DrugEdit} />
         <Resource name="drugInventory" list={DrugInventoryList} create={DrugInventoryCreate} edit={DrugInventoryEdit} />
         <Resource name="drugForms" list={DrugFormList} create={DrugFormCreate} edit={DrugFormEdit} />
+        <Resource name="billingItems" list={BillingItemList} create={BillingItemCreate} edit={BillingItemEdit} />
+        <Resource name="currencies" list={CurrencyList} create={CurrencyCreate} edit={CurrencyEdit} />
     </Admin>
     </AuthGuard>
 );

@@ -17,5 +17,6 @@ public class PatientAssignmentDto {
     private String nextStation;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String assignmentStatus;
 
 }

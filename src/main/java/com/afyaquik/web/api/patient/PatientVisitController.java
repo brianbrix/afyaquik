@@ -46,6 +46,11 @@ public class PatientVisitController {
     public ResponseEntity<PatientVisitDto> updateVisit(@RequestBody PatientVisitDto  patientVisitDto) {
         return ResponseEntity.ok(patientVisitService.updatePatientVisit(patientVisitDto));
     }
+    @PatchMapping("/status-update/{id}")
+    public ResponseEntity<PatientVisitDto> updateVisitStatus(@PathVariable Long id, @RequestParam String status) {
+        patientVisitService.updatePatientVisitStatus(id, status);
+        return ResponseEntity.ok().build();
+    }
     @PostMapping("/assignments/create")
     public ResponseEntity<PatientAssignmentDto> createAssignments(@RequestBody PatientAssignmentDto planDto) {
         return ResponseEntity.ok(patientService.createPatientAssignments(planDto));
@@ -53,6 +58,11 @@ public class PatientVisitController {
     @PutMapping("/assignments/update")
     public ResponseEntity<PatientAssignmentDto> updateAssignments(@RequestBody PatientAssignmentDto planDto) {
         return ResponseEntity.ok(patientService.updatePatientAssignments(planDto));
+    }
+    @PatchMapping("/assignments/status-update/{id}")
+    public ResponseEntity<PatientAssignmentDto> updateAssignmentStatus(@PathVariable Long id, @RequestParam String status) {
+        patientVisitService.updateAssignmentStatus(id, status);
+        return ResponseEntity.ok().build();
     }
 
 

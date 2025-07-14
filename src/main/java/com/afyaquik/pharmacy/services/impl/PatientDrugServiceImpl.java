@@ -1,5 +1,10 @@
 package com.afyaquik.pharmacy.services.impl;
 
+import com.afyaquik.billing.dto.BillingDetailDto;
+import com.afyaquik.billing.dto.BillingDto;
+import com.afyaquik.billing.entity.BillingItem;
+import com.afyaquik.billing.repository.BillingItemRepository;
+import com.afyaquik.billing.service.BillingService;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.pharmacy.dto.PatientDrugDto;
@@ -21,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +39,8 @@ public class PatientDrugServiceImpl implements PatientDrugService {
     private final PatientDrugMapper patientDrugMapper;
     private final DrugInventoryService drugInventoryService;
     private final DrugInventoryRepository drugInventoryRepository;
+    private final BillingService billingService;
+    private final BillingItemRepository billingItemRepository;
 
     @Override
     @Transactional
@@ -51,14 +59,51 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                 .dispensed(patientDrugDto.isDispensed())
                 .build();
 
-        return patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
+        PatientDrugDto savedPatientDrugDto = patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
+
+        // Update the pharmacy billing detail
+        updatePharmacyBillingDetail(patientVisit);
+
+        return savedPatientDrugDto;
     }
 
     @Override
+    @Transactional
     public List<PatientDrugDto> assignManyDrugsToPatientVisit(List<PatientDrugDto> patientDrugDtos) {
-        return patientDrugDtos.stream()
-                .map(this::assignDrugToPatientVisit)
+        if (patientDrugDtos.isEmpty()) {
+            return List.of();
+        }
+
+        // Get the patient visit ID from the first drug
+        Long patientVisitId = patientDrugDtos.get(0).getPatientVisitId();
+
+        // Assign all drugs to the patient visit
+        List<PatientDrugDto> assignedDrugs = patientDrugDtos.stream()
+                .map(dto -> {
+                    PatientVisit patientVisit = patientVisitRepo.findById(dto.getPatientVisitId())
+                            .orElseThrow(() -> new EntityNotFoundException("Patient visit not found with id: " + dto.getPatientVisitId()));
+
+                    Drug drug = drugRepository.findById(dto.getDrugId())
+                            .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + dto.getDrugId()));
+
+                    PatientDrug patientDrug = PatientDrug.builder()
+                            .patientVisit(patientVisit)
+                            .drug(drug)
+                            .quantity(dto.getQuantity())
+                            .dosageInstructions(dto.getDosageInstructions())
+                            .dispensed(dto.isDispensed())
+                            .build();
+
+                    return patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
+                })
                 .collect(Collectors.toList());
+
+        // Update the pharmacy billing detail
+        PatientVisit patientVisit = patientVisitRepo.findById(patientVisitId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient visit not found with id: " + patientVisitId));
+        updatePharmacyBillingDetail(patientVisit);
+
+        return assignedDrugs;
     }
 
     @Override
@@ -104,7 +149,12 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         existingPatientDrug.setDosageInstructions(patientDrugDto.getDosageInstructions());
         existingPatientDrug.setDispensed(patientDrugDto.isDispensed());
 
-        return patientDrugMapper.toDto(patientDrugRepository.save(existingPatientDrug));
+        PatientDrugDto updatedPatientDrugDto = patientDrugMapper.toDto(patientDrugRepository.save(existingPatientDrug));
+
+        // Update the pharmacy billing detail
+        updatePharmacyBillingDetail(existingPatientDrug.getPatientVisit());
+
+        return updatedPatientDrugDto;
     }
 
     @Override
@@ -113,7 +163,12 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         PatientDrug patientDrug = patientDrugRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Patient drug not found with id: " + id));
 
+        PatientVisit patientVisit = patientDrug.getPatientVisit();
+
         patientDrugRepository.delete(patientDrug);
+
+        // Update the pharmacy billing detail
+        updatePharmacyBillingDetail(patientVisit);
     }
 
     @Override
@@ -161,7 +216,12 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
         patientDrug.setDispensed(true);
 
-        return patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
+        PatientDrugDto dispensedPatientDrugDto = patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
+
+        // Update the pharmacy billing detail
+        updatePharmacyBillingDetail(patientDrug.getPatientVisit());
+
+        return dispensedPatientDrugDto;
     }
 
     @Override
@@ -178,5 +238,87 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                 .stream()
                 .map(patientDrugMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Updates the Pharmacy billing detail for a patient visit with the total price of all drugs assigned to the visit.
+     * If a Pharmacy billing detail doesn't exist, it creates one.
+     *
+     * @param patientVisit the patient visit
+     */
+    private void updatePharmacyBillingDetail(PatientVisit patientVisit) {
+        // Get all drugs assigned to the patient visit
+        List<PatientDrug> patientDrugs = patientDrugRepository.findByPatientVisitId(patientVisit.getId());
+
+        // If there are no drugs, return
+        if (patientDrugs.isEmpty()) {
+            return;
+        }
+
+        // Calculate the total price of all drugs
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (PatientDrug patientDrug : patientDrugs) {
+            Drug drug = patientDrug.getDrug();
+            // Get the active inventory for this drug to get the selling price
+            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugId(drug.getId()).stream()
+                    .filter(DrugInventory::isActive)
+                    .toList();
+
+            if (!activeInventories.isEmpty()) {
+                // Use the first active inventory's selling price
+                DrugInventory inventory = activeInventories.get(0);
+                BigDecimal drugPrice = BigDecimal.valueOf(inventory.getSellingPrice());
+                BigDecimal quantity = BigDecimal.valueOf(patientDrug.getQuantity());
+                totalPrice = totalPrice.add(drugPrice.multiply(quantity));
+            }
+        }
+
+        // Get or create the billing for this patient visit
+        BillingDto billingDto;
+        try {
+            billingDto = billingService.getBillingByPatientVisitId(patientVisit.getId());
+        } catch (EntityNotFoundException e) {
+            // Create a new billing if one doesn't exist
+            billingDto = billingService.createBilling(BillingDto.builder()
+                    .patientVisitId(patientVisit.getId())
+                    .amount(BigDecimal.ZERO)
+                    .totalAmount(BigDecimal.ZERO)
+                    .description("Billing for patient visit")
+                    .build());
+        }
+
+        // Find the Pharmacy billing item
+        BillingItem pharmacyBillingItem = billingItemRepository.findByNameIgnoreCase("Pharmacy")
+                .orElseThrow(() -> new EntityNotFoundException("Pharmacy billing item not found"));
+
+        // Check if a Pharmacy billing detail already exists
+        List<BillingDetailDto> billingDetails = billingService.getBillingDetailsByBillingId(billingDto.getId());
+        BillingDetailDto pharmacyBillingDetailDto = null;
+
+        for (BillingDetailDto billingDetailDto : billingDetails) {
+            if (billingDetailDto.getBillingItemId().equals(pharmacyBillingItem.getId())) {
+                pharmacyBillingDetailDto = billingDetailDto;
+                break;
+            }
+        }
+
+        if (pharmacyBillingDetailDto != null) {
+            // Update the existing Pharmacy billing detail
+            pharmacyBillingDetailDto.setAmount(totalPrice);
+            pharmacyBillingDetailDto.setQuantity(1);
+            pharmacyBillingDetailDto.setDescription("Pharmacy drugs for patient visit");
+            billingService.updateBillingDetail(pharmacyBillingDetailDto.getId(), pharmacyBillingDetailDto);
+        } else {
+            // Create a new Pharmacy billing detail
+            BillingDetailDto newBillingDetailDto = BillingDetailDto.builder()
+                    .billingId(billingDto.getId())
+                    .billingItemId(pharmacyBillingItem.getId())
+                    .amount(totalPrice)
+                    .quantity(1)
+                    .description("Pharmacy drugs for patient visit")
+                    .build();
+
+            billingService.addBillingDetail(billingDto.getId(), newBillingDetailDto);
+        }
     }
 }

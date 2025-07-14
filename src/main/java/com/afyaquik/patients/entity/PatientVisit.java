@@ -1,10 +1,12 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.billing.entity.Billing;
 import com.afyaquik.utils.SuperEntity;
-import com.afyaquik.patients.enums.VisitStatus;
+import com.afyaquik.patients.enums.Status;
 import com.afyaquik.patients.enums.VisitType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.mapstruct.Named;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,7 +49,15 @@ public class PatientVisit extends SuperEntity {
     private List<PatientVisitNotes> patientVisitNotes;
 
     @Enumerated(EnumType.STRING)
-    private VisitStatus visitStatus=VisitStatus.PENDING;
+    private Status visitStatus= Status.PENDING;
+
+    @OneToOne(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Billing billing;
+
+    public String getPatientName()
+    {
+        return this.patient.getFirstName() + " " + this.patient.getLastName();
+    }
 
 
 

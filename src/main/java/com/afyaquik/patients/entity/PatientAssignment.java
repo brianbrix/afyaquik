@@ -1,5 +1,6 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.patients.enums.Status;
 import com.afyaquik.utils.SuperEntity;
 import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.entity.User;
@@ -45,4 +46,7 @@ public class PatientAssignment extends SuperEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "visit_id", nullable = false)
     private PatientVisit patientVisit;
+
+    @Enumerated(EnumType.STRING)
+    private Status assignmentStatus = Status.PENDING;
 }

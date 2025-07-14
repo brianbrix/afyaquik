@@ -153,7 +153,7 @@ const PatientDrugAddPage = () => {
                             }).then(
                                 (response) => {
                                     console.log("Bulk Response ", response);
-                                    window.location.href = `index.html#/patient-drugs/visit/${patientVisitId}`;
+                                    window.location.href = `index.html#/visit/${patientVisitId}/details?tab=Drugs`;
                                 }
                             ).catch((error) => {
                                 console.error("Error ", error);
@@ -169,7 +169,7 @@ const PatientDrugAddPage = () => {
                             }).then(
                                 (response) => {
                                     console.log("Response ", response);
-                                    window.location.href = `index.html#/patient-drugs/visit/${patientVisitId}`;
+                                    window.location.href = `index.html#/visit/${patientVisitId}/details?tab=Drugs`;
                                 }
                             ).catch((error) => {
                                 console.error("Error ", error);

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { DetailsPage, apiRequest, DataTable } from "@afyaquik/shared";
 import { Button } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
@@ -50,12 +50,17 @@ const components = function (id: any) {
 
 const PatientAssignmentDetailsPage = () => {
     let params = useParams();
+    const location = useLocation();
     const id = Number(params.id);
     const [visit, setVisit] = useState<Assignment | null>(null);
     const [drugs, setDrugs] = useState<PatientDrug[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const endpoint = `/patient/visits/assignments/${id}`;
+
+    // Parse the query string to get the tab parameter
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
     const fields = [
         { label: "Patient Name", accessor: "patientName" },
         { label: "Visit Date", accessor: "visitDate", type: 'date' },
@@ -104,9 +109,10 @@ const PatientAssignmentDetailsPage = () => {
                 title={"Patient Assignment Details"}
                 endpoint={endpoint}
                 fields={fields}
+                initialActiveTab={tabParam || undefined}
                 otherComponentsToRender={[
-                    {title:'Observation Report',content: <PharmacyObservationReportList visitId={visit.patientVisitId}/>},
-                    {title:'Treatment Plan Report', content: <PharmacyTreatmentPlanListPage visitId={visit.patientVisitId}/>},
+                    {title:'Observation Report',content: <PharmacyObservationReportList visitId={visit.patientVisitId} title="Observation Report"/>},
+                    {title:'Treatment Plan Report', content: <PharmacyTreatmentPlanListPage visitId={visit.patientVisitId} title="Treatment Plan Report"/>},
                     {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.patientVisitId}/>}
                 ]}
             />:<div>Drugs not loaded</div>

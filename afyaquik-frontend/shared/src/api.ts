@@ -1,6 +1,6 @@
 
 export interface ApiOptions {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     body?: any;
     token?: string;
 }
@@ -35,5 +35,19 @@ export default async function apiRequest<T = any>(endpoint: string, options: Api
         throw new Error(`Error ${response.status}: ${errorText || response.statusText}`);
     }
 
-    return response.json();
+    // Check if response has JSON content
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return response.json();
+    } else {
+        // For non-JSON responses, return the response text
+        const text = await response.text();
+        // Try to parse as JSON if possible, otherwise return the text or an empty object
+        try {
+            return text ? JSON.parse(text) : {} as T;
+        } catch (e) {
+            // If parsing fails, return the text as is or an empty object if text is empty
+            return (text || {}) as T;
+        }
+    }
 }

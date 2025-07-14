@@ -8,6 +8,9 @@ interface AssignmentsListProps {
     columns: { header: string; accessor: string; sortable?: boolean | undefined; type?: string | undefined; }[];
     dataEndpoint?:string;
     editView?: string;
+    editTitle?:string;
+    editClassName?:string;
+    editButtonAction?: (rowData: any) => void;
     addView?: string;
     detailsView?: string;
     title?: string;
@@ -16,7 +19,7 @@ interface AssignmentsListProps {
 }
 
 
-const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title,userId, whichOfficer='attending'}) => {
+const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dataEndpoint, editView,addView,detailsView,title,userId,editTitle,editClassName,editButtonAction, whichOfficer='attending'}) => {
     const [plans, setPlans] = useState([]);
     let url = `/patient/visits/${visitId}/assignments`;
     console.log("AssignmentsList", visitId, userId, whichOfficer);
@@ -58,6 +61,18 @@ const AssignmentsList: React.FC<AssignmentsListProps>  = ({visitId, columns, dat
         dataTableProps.editView = editView;
         dataTableProps.editTitle= 'Add Observation';
         dataTableProps.editClassName= 'bi bi-plus-circle me-1';
+    }
+    if (editClassName)
+    {
+        dataTableProps.editClassName = editClassName;
+    }
+    if (editTitle)
+    {
+        dataTableProps.editTitle = editTitle;
+    }
+    if (editButtonAction)
+    {
+        dataTableProps.editButtonAction = editButtonAction;
     }
 
     if (detailsView) {

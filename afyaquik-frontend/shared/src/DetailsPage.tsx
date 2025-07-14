@@ -9,9 +9,10 @@ interface DetailsPageProps {
     title?: string;
     otherComponentsToRender?: { title: string; content: React.ReactNode }[]; // Changed structure
     topComponents?: React.ReactNode[];
+    initialActiveTab?: string;
 }
 
-const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, otherComponentsToRender, topComponents }) => {
+const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, otherComponentsToRender, topComponents, initialActiveTab }) => {
     const [record, setRecord] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -32,10 +33,12 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
     }, [endpoint]);
 
     useEffect(() => {
-        if (otherComponentsToRender?.length) {
+        if (initialActiveTab && otherComponentsToRender?.some(comp => comp.title === initialActiveTab)) {
+            setActiveTab(initialActiveTab);
+        } else if (otherComponentsToRender?.length) {
             setActiveTab(otherComponentsToRender[0].title);
         }
-    }, [otherComponentsToRender]);
+    }, [otherComponentsToRender, initialActiveTab]);
 
     if (loading) return <div className="text-center py-5"><Spinner animation="border" /></div>;
     if (!record) return <div className="text-danger text-center py-5">Record not found.</div>;
@@ -43,13 +46,15 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
     return (
         <div className="container py-5">
             {topComponents && topComponents.length > 0 && (
-                <Row className="g-3">
-                    {topComponents.map((component, idx) => (
-                        <Col key={idx} md={12}>
-                            {component}
-                        </Col>
-                    ))}
-                </Row>
+                <div className="mb-4">
+                    <div className="d-flex flex-wrap gap-2 justify-content-start align-items-center">
+                        {topComponents.map((component, idx) => (
+                            <div key={idx}>
+                                {component}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
 
             <Card className="shadow-sm">

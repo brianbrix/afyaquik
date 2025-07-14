@@ -117,7 +117,7 @@ const ObservationReportsAddPage = () => {
                     value: data[key],
                 }));
                 const body = {
-                    items:observationItems,
+                    observationReportItems:observationItems,
                     patientVisitId:patientVisitId,
                     doctorId: doctorId,
                 };

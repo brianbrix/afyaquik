@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {apiRequest, DoctorReportList} from "@afyaquik/shared";
 
-const DoctorObservationReportList = function ({visitId}:{visitId:number}){
+const DoctorObservationReportList = function ({visitId, title}:{visitId:number, title?: string}){
     const [isLoading, setIsLoading] = useState(true);
     const [reportData, setReportData]= useState([]);
     const [error, setError] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const DoctorObservationReportList = function ({visitId}:{visitId:number}){
     if (error) return <div>Error: {error}</div>;
     return (
         <div>
-            <DoctorReportList reports={reportData} />
+            <DoctorReportList reports={reportData} title={title} />
         </div>
     );
 }
