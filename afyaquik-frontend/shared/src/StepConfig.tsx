@@ -7,6 +7,7 @@ export interface FieldConfig {
     required?: boolean;
     hidden?: boolean;
     disabled?: boolean;
+    defaultValue?:any;
     onChange?: (value: any) => void;
     colSpan?:number,
     step?:string,//for number input

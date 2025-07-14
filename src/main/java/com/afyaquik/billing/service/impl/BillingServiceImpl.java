@@ -71,13 +71,10 @@ public class BillingServiceImpl implements BillingService {
 
         if (billing.getDiscount() != null) {
             // Reject the request if discount is greater than the amount
-            if (billing.getDiscount().compareTo(billingDto.getTotalAmount()) > 0) {
+            if (billing.getDiscount().compareTo(billingDto.getAmount()) > 0) {
                 throw new IllegalArgumentException("Discount cannot be greater than the total amount");
             }
-
-            billing.setTotalAmount(billingDto.getTotalAmount().subtract(billing.getDiscount()));
-        } else {
-            billing.setTotalAmount(billingDto.getTotalAmount());
+            billing.setTotalAmount(billingDto.getAmount().subtract(billing.getDiscount()));
         }
         billing.setDescription(billingDto.getDescription());
 
@@ -129,6 +126,9 @@ public class BillingServiceImpl implements BillingService {
     public BillingDto updateBillingStatus(Long id, Status status) {
         Billing billing = billingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + id));
+        if (billing.getStatus() == Status.PAID) {
+            throw new IllegalArgumentException("Billing is already paid");
+        }
 
         billing.setStatus(status);
 
@@ -250,21 +250,16 @@ public class BillingServiceImpl implements BillingService {
                 .map(BillingDetail::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Set amount and total amount
-        billing.setAmount(totalAmount);
-
-        // Apply discount if any, rejecting if discount is greater than amount
         if (billing.getDiscount() != null) {
             // Reject the request if discount is greater than the amount
             if (billing.getDiscount().compareTo(totalAmount) > 0) {
                 throw new IllegalArgumentException("Discount cannot be greater than the total amount");
             }
-
-            // Calculate total amount after discount
-            billing.setTotalAmount(totalAmount.subtract(billing.getDiscount()));
-        } else {
-            billing.setTotalAmount(totalAmount);
         }
+
+        billing.setAmount(totalAmount);
+        billing.setTotalAmount(totalAmount);
+
     }
 
     private BillingDto mapToDto(Billing billing) {

@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
+export type AlertType = 'success' | 'error' | 'warning' | 'info';
+
 interface AlertContextProps {
-  showAlert: (message: string, title?: string) => void;
+  showAlert: (message: string, title?: string, type?: AlertType) => void;
 }
 
 const AlertContext = createContext<AlertContextProps | undefined>(undefined);
@@ -11,10 +13,12 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [title, setTitle] = useState('Alert');
+  const [alertType, setAlertType] = useState<AlertType>('info');
 
-  const showAlert = (message: string, title: string = 'Alert') => {
+  const showAlert = (message: string, title: string = 'Alert', type: AlertType = 'info') => {
     setMessage(message);
     setTitle(title);
+    setAlertType(type);
     setIsOpen(true);
   };
 
@@ -22,16 +26,30 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
     setIsOpen(false);
   };
 
+  // Get the appropriate Bootstrap variant based on alert type
+  const getVariant = (type: AlertType) => {
+    switch (type) {
+      case 'success': return 'success';
+      case 'error': return 'danger';
+      case 'warning': return 'warning';
+      case 'info': return 'info';
+      default: return 'primary';
+    }
+  };
+
   return (
     <AlertContext.Provider value={{ showAlert }}>
       {children}
       <Modal show={isOpen} onHide={handleClose} centered>
-        <Modal.Header closeButton>
+        <Modal.Header
+          closeButton
+          className={`bg-${getVariant(alertType)} text-white`}
+        >
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>{message}</Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleClose}>
+          <Button variant={getVariant(alertType)} onClick={handleClose}>
             OK
           </Button>
         </Modal.Footer>

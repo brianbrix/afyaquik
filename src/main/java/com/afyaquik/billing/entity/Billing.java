@@ -60,6 +60,10 @@ public class Billing extends SuperEntity {
         }
 
         // Calculate total paid amount
+        if (payments==null)
+        {
+            payments = new ArrayList<>();
+        }
         BigDecimal totalPaid = payments.stream()
                 .map(BillPayment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

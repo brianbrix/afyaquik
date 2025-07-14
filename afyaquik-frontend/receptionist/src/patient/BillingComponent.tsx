@@ -115,6 +115,8 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
     }
   }, [billing]);
 
+
+
   const fetchBilling = async () => {
     setLoading(true);
     try {
@@ -161,18 +163,23 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
 
       console.log('Request body:', requestBody);
 
-      const response = await apiRequest(`/billing/${billing.id}/details`, {
+      await apiRequest(`/billing/${billing.id}/details`, {
         method: 'POST',
         body: requestBody
       });
 
-      setBilling(response);
+      // Refresh billing data to get updated information
+      await fetchBilling();
       setShowAddItemModal(false);
       resetDetailForm();
-      showAlert('Billing item added successfully', 'Success');
-    } catch (err) {
+      showAlert('Billing item added successfully', 'Success', 'success');
+    } catch (err: any) {
       console.error('Error adding billing detail:', err);
-      showAlert('Failed to add billing item. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to add billing item. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -194,25 +201,24 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
 
       console.log('Request body for update:', requestBody);
 
-      const response = await apiRequest(`/billing/details/${selectedBillingDetail.id}`, {
+      await apiRequest(`/billing/details/${selectedBillingDetail.id}`, {
         method: 'PUT',
         body: requestBody
       });
 
-      // Update the billing detail in the billing object
-      if (billing) {
-        const updatedDetails = billing.billingDetails.map(detail =>
-          detail.id === selectedBillingDetail.id ? response : detail
-        );
-        setBilling({...billing, billingDetails: updatedDetails});
-      }
+      // Refresh billing data to get updated information
+      await fetchBilling();
 
       setShowEditItemModal(false);
       resetDetailForm();
-      showAlert('Billing item updated successfully', 'Success');
-    } catch (err) {
+      showAlert('Billing item updated successfully', 'Success', 'success');
+    } catch (err: any) {
       console.error('Error updating billing detail:', err);
-      showAlert('Failed to update billing item. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to update billing item. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -228,14 +234,17 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
         method: 'DELETE'
       });
 
-      // Remove the billing detail from the billing object
-      const updatedDetails = billing.billingDetails.filter(detail => detail.id !== detailId);
-      setBilling({...billing, billingDetails: updatedDetails});
+      // Refresh billing data to get updated information
+      await fetchBilling();
 
-      showAlert('Billing item removed successfully', 'Success');
-    } catch (err) {
+      showAlert('Billing item removed successfully', 'Success', 'success');
+    } catch (err: any) {
       console.error('Error removing billing detail:', err);
-      showAlert('Failed to remove billing item. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to remove billing item. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -264,9 +273,13 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       await fetchBilling();
       setShowCreateModal(false);
       showAlert('Billing created successfully', 'Success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error creating billing:', err);
-      showAlert('Failed to create billing. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to create billing. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -294,10 +307,14 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       // Refresh billing data to get updated information
       await fetchBilling();
       setShowEditBillingModal(false);
-      showAlert('Billing updated successfully', 'Success');
-    } catch (err) {
+      showAlert('Billing updated successfully', 'Success', 'success');
+    } catch (err: any) {
       console.error('Error updating billing:', err);
-      showAlert('Failed to update billing. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to update billing. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -338,10 +355,14 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
       setPaymentMethod('');
       setPaymentReference('');
       setPaymentNotes('');
-      showAlert('Payment recorded successfully', 'Success');
-    } catch (err) {
+      showAlert('Payment recorded successfully', 'Success', 'success');
+    } catch (err: any) {
       console.error('Error recording payment:', err);
-      showAlert('Failed to record payment. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to record payment. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -355,10 +376,14 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
 
       // Refresh billing data to get updated information
       await fetchBilling();
-      showAlert(`Billing status updated to ${status}`, 'Status Update');
-    } catch (err) {
+      showAlert(`Billing status updated to ${status}`, 'Status Update', 'info');
+    } catch (err: any) {
       console.error('Error updating status:', err);
-      showAlert('Failed to update status. Please try again.', 'Error');
+      const errorMessage = err.message || 'Failed to update status. Please try again.';
+      // Extract the actual error message if it's in the format "Error XXX: actual message"
+      const match = errorMessage.match(/Error \d+: (.*)/);
+      const displayMessage = match ? match[1] : errorMessage;
+      showAlert(displayMessage, 'Error', 'error');
     }
   };
 
@@ -416,6 +441,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                 { header: 'Field', accessor: 'field' },
                 { header: 'Value', accessor: 'value' }
               ]}
+              showPagination={false}
               data={[
                 { id: 1, field: 'Patient', value: billing.patientName },
                 { id: 2, field: 'Amount', value: `${billing.amount.toFixed(2)}` },
@@ -435,9 +461,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                 },
                 { id: 7, field: 'Description', value: billing.description },
                 ...(billing.paidAt ? [
-                  { id: 8, field: 'Paid At', value: new Date(billing.paidAt).toLocaleString() },
-                  { id: 9, field: 'Payment Method', value: billing.paymentMethod },
-                  { id: 10, field: 'Payment Reference', value: billing.paymentReference }
+                  { id: 8, field: 'Paid At', value: new Date(billing.paidAt).toLocaleString() }
                 ] : [])
               ]}
             />
@@ -512,6 +536,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       label: "Amount",
                       type: "number",
                       required: true,
+                      defaultValue: 0,
                       value: amount,
                       onChange: (value) => setAmount(Number(value))
                     },
@@ -519,6 +544,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       name: "discount",
                       label: "Discount",
                       type: "number",
+                      defaultValue: 0,
                       value: discount,
                       onChange: (value) => setDiscount(Number(value))
                     },
@@ -733,6 +759,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                   ]
                 }
               ]}
+              defaultValues={{billingItemName:selectedBillingDetail ? selectedBillingDetail.billingItemName : '',amount:detailAmount,quantity:detailQuantity, description: detailDescription}}
               onSubmit={handleUpdateBillingDetail}
               submitButtonLabel="Update Item"
               bottomComponents={[
@@ -790,6 +817,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                   ]
                 }
               ]}
+              defaultValues={{totalAmount: billing ? (billing.amount - (billing.discount || 0)) : 0,amount: billing ? billing.amount : 0, discount:billing ? billing.discount : 0 }}
               onSubmit={handleUpdateBilling}
               submitButtonLabel="Update Billing"
               bottomComponents={[
