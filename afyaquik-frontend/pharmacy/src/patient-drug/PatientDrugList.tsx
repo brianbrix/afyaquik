@@ -53,7 +53,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
     const handleDispense = (drug: PatientDrug) => {
         apiRequest(`/patient-drugs/${drug.id}/dispense`, {
             method: 'PUT'
-        }, showToast)
+        })
             .then(response => {
                 alert('Drug dispensed successfully');
                 reloadData();
@@ -75,7 +75,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
         const dispensePromises = undispensedDrugs.map(drug =>
             apiRequest(`/patient-drugs/${drug.id}/dispense`, {
                 method: 'PUT'
-            }, showToast)
+            })
         );
 
         Promise.all(dispensePromises)

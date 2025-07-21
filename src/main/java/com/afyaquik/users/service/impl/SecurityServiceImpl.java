@@ -37,16 +37,23 @@ public class SecurityServiceImpl implements SecurityService {
     private final UserService  userService;
     private final AuthenticationManager authenticationManager;
     @Override
-    public HttpHeaders login(String username, String password) {
+    public HttpHeaders login(String username, String password, HttpServletRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // Extract client ID from request (User-Agent header)
+        String clientId = request.getHeader("User-Agent");
+        if (clientId == null || clientId.isEmpty()) {
+            clientId = "unknown-client";
+        }
+
         User user = userService.findByUsername(username);
         String token = jwtProvider.generateToken(user.getUsername(),
-                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+                user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()),
+                clientId);
         ResponseCookie cookie = ResponseCookie.from("authToken", token)
                 .httpOnly(true)
                 .secure(false) // Use true in production (with HTTPS)
@@ -116,10 +123,18 @@ public class SecurityServiceImpl implements SecurityService {
         if (revokedTokenRepository.existsByToken(token)) {
             throw new LoginException("User is not loggedIn");
         }
-        if(!jwtProvider.validateToken(token)){
-            throw new LoginException("User is not loggedIn");
 
+        // Extract client ID from request (User-Agent header)
+        String clientId = request.getHeader("User-Agent");
+        if (clientId == null || clientId.isEmpty()) {
+            clientId = "unknown-client";
         }
+
+        // Validate token with client ID
+        if (!jwtProvider.validateToken(token, clientId)) {
+            throw new LoginException("Invalid token for this client");
+        }
+
         return true;
     }
 

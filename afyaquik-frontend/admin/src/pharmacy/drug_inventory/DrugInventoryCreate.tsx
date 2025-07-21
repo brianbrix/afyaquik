@@ -27,7 +27,7 @@ const DrugInventoryCreate = () => (
 
            <TextInput source="batchNumber" label="Batch Number" />
 
-           <DateInput source="expiryDate" label="Expiry Date" />
+           <DateInput source="expiryDate" label="Expiry Date" required={true} />
            <DateTimeInput source="receivedDate" label="Received Date" />
 
            <NumberInput step="0.01"
@@ -42,7 +42,7 @@ const DrugInventoryCreate = () => (
                validate={[required(), validatePositive]}
            />
 
-           <BooleanInput source="isActive" label="Is Active" defaultValue={true} />
+           <BooleanInput source="active" label="Is Active" defaultValue={true} />
 
            <TextInput source="drugName" label="Drug Name (read-only)" disabled />
            <TextInput source="supplierName" label="Supplier Name" />

@@ -59,12 +59,10 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                 .dispensed(patientDrugDto.isDispensed())
                 .build();
 
-        PatientDrugDto savedPatientDrugDto = patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
-
         // Update the pharmacy billing detail
-        updatePharmacyBillingDetail(patientVisit);
+//        updatePharmacyBillingDetail(patientVisit);
 
-        return savedPatientDrugDto;
+        return patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
     }
 
     @Override
@@ -101,7 +99,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         // Update the pharmacy billing detail
         PatientVisit patientVisit = patientVisitRepo.findById(patientVisitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found with id: " + patientVisitId));
-        updatePharmacyBillingDetail(patientVisit);
+//        updatePharmacyBillingDetail(patientVisit);
 
         return assignedDrugs;
     }
@@ -149,12 +147,10 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         existingPatientDrug.setDosageInstructions(patientDrugDto.getDosageInstructions());
         existingPatientDrug.setDispensed(patientDrugDto.isDispensed());
 
-        PatientDrugDto updatedPatientDrugDto = patientDrugMapper.toDto(patientDrugRepository.save(existingPatientDrug));
-
         // Update the pharmacy billing detail
-        updatePharmacyBillingDetail(existingPatientDrug.getPatientVisit());
+//        updatePharmacyBillingDetail(existingPatientDrug.getPatientVisit());
 
-        return updatedPatientDrugDto;
+        return patientDrugMapper.toDto(patientDrugRepository.save(existingPatientDrug));
     }
 
     @Override
@@ -183,10 +179,9 @@ public class PatientDrugServiceImpl implements PatientDrugService {
             double quantityToDispense = patientDrug.getQuantity();
 
             // Find active inventory entries for this drug
-            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugId(drug.getId()).stream()
+            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugIdAndActiveTrue(drug.getId()).stream()
                     .filter(DrugInventory::isActive)
                     .filter(inventory -> inventory.getCurrentQuantity() > 0)
-                    .sorted((inv1, inv2) -> inv1.getExpiryDate().compareTo(inv2.getExpiryDate()))
                     .toList();
 
             if (activeInventories.isEmpty()) {
@@ -260,7 +255,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         for (PatientDrug patientDrug : patientDrugs) {
             Drug drug = patientDrug.getDrug();
             // Get the active inventory for this drug to get the selling price
-            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugId(drug.getId()).stream()
+            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugIdAndActiveTrue(drug.getId()).stream()
                     .filter(DrugInventory::isActive)
                     .toList();
 
@@ -283,6 +278,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                     .patientVisitId(patientVisit.getId())
                     .amount(BigDecimal.ZERO)
                     .totalAmount(BigDecimal.ZERO)
+                    .discount(BigDecimal.ZERO)
                     .description("Billing for patient visit")
                     .build());
         }

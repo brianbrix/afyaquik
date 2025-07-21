@@ -1,6 +1,7 @@
 package com.afyaquik.pharmacy.dto;
 
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class DrugInventoryDto {
     @PositiveOrZero(message = "Initial quantity cannot be less than zero")
     private double initialQuantity;
     private String batchNumber;
+    @NotNull(message = "Expiry date must be provided")
     private LocalDate expiryDate;
     private LocalDateTime receivedDate;
     @PositiveOrZero(message = "Initial quantity cannot be less than zero")

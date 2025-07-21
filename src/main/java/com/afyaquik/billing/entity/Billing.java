@@ -98,12 +98,16 @@ public class Billing extends SuperEntity {
 
     // Helper method to add a billing detail
     public void addBillingDetail(BillingDetail billingDetail) {
+        if (billingDetails == null)
+            billingDetails =new ArrayList<>();
         billingDetails.add(billingDetail);
         billingDetail.setBilling(this);
     }
 
     // Helper method to remove a billing detail
     public void removeBillingDetail(BillingDetail billingDetail) {
+        if (billingDetails == null)
+            billingDetails =new ArrayList<>();
         billingDetails.remove(billingDetail);
         billingDetail.setBilling(null);
     }

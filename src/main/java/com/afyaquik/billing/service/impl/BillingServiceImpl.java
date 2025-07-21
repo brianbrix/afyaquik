@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -239,6 +240,10 @@ public class BillingServiceImpl implements BillingService {
         Billing billing = billingRepository.findById(billingId)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + billingId));
 
+        if (billing.getBillingDetails()==null)
+        {
+            return  new ArrayList<>();
+        }
         return billing.getBillingDetails().stream()
                 .map(billingDetailMapper::toDto)
                 .collect(Collectors.toList());

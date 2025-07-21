@@ -87,7 +87,7 @@ public class DrugServiceImpl implements DrugService {
                 .filter(drug -> !drug.getId().equals(id)).isPresent()) {
             throw new RuntimeException("Drug with ATC code " + drugDto.getAtcCode() + " already exists.");
         }
-        double totalStock = drugInventoryRepository.findByDrugId(id)
+        double totalStock = drugInventoryRepository.findByDrugIdAndActiveTrue(id)
                 .stream()
                 .mapToDouble(DrugInventory::getCurrentQuantity)
                 .sum();

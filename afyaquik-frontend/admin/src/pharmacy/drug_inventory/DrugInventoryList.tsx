@@ -10,7 +10,7 @@ import {
 const InventoryFilters = [
     <TextInput label="Drug Name" source="drugName" alwaysOn />,
     <TextInput label="Supplier Name" source="supplierName" />,
-    <BooleanInput label="Is Active" source="isActive" />,
+    <BooleanInput label="Is Active" source="active" />,
     <DateInput label="Expiry Date" source="expiryDate" />,
     <ReferenceInput label="Drug" source="drugId" reference="drugs" allowEmpty>
         <SelectInput optionText="name" optionValue="id" />
@@ -20,7 +20,7 @@ const InventoryFilters = [
 
 
 const DrugInventoryList = () => (
-    <List filters={InventoryFilters}>
+    <List resource={"drugInventory"} filters={InventoryFilters}>
         <Datagrid rowClick="edit">
             <TextField source="id" />
             <TextField source="drugName" />
@@ -32,7 +32,7 @@ const DrugInventoryList = () => (
             <DateField source="receivedDate" showTime />
             <NumberField source="sellingPrice" />
             <NumberField source="buyingPrice" />
-            <BooleanField source="isActive" />
+            <BooleanField source="active" />
         </Datagrid>
     </List>
 );

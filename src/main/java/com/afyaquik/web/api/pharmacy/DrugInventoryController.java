@@ -20,7 +20,7 @@ public class DrugInventoryController {
         return ResponseEntity.ok(drugInventoryService.addNewInventory(drugInventoryDto));
     }
     @PutMapping("/{id}")
-    ResponseEntity<DrugInventoryDto> updateDrugInventory(@PathVariable Long id, @RequestBody DrugInventoryDto drugInventoryDto) {
+    ResponseEntity<DrugInventoryDto> updateDrugInventory(@PathVariable Long id, @Validated @RequestBody DrugInventoryDto drugInventoryDto) {
         return ResponseEntity.ok(drugInventoryService.updateDrugInventory(id,drugInventoryDto));
     }
     @GetMapping("/{id}")

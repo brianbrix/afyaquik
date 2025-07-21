@@ -408,10 +408,10 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
               showPagination={false}
               data={[
                 { id: 1, field: 'Patient', value: billing.patientName },
-                { id: 2, field: 'Amount', value: `${billing.amount.toFixed(2)}` },
-                { id: 3, field: 'Discount', value: `${billing.discount.toFixed(2)}` },
-                { id: 4, field: 'Total Amount', value: `${billing.totalAmount.toFixed(2)}` },
-                { id: 5, field: 'Amount Due', value: `${billing.amountDue.toFixed(2)}` },
+                { id: 2, field: 'Amount', value: `${billing.amount?.toFixed(2)}` },
+                { id: 3, field: 'Discount', value: `${billing.discount?.toFixed(2)}` },
+                { id: 4, field: 'Total Amount', value: `${billing.totalAmount?.toFixed(2)}` },
+                { id: 5, field: 'Amount Due', value: `${billing.amountDue?.toFixed(2)}` },
                 {
                   id: 6,
                   field: 'Status',

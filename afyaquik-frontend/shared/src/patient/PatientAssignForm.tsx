@@ -98,7 +98,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log("Submitting data:", data);
-                apiRequest(`/patient/visits/assignments/create`, { method: "POST", body: data }, showToast)
+                apiRequest(`/patient/visits/assignments/create`, { method: "POST", body: data })
                     .then((response) => {
                         console.log(response)
                         sendNotification(

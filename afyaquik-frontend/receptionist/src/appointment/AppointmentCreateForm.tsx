@@ -95,7 +95,7 @@ const AppointmentCreateForm = () => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log('Submitted data:', data);
-                apiRequest(`/appointments`, {method: 'POST', body: data}, showToast)
+                apiRequest(`/appointments`, {method: 'POST', body: data})
                     .then(response => {
                         sendNotification(
                             data.doctorId,

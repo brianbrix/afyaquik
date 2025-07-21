@@ -14,23 +14,22 @@ import java.util.Optional;
 @Repository
 public interface DrugInventoryRepository extends JpaRepository<DrugInventory, Long> {
     Optional<DrugInventory> findByBatchNumberAndBatchNumberNotNull(String batchNumber);
-    List<DrugInventory> findByDrugId(Long drugId);
+    List<DrugInventory> findByDrugIdAndActiveTrue(Long drugId);
     List<DrugInventory> findByDrugIdAndExpiryDateAfter(Long drugId, java.time.LocalDate expiryDate);
-    List<DrugInventory> findByIsActiveTrue();
-    Optional<DrugInventory> findByDrugAndBatchNumberAndIsActiveTrue(Drug drug, String batchNumber);
+    List<DrugInventory> findByActiveTrue();
+    Optional<DrugInventory> findByDrugAndBatchNumberAndActiveTrue(Drug drug, String batchNumber);
 
-    boolean existsByDrugAndCurrentQuantityGreaterThan(Drug drug, int i);
+    boolean existsByDrugAndCurrentQuantityGreaterThanAndActiveTrue(Drug drug, double i);
 
-    Optional<DrugInventory> findByDrugAndBatchNumber(Drug drug, String batchNumber);
 
-    Page<DrugInventory> findAllByDrugAndCurrentQuantityGreaterThan(Drug drug, int i, Pageable pageable);
+    Page<DrugInventory> findAllByDrugAndCurrentQuantityGreaterThanAndActiveTrue(Drug drug, double i, Pageable pageable);
 
-    Page<DrugInventory> findAllByIsActiveTrue(Pageable pageable);
+    Page<DrugInventory> findAllByActiveTrue(Pageable pageable);
 
     Page<DrugInventory> findAllByExpiryDateBeforeAndActiveTrue(LocalDate now, Pageable pageable);
 
     Page<DrugInventory> findAllByDrug(Drug drug, Pageable pageable);
 
-    Page<DrugInventory> findAllByDrugAndIsActiveTrue(Drug drug, Pageable pageable);
+    Page<DrugInventory> findAllByDrugAndActiveTrue(Drug drug, Pageable pageable);
 }
 

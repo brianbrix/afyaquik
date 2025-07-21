@@ -7,7 +7,7 @@ import org.springframework.http.HttpHeaders;
 public interface SecurityService {
     void logout(HttpServletRequest request, HttpServletResponse response);
     String getCurrentUsername();
-    boolean validateToken(HttpServletRequest  request);
-    HttpHeaders login(String username, String password);
+    boolean validateToken(HttpServletRequest request);
+    HttpHeaders login(String username, String password, HttpServletRequest request);
 
 }

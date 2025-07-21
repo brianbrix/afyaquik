@@ -8,7 +8,7 @@ import {
 import {validatePositive} from "./DrugInventoryCreate";
 
 const DrugInventoryEdit = () => (
-    <Edit resource={"drugs"}>
+    <Edit resource={"drugInventory"}>
         <SimpleForm>
             <TextInput source="id" disabled={true} />
             <TextInput name="drugName" source="drugName" label="Drug Name"/>
@@ -16,7 +16,7 @@ const DrugInventoryEdit = () => (
             <NumberInput source="currentQuantity" label="Current Quantity" disabled={true} />
 
             <TextInput source="batchNumber" label="Batch Number" disabled={true} />
-            <DateInput source="expiryDate" label="Expiry Date" />
+            <DateInput source="expiryDate" label="Expiry Date" required={true} />
             <DateTimeInput source="receivedDate" label="Received Date" />
 
             <NumberInput
@@ -31,7 +31,7 @@ const DrugInventoryEdit = () => (
                 validate={[required(), validatePositive]}
             />
 
-            <BooleanInput source="isActive" label="Is Active" defaultValue={true} />
+            <BooleanInput source="active" label="Is Active" defaultValue={true} />
 
             <TextInput source="supplierName" label="Supplier Name" />
         </SimpleForm>
