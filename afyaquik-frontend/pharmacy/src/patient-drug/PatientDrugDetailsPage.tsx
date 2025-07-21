@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { DetailsPage, apiRequest } from "@afyaquik/shared";
+import {DetailsPage, apiRequest, useAlert} from "@afyaquik/shared";
 import { Button, Table } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 
@@ -33,6 +33,7 @@ const components = function (id: any) {
 
 const PatientDrugDetailsPage = () => {
     let params = useParams();
+    const { showAlert } = useAlert();
     const id = Number(params.id);
     const [drug, setDrug] = useState<PatientDrug | null>(null);
     const [drugs, setDrugs] = useState<PatientDrug[]>([]);
@@ -71,7 +72,7 @@ const PatientDrugDetailsPage = () => {
             method: 'PUT'
         })
         .then(response => {
-            alert('Drug dispensed successfully');
+            showAlert('Drug dispensed successfully', 'Drug Dispense', 'success')
             // Update the drugs list
             setDrugs(drugs.map(d =>
                 d.id === drugId ? { ...d, dispensed: true } : d
@@ -79,7 +80,7 @@ const PatientDrugDetailsPage = () => {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while dispensing the drug');
+            showAlert(error.message,'Drug dispense error','error')
         });
     };
 

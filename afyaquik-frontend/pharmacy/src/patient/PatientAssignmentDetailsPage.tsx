@@ -109,7 +109,7 @@ const PatientAssignmentDetailsPage = () => {
                 title={"Patient Assignment Details"}
                 endpoint={endpoint}
                 fields={fields}
-                initialActiveTab={tabParam || undefined}
+                activeTab={tabParam || undefined}
                 otherComponentsToRender={[
                     {title:'Observation Report',content: <PharmacyObservationReportList visitId={visit.patientVisitId} title="Observation Report"/>},
                     {title:'Treatment Plan Report', content: <PharmacyTreatmentPlanListPage visitId={visit.patientVisitId} title="Treatment Plan Report"/>},

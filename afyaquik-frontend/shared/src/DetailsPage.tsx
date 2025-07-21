@@ -9,13 +9,13 @@ interface DetailsPageProps {
     title?: string;
     otherComponentsToRender?: { title: string; content: React.ReactNode }[]; // Changed structure
     topComponents?: React.ReactNode[];
-    initialActiveTab?: string;
+    activeTab?: string;
 }
 
-const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, otherComponentsToRender, topComponents, initialActiveTab }) => {
+const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, otherComponentsToRender, topComponents, activeTab }) => {
     const [record, setRecord] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<string | null>(null);
+    const [initialActiveTab, setInitialActiveTab] = useState<string | null>(null);
 
     useEffect(() => {
         apiRequest(endpoint)
@@ -33,12 +33,12 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
     }, [endpoint]);
 
     useEffect(() => {
-        if (initialActiveTab && otherComponentsToRender?.some(comp => comp.title === initialActiveTab)) {
-            setActiveTab(initialActiveTab);
+        if (activeTab && otherComponentsToRender?.some(comp => comp.title === activeTab)) {
+            setInitialActiveTab(activeTab);
         } else if (otherComponentsToRender?.length) {
-            setActiveTab(otherComponentsToRender[0].title);
+            setInitialActiveTab(otherComponentsToRender[0].title);
         }
-    }, [otherComponentsToRender, initialActiveTab]);
+    }, [otherComponentsToRender, activeTab]);
 
     if (loading) return <div className="text-center py-5"><Spinner animation="border" /></div>;
     if (!record) return <div className="text-danger text-center py-5">Record not found.</div>;
@@ -91,8 +91,8 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
                 <Card className="mt-4 shadow-sm">
                     <Card.Body>
                         <Tabs
-                            activeKey={activeTab || ''}
-                            onSelect={(k) => setActiveTab(k)}
+                            activeKey={initialActiveTab || ''}
+                            onSelect={(k) => setInitialActiveTab(k)}
                             className="mb-3"
                             id="details-page-tabs"
                         >

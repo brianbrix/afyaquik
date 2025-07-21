@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useLocation, useParams} from "react-router-dom";
 import {apiRequest, DetailsPage} from "@afyaquik/shared";
 import ReceptionAssignmentsList from "./ReceptionAssignmentsList";
 import BillingComponent from "./BillingComponent";
@@ -55,6 +55,7 @@ const VisitActionButtons = function (visitId:any){
 }
 const PatientVisitDetailsPage = () => {
     let  params = useParams();
+    const location = useLocation();
     const patientId = useState(0);
     const id = Number(params.id);
     console.log("Visit ID", id)
@@ -68,8 +69,12 @@ const PatientVisitDetailsPage = () => {
         {label: "Visit Status",accessor: "visitStatus"}
     ]
 
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+
+
     return (
-        <DetailsPage topComponents={[VisitActionButtons(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields}
+        <DetailsPage topComponents={[VisitActionButtons(id)]} title={"Patient visit details"} endpoint={endpoint} fields={fields} activeTab={tabParam||undefined}
                      otherComponentsToRender={[
                          {title:'Assignment',content:<ReceptionAssignmentsList/>},
                          {title:'Billing',content:<BillingComponent visitId={id}/>}

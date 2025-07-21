@@ -11,7 +11,7 @@ import PatientAssignmentDetailsPage from './patient/PatientAssignmentDetailsPage
 import HomePage from './HomePage';
 import DrugList from './drug/DrugList';
 import DrugDetailsPage from './drug/DrugDetailsPage';
-import {AuthGuard, Header, ToastProvider} from "@afyaquik/shared";
+import {AlertProvider, AuthGuard, Header, ToastProvider} from "@afyaquik/shared";
 import VisitAssign from './visit/VisitAssign';
 import VisitDetailsPage from './visit/VisitDetailsPage';
 import VisitList from "./visit/VisitList";
@@ -19,7 +19,8 @@ import VisitList from "./visit/VisitList";
 function App() {
   return (
       <ToastProvider>
-        <AuthGuard requiredRoles={['PHARMACIST']}>
+          <AlertProvider>
+          <AuthGuard requiredRoles={['PHARMACIST']}>
           <Header homeUrl="/client/pharmacy/index.html" userRole={'PHARMACIST'} />
           <div className="container my-4">
             <Routes>
@@ -38,6 +39,7 @@ function App() {
         </Routes>
           </div>
         </AuthGuard>
+          </AlertProvider>
       </ToastProvider>
   );
 }

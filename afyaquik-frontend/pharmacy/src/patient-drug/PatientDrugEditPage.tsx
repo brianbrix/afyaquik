@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { apiRequest, FieldConfig, StepConfig, StepForm } from "@afyaquik/shared";
+import {apiRequest, FieldConfig, StepConfig, StepForm, useAlert} from "@afyaquik/shared";
 import { multiSelectorWysiwygConfig } from "@afyaquik/shared/dist/StepConfig";
 import { useParams } from "react-router-dom";
 
@@ -15,6 +15,8 @@ interface PatientDrug {
 
 const PatientDrugEditPage = () => {
     const { id } = useParams();
+    const { showAlert } = useAlert();
+
     const [formConfig, setFormConfig] = useState<StepConfig>();
     const [patientDrug, setPatientDrug] = useState<PatientDrug | null>(null);
     const [patientVisitDrugs, setPatientVisitDrugs] = useState<PatientDrug[]>([]);
@@ -167,11 +169,11 @@ const PatientDrugEditPage = () => {
                                 .then(responses => {
                                     console.log("All drugs updated successfully", responses);
                                     // Redirect to the details page of the original drug
-                                    window.location.href = `index.html#/patient-drugs/${id}/details`;
+                                    window.location.href = `index.html#/visits/${patientVisitDrugs[0].patientVisitId}/details?tab=Drugs`;
                                 })
                                 .catch(error => {
                                     console.error("Error updating drugs", error);
-                                    alert("An error occurred while updating the drugs. Please try again.");
+                                    showAlert(error.message, 'Drug update error', 'error');
                                 });
                         } else {
                             // In single mode, just update the current drug
@@ -184,11 +186,11 @@ const PatientDrugEditPage = () => {
                             }).then(
                                 (response) => {
                                     console.log("Response ", response);
-                                    window.location.href = `index.html#/patient-drugs/${id}/details`;
+                                    window.location.href = `index.html#/visits/${patientVisitDrugs[0].patientVisitId}/details?tab=Drugs`;
                                 }
                             ).catch((error) => {
                                 console.error("Error ", error);
-                                alert("An error occurred while updating the drug. Please try again.");
+                                showAlert(error.message, 'Drug updated error', 'error');
                             });
                         }
                     }}

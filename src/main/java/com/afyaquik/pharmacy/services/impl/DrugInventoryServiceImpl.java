@@ -134,6 +134,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
                 .build();
         newInventory.setDrug(drug);
         newInventory.setExpiryDate(drugInventoryDto.getExpiryDate());
+        newInventory.setReceivedDate(drugInventoryDto.getReceivedDate());
         newInventory.setInitialQuantity(drugInventoryDto.getInitialQuantity());
         newInventory.setCurrentQuantity(drugInventoryDto.getInitialQuantity());
         newInventory.setBuyingPrice(drugInventoryDto.getBuyingPrice());

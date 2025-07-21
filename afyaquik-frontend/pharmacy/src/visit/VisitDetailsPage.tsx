@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import {useLocation, useParams} from "react-router-dom";
 import { DetailsPage, apiRequest, DataTable } from "@afyaquik/shared";
 import { Button } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
@@ -54,7 +54,11 @@ const components = function (id: any) {
 
 const VisitDetailsPage = () => {
     let params = useParams();
+    const location = useLocation();
     const id = Number(params.id);
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+
     const [visit, setVisit] = useState<Visit | null>(null);
     const [drugs, setDrugs] = useState<PatientDrug[]>([]);
     const [loading, setLoading] = useState(true);
@@ -64,7 +68,7 @@ const VisitDetailsPage = () => {
         { label: "Patient Name", accessor: "patientName" },
         { label: "Visit Date", accessor: "visitDate", type: 'date' },
         { label: "Status", accessor: "status" },
-        { label: "Assigned To", accessor: "assignedTo" },
+        { label: "Assigned To", accessor: "assignedOfficer" },
         { label: "Notes", accessor: "notes" }
     ];
 
@@ -101,6 +105,7 @@ const VisitDetailsPage = () => {
                 title={"Visit Details"}
                 endpoint={endpoint}
                 fields={fields}
+                activeTab={tabParam || undefined}
                 otherComponentsToRender={[
                     {title:"Patient Assignments", content: <PatientAssignmentList query={`patientVisitId=${visit.id}`} />},
                     {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.id}/>}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {apiRequest, DataTable, useToast} from "@afyaquik/shared";
+import {apiRequest, DataTable, useAlert, useToast} from "@afyaquik/shared";
 import { useParams } from "react-router-dom";
 import { Button } from "react-bootstrap";
 
@@ -35,6 +35,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
     const [data, setData] = useState<PatientDrug[]>(initialData);
     const [showSelectionMode, setShowSelectionMode] = useState(false);
     const { showToast } = useToast()
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         setData(initialData);
@@ -55,12 +56,12 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
             method: 'PUT'
         })
             .then(response => {
-                alert('Drug dispensed successfully');
+                showAlert('Drug dispensed successfully','Drug Dispense', 'success');
                 reloadData();
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while dispensing the drug');
+                showAlert(error.message, 'Drug Dispense Error', 'error');
             });
     };
 
@@ -68,7 +69,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
         const undispensedDrugs = selectedDrugs.filter(drug => !drug.dispensed);
 
         if (undispensedDrugs.length === 0) {
-            alert('No undispensed drugs selected');
+            showAlert('No undispensed drugs selected', 'Drug Dispense','warning');
             return;
         }
 
@@ -80,13 +81,13 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
 
         Promise.all(dispensePromises)
             .then(responses => {
-                alert(`${responses.length} drugs dispensed successfully`);
+                showAlert(`${responses.length} drugs dispensed successfully`,'Drug Dispense', 'success');
                 reloadData();
                 setShowSelectionMode(false);
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while dispensing the drugs');
+                showAlert(error.message,'Drug Dispense Error', 'error');
                 reloadData();
             });
     };

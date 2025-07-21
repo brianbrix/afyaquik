@@ -58,10 +58,10 @@ export default async function apiRequest<T = any>(endpoint: string, options: Api
                 }
             }
 
-            throw new Error(`Error ${response.status}: ${errorMessage}`);
+            throw new Error(`${errorMessage}`);
         } catch (error) {
             // Re-throw the error we created or pass through any other errors
-            throw error;
+            throw new Error(String(error));
         }
     }
 
