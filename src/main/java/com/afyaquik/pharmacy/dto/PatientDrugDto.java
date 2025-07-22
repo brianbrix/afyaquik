@@ -15,6 +15,7 @@ public class PatientDrugDto {
     private Long drugId;
     private String drugName;
     private Double quantity;
+    private Double price;
     private String dosageInstructions;
     private boolean dispensed;
 }

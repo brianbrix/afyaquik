@@ -28,6 +28,8 @@ public class Drug extends SuperEntity {
     private String manufacturer;
     private String sampleDosageInstruction;
     private double stockQuantity=0;
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Double currentPrice=0.00;
     private boolean isPrescriptionRequired=false;
     private String atcCode;
     private boolean enabled=true;

@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 interface PatientDrug {
     id: number;
     drugName: string;
+    price:number;
     quantity: number;
     dosageInstructions: string;
     dispensed: boolean;
@@ -57,6 +58,16 @@ const PatientDrugEditPage = () => {
                 name: "quantity",
                 label: "Quantity",
                 type: "number",
+                defaultValue: patientDrug.quantity,
+                step:"0.01",
+                required: true,
+                disabled: patientDrug.dispensed
+            },
+            {
+                name: "price",
+                label: "Price",
+                type: "number",
+                defaultValue: patientDrug.price,
                 step:"0.01",
                 required: true,
                 disabled: patientDrug.dispensed
@@ -65,12 +76,14 @@ const PatientDrugEditPage = () => {
                 name: "dosageInstructions",
                 label: "Dosage Instructions",
                 type: "wysiwyg",
+                defaultValue: patientDrug.dosageInstructions,
                 required: true,
             },
             {
                 name: "dispensed",
                 label: "Dispensed",
                 type: "checkbox",
+                defaultValue: patientDrug.dispensed,
                 disabled: patientDrug.dispensed
             }
         ];
@@ -199,7 +212,8 @@ const PatientDrugEditPage = () => {
                     } : {
                         quantity: patientDrug.quantity,
                         dosageInstructions: patientDrug.dosageInstructions,
-                        dispensed: patientDrug.dispensed
+                        dispensed: patientDrug.dispensed,
+                        price: patientDrug.price
                     }}
                     submitButtonLabel={bulkMode ? "Save All Changes" : "Save Changes"}
                 />

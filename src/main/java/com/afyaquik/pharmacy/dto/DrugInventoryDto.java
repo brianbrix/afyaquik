@@ -18,6 +18,8 @@ public class DrugInventoryDto {
     @PositiveOrZero(message = "Initial quantity cannot be less than zero")
     private double initialQuantity;
     private String batchNumber;
+    private String comment;
+    private boolean locked;
     @NotNull(message = "Expiry date must be provided")
     private LocalDate expiryDate;
     private LocalDateTime receivedDate;
@@ -28,6 +30,7 @@ public class DrugInventoryDto {
     private boolean isActive;
     private String drugName;
     private String supplierName;
+    private boolean usePriceAsCurrentForDrug=true;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -23,6 +23,7 @@ const DrugEdit = () => (
             </ReferenceInput>
 
             <TextInput source="strength" label="Strength" />
+            <NumberInput source="currentPrice" label="Current Price" />
             <TextInput source="manufacturer" label="Manufacturer" />
             <TextInput source="sampleDosageInstruction" label="Sample Dosage Instruction" multiline />
             <TextInput source="price" label="Price" />

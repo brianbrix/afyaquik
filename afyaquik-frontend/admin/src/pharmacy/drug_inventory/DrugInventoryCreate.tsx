@@ -43,8 +43,7 @@ const DrugInventoryCreate = () => (
            />
 
            <BooleanInput source="active" label="Is Active" defaultValue={true} />
-
-           <TextInput source="drugName" label="Drug Name (read-only)" disabled />
+           <TextInput source="comment" label="Comment" multiline={true} />
            <TextInput source="supplierName" label="Supplier Name" />
        </SimpleForm>
    </Create>

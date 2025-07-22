@@ -29,7 +29,8 @@ const DrugList = () => (
             <TextField source="brandName" />
             <TextField source="categoryName" />
             <TextField source="manufacturer" />
-            <TextField source="drugFormName" />
+            <TextField source="currentPrice" />
+            <BooleanField source="active" />
             <TextField source="strength" />
             <TextField source="price" />
             <NumberField source="stockQuantity" />

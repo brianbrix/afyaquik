@@ -42,12 +42,12 @@ const components = function (id: any) {
             >
                 Go to Visits
             </Button>
-            <Button
-                variant="outline-primary"
-                onClick={() => window.location.href = `index.html#/visits/${id}/edit`}
-            >
-                Edit
-            </Button>
+            {/*<Button*/}
+            {/*    variant="outline-primary"*/}
+            {/*    onClick={() => window.location.href = `index.html#/visits/${id}/edit`}*/}
+            {/*>*/}
+            {/*    Edit*/}
+            {/*</Button>*/}
         </div>
     )
 }
@@ -107,7 +107,7 @@ const VisitDetailsPage = () => {
                 fields={fields}
                 activeTab={tabParam || undefined}
                 otherComponentsToRender={[
-                    {title:"Patient Assignments", content: <PatientAssignmentList query={`patientVisitId=${visit.id}`} />},
+                    {title:"Patient Assignments", content: <PatientAssignmentList query={`patientVisit.id=${visit.id}`} />},
                     {title:"Drugs", content: <PatientDrugList data={drugs} visitId={visit.id}/>}
                 ]}
             />:<div>Drugs not loaded</div>

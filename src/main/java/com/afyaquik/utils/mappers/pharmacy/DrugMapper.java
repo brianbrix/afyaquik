@@ -18,6 +18,7 @@ public interface DrugMapper extends EntityMapper<Drug, DrugDto> {
                 .sampleDosageInstruction(entity.getSampleDosageInstruction())
                 .brandName(entity.getBrandName())
                 .stockQuantity(entity.getStockQuantity())
+                .enabled(entity.isEnabled())
                 .isPrescriptionRequired(entity.isPrescriptionRequired())
                 .atcCode(entity.getAtcCode())
                 .drugFormId(entity.getDrugForm().getId())
@@ -26,6 +27,7 @@ public interface DrugMapper extends EntityMapper<Drug, DrugDto> {
                 .categoryName(entity.getDrugCategory().getName())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .currentPrice(entity.getCurrentPrice())
                 .build();
     }
 }

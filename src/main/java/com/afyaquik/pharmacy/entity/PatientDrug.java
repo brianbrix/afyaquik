@@ -26,6 +26,7 @@ public class PatientDrug extends SuperEntity {
     private Drug drug;
 
     private Double quantity;
+    private Double price=0.00;
 
     private String dosageInstructions;
 

@@ -85,10 +85,6 @@ public class SecurityServiceImpl implements SecurityService {
             revokedToken.setRevokedAt(Instant.now());
             revokedTokenRepository.save(revokedToken);
         }
-        else
-        {
-            throw new IllegalArgumentException("Token not found");
-        }
 
         ResponseCookie cookie = ResponseCookie.from("authToken", "")
                 .httpOnly(true)

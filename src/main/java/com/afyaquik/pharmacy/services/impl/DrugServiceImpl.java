@@ -47,6 +47,7 @@ public class DrugServiceImpl implements DrugService {
                 .enabled(drugDto.getEnabled())
                 .manufacturer(drugDto.getManufacturer())
                 .sampleDosageInstruction(drugDto.getSampleDosageInstruction())
+                .currentPrice(drugDto.getCurrentPrice()!=null?drugDto.getCurrentPrice():0.0)
                 .strength(drugDto.getStrength())
                 .isPrescriptionRequired(drugDto.getIsPrescriptionRequired())
                 .drugCategory(drugDto.getCategoryId() != null ? drugCategory : null)
@@ -75,17 +76,18 @@ public class DrugServiceImpl implements DrugService {
     public DrugDto updateDrug(Long id, DrugDto drugDto) {
         Drug existingDrug = drugRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + id));
-        if (drugRepository.findByName(drugDto.getName()).isPresent()) {
-            throw new EntityNotFoundException("Drug with name " + drugDto.getName() + " already exists.");
+        if (drugRepository.findByName(drugDto.getName())
+                .filter(drug -> !drug.getId().equals(id)).isPresent()) {
+            throw new EntityNotFoundException("Another drug with name " + drugDto.getName() + " already exists.");
         }
         if (drugRepository.findByNameAndBrandName(drugDto.getName(), drugDto.getBrandName())
                 .filter(drug -> !drug.getId().equals(id)).isPresent()) {
-            throw new EntityNotFoundException("Drug with name " + drugDto.getName() + " already exists.");
+            throw new EntityNotFoundException("Another drug with name " + drugDto.getName() + " already exists.");
         }
 
         if (drugRepository.findByAtcCode(drugDto.getAtcCode())
                 .filter(drug -> !drug.getId().equals(id)).isPresent()) {
-            throw new RuntimeException("Drug with ATC code " + drugDto.getAtcCode() + " already exists.");
+            throw new RuntimeException("Another drug with ATC code " + drugDto.getAtcCode() + " already exists.");
         }
         double totalStock = drugInventoryRepository.findByDrugIdAndActiveTrue(id)
                 .stream()
@@ -100,6 +102,7 @@ public class DrugServiceImpl implements DrugService {
         existingDrug.setBrandName(drugDto.getBrandName());
         existingDrug.setDescription(drugDto.getDescription());
         existingDrug.setDrugForm(drugForm);
+        existingDrug.setCurrentPrice(drugDto.getCurrentPrice()!=null?drugDto.getCurrentPrice():0.0);
         existingDrug.setStrength(drugDto.getStrength());
         existingDrug.setManufacturer(drugDto.getManufacturer());
         existingDrug.setSampleDosageInstruction(drugDto.getSampleDosageInstruction());

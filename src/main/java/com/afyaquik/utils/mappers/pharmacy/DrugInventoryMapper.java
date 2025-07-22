@@ -23,6 +23,9 @@ public interface DrugInventoryMapper extends EntityMapper<DrugInventory, DrugInv
                 .expiryDate(entity.getExpiryDate())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .isActive(entity.isActive())
+                .locked(entity.isLocked())
+                .comment(entity.getComment())
                 .build();
     }
 

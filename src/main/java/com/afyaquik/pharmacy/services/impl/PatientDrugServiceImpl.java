@@ -54,6 +54,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         PatientDrug patientDrug = PatientDrug.builder()
                 .patientVisit(patientVisit)
                 .drug(drug)
+                .price(patientDrugDto.getPrice()!=null?patientDrugDto.getPrice():drug.getCurrentPrice())
                 .quantity(patientDrugDto.getQuantity())
                 .dosageInstructions(patientDrugDto.getDosageInstructions())
                 .dispensed(patientDrugDto.isDispensed())
@@ -72,6 +73,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
             return List.of();
         }
 
+
         // Get the patient visit ID from the first drug
         Long patientVisitId = patientDrugDtos.get(0).getPatientVisitId();
 
@@ -83,11 +85,14 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
                     Drug drug = drugRepository.findById(dto.getDrugId())
                             .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + dto.getDrugId()));
-
+                    List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugIdAndActiveTrue(drug.getId()).stream()
+                            .filter(DrugInventory::isActive)
+                            .toList();
                     PatientDrug patientDrug = PatientDrug.builder()
                             .patientVisit(patientVisit)
                             .drug(drug)
                             .quantity(dto.getQuantity())
+                            .price(dto.getPrice()!=null?dto.getPrice():drug.getCurrentPrice())
                             .dosageInstructions(dto.getDosageInstructions())
                             .dispensed(dto.isDispensed())
                             .build();
@@ -250,23 +255,8 @@ public class PatientDrugServiceImpl implements PatientDrugService {
             return;
         }
 
-        // Calculate the total price of all drugs
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        for (PatientDrug patientDrug : patientDrugs) {
-            Drug drug = patientDrug.getDrug();
-            // Get the active inventory for this drug to get the selling price
-            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugIdAndActiveTrue(drug.getId()).stream()
-                    .filter(DrugInventory::isActive)
-                    .toList();
-
-            if (!activeInventories.isEmpty()) {
-                // Use the first active inventory's selling price
-                DrugInventory inventory = activeInventories.get(0);
-                BigDecimal drugPrice = BigDecimal.valueOf(inventory.getSellingPrice());
-                BigDecimal quantity = BigDecimal.valueOf(patientDrug.getQuantity());
-                totalPrice = totalPrice.add(drugPrice.multiply(quantity));
-            }
-        }
+        // Calculate the total price of all assigned drugs
+        BigDecimal totalPrice = BigDecimal.valueOf(patientDrugs.stream().mapToDouble(PatientDrug::getPrice).sum());
 
         // Get or create the billing for this patient visit
         BillingDto billingDto;
@@ -279,7 +269,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                     .amount(BigDecimal.ZERO)
                     .totalAmount(BigDecimal.ZERO)
                     .discount(BigDecimal.ZERO)
-                    .description("Billing for patient visit")
+                    .description("Billing info for "+patientVisit.getPatientName())
                     .build());
         }
 
@@ -302,7 +292,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
             // Update the existing Pharmacy billing detail
             pharmacyBillingDetailDto.setAmount(totalPrice);
             pharmacyBillingDetailDto.setQuantity(1);
-            pharmacyBillingDetailDto.setDescription("Pharmacy drugs for patient visit");
+            pharmacyBillingDetailDto.setDescription("Pharmacy drugs for patient visit\n"+getAllDrugsAndPrices(patientDrugs));
             billingService.updateBillingDetail(pharmacyBillingDetailDto.getId(), pharmacyBillingDetailDto);
         } else {
             // Create a new Pharmacy billing detail
@@ -311,10 +301,20 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                     .billingItemId(pharmacyBillingItem.getId())
                     .amount(totalPrice)
                     .quantity(1)
-                    .description("Pharmacy drugs for patient visit")
+                    .description("Pharmacy drugs for patient visit\n"+getAllDrugsAndPrices(patientDrugs))
                     .build();
 
             billingService.addBillingDetail(billingDto.getId(), newBillingDetailDto);
         }
+    }
+    private String getAllDrugsAndPrices(List<PatientDrug> patientDrugs) {
+        StringBuilder drugsAndPrices = new StringBuilder();
+
+        for (PatientDrug patientDrug : patientDrugs) {
+            Drug drug = patientDrug.getDrug();
+            drugsAndPrices.append(drug.getName()).append(" - ").append(patientDrug.getPrice()).append("\n");
+        }
+
+        return drugsAndPrices.toString();
     }
 }

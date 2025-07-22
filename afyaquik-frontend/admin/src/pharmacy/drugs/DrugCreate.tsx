@@ -20,6 +20,7 @@ const DrugCreate = () => (
                <SelectInput optionText="name" optionValue="id" />
            </ReferenceInput>
            <TextInput source="strength" label="Strength" />
+           <NumberInput source="currentPrice" label="Current Price" />
            <TextInput source="manufacturer" label="Manufacturer" />
            <TextInput source="sampleDosageInstruction" label="Sample Dosage Instruction" multiline />
            <NumberInput source="price" label="Price" defaultValue={0.00} step="0.01" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest, FieldConfig, StepConfig, StepForm } from "@afyaquik/shared";
-import {multiSelectorWysiwygConfig} from "@afyaquik/shared/dist/StepConfig";
+import { multiSelectorWysiwygConfig } from "@afyaquik/shared/dist/StepConfig";
 import { useParams } from "react-router-dom";
 
 const PatientDrugAddPage = () => {
@@ -10,6 +10,8 @@ const PatientDrugAddPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [bulkMode, setBulkMode] = useState(false);
+    const [selectedDrugId, setSelectedDrugId] = useState<number | null>(null);
+    const [defaultPrice, setDefaultPrice] = useState<number | null>(null);
 
     useEffect(() => {
         if (!patientVisitId) {
@@ -17,10 +19,9 @@ const PatientDrugAddPage = () => {
             return;
         }
 
-        // Fetch available drugs
         apiRequest('/drugs', { method: 'GET' })
             .then((response) => {
-                if (response && response.results && response.results.content) {
+                if (response?.results?.content) {
                     setDrugs(response.results.content);
                 } else {
                     setDrugs([]);
@@ -30,10 +31,20 @@ const PatientDrugAddPage = () => {
                 console.error('Error:', error);
                 setError("Failed to fetch drugs");
             })
-            .finally(() => {
-                setLoading(false);
-            });
+            .finally(() => setLoading(false));
     }, [patientVisitId]);
+
+    // Update default price when drug selection changes
+    useEffect(() => {
+        if (selectedDrugId) {
+            const selectedDrug = drugs.find(drug => drug.id === selectedDrugId);
+            if (selectedDrug) {
+                setDefaultPrice(selectedDrug.currentPrice);
+            }
+        } else {
+            setDefaultPrice(null);
+        }
+    }, [selectedDrugId, drugs]);
 
     useEffect(() => {
         if (drugs.length === 0) return;
@@ -54,14 +65,22 @@ const PatientDrugAddPage = () => {
                 label: "Drug",
                 type: "select",
                 required: true,
-                options: drugOptions
+                options: drugOptions,
+                onChange: (value: number) => setSelectedDrugId(value) // Add onChange handler
             },
             {
                 name: "quantity",
                 label: "Quantity",
                 type: "number",
-                step:"0.01",
+                step: "0.01",
                 required: true
+            },
+            {
+                name: "price",
+                label: "Price",
+                type: "number",
+                step: "0.01",
+                defaultValue: defaultPrice
             },
             {
                 name: "dosageInstructions",
@@ -76,9 +95,6 @@ const PatientDrugAddPage = () => {
             }
         ];
 
-        // For bulk mode, we need to add a quantity field
-        // Since the multiSelectorWysiwygConfig doesn't directly support additional fields,
-        // we'll add a quantity field to the form and then use it when adding each drug
         const bulkFields: FieldConfig[] = [
             {
                 name: "quantity",
@@ -103,7 +119,7 @@ const PatientDrugAddPage = () => {
             fields: bulkMode ? bulkFields : fields,
             stepButtonLabel: "Save",
             topComponents: [
-                <div className="mb-3">
+                <div className="mb-3" key="mode-toggle">
                     <button
                         type="button"
                         className="btn btn-outline-primary"
@@ -117,19 +133,11 @@ const PatientDrugAddPage = () => {
         };
 
         setFormConfig(config);
-    }, [drugs, bulkMode]);
+    }, [drugs, bulkMode, defaultPrice]);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
-
-    if (!patientVisitId) {
-        return <div>Patient Visit ID is required</div>;
-    }
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+    if (!patientVisitId) return <div>Patient Visit ID is required</div>;
 
     return (
         <div>
@@ -137,54 +145,39 @@ const PatientDrugAddPage = () => {
                 <StepForm
                     config={[formConfig]}
                     onSubmit={(data) => {
-                        if (bulkMode) {
-                            // Process bulk drugs
-                            const bulkDrugs = data.patientDrugs?.map((drug: any) => ({
-                                drugId: parseInt(drug.drugId),
-                                dosageInstructions: drug.dosageInstructions,
-                                quantity: data.quantity || 1, // Use the quantity from the form or default to 1
-                                dispensed: false,
+                        const endpoint = bulkMode ? '/patient-drugs/bulk' : '/patient-drugs';
+                        const body = bulkMode
+                            ? data.patientDrugs?.map((drug: any) => ({
+                            drugId: parseInt(drug.drugId),
+                            dosageInstructions: drug.dosageInstructions,
+                            quantity: data.quantity || 1,
+                            dispensed: false,
+                            patientVisitId: Number(patientVisitId)
+                        })) || []
+                            : {
+                                ...data,
                                 patientVisitId: Number(patientVisitId)
-                            })) || [];
+                            };
 
-                            apiRequest('/patient-drugs/bulk', {
-                                method: "POST",
-                                body: bulkDrugs
-                            }).then(
-                                (response) => {
-                                    console.log("Bulk Response ", response);
-                                    window.location.href = `index.html#/visit/${patientVisitId}/details?tab=Drugs`;
-                                }
-                            ).catch((error) => {
-                                console.error("Error ", error);
-                            });
-                        } else {
-                            // Process single drug
-                            apiRequest('/patient-drugs', {
-                                method: "POST",
-                                body: {
-                                    ...data,
-                                    patientVisitId: Number(patientVisitId)
-                                }
-                            }).then(
-                                (response) => {
-                                    console.log("Response ", response);
-                                    window.location.href = `index.html#/visit/${patientVisitId}/details?tab=Drugs`;
-                                }
-                            ).catch((error) => {
-                                console.error("Error ", error);
-                            });
-                        }
+                        apiRequest(endpoint, {
+                            method: "POST",
+                            body
+                        })
+                            .then(() => {
+                                window.location.href = `index.html#/visit/${patientVisitId}/details?tab=Drugs`;
+                            })
+                            .catch(console.error);
                     }}
                     defaultValues={{
                         dispensed: false,
-                        quantity:1
+                        quantity: 1,
+                        price: defaultPrice
                     }}
                     submitButtonLabel={bulkMode ? "Add Drugs in Bulk" : "Add Drug"}
                 />
             )}
         </div>
     );
-}
+};
 
 export default PatientDrugAddPage;

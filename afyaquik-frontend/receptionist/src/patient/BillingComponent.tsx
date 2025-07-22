@@ -408,10 +408,10 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
               showPagination={false}
               data={[
                 { id: 1, field: 'Patient', value: billing.patientName },
-                { id: 2, field: 'Amount', value: `${billing.amount?.toFixed(2)}` },
-                { id: 3, field: 'Discount', value: `${billing.discount?.toFixed(2)}` },
-                { id: 4, field: 'Total Amount', value: `${billing.totalAmount?.toFixed(2)}` },
-                { id: 5, field: 'Amount Due', value: `${billing.amountDue?.toFixed(2)}` },
+                { id: 2, field: 'Amount', value: `${billing.amount?.toFixed(2) || 0.00}` },
+                { id: 3, field: 'Discount', value: `${billing.discount?.toFixed(2)|| 0.00}` },
+                { id: 4, field: 'Total Amount', value: `${billing.totalAmount?.toFixed(2) || 0.00}` },
+                { id: 5, field: 'Amount Due', value: `${billing.amountDue?.toFixed(2) || 0.00}` },
                 {
                   id: 6,
                   field: 'Status',
@@ -695,6 +695,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       label: "Billing Item",
                       type: "text",
                       value: selectedBillingDetail ? selectedBillingDetail.billingItemName : '',
+                      defaultValue: selectedBillingDetail ? selectedBillingDetail.billingItemName : '',
                       disabled: true
                     },
                     {
@@ -703,6 +704,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       type: "number",
                       required: true,
                       value: detailAmount,
+                      defaultValue: detailAmount,
                       onChange: (value) => setDetailAmount(Number(value))
                     },
                     {
@@ -711,6 +713,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       type: "number",
                       required: true,
                       value: detailQuantity,
+                      defaultValue: detailQuantity,
                       onChange: (value) => setDetailQuantity(Number(value))
                     },
                     {
@@ -718,6 +721,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       label: "Description",
                       type: "text",
                       value: detailDescription,
+                      defaultValue: detailDescription,
                       onChange: (value) => setDetailDescription(value)
                     }
                   ]
@@ -753,6 +757,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       label: "Amount",
                       type: "number",
                       value: billing ? billing.amount : 0,
+                      defaultValue: billing ? billing.amount : 0,
                       disabled: true // Amount is calculated from billing details
                     },
                     {
@@ -761,6 +766,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       type: "number",
                       required: true,
                       value: billing ? billing.discount : 0,
+                      defaultValue: billing ? billing.discount : 0,
                       onChange: (value) => setDiscount(Number(value))
                     },
                     {
@@ -768,6 +774,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       label: "Total Amount",
                       type: "number",
                       value: billing ? (billing.amount - (billing.discount || 0)) : 0,
+                      defaultValue: billing ? (billing.amount - (billing.discount || 0)) : 0,
                       disabled: true // Total amount is calculated
                     },
                     {
@@ -775,6 +782,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       label: "Description",
                       type: "text",
                       value: billing ? billing.description : '',
+                      defaultValue: billing ? billing.description : '',
                       onChange: (value) => setDescription(value)
                     }
                   ]
