@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import {Dropdown, DropdownButton, Modal} from "react-bootstrap";
 
 const columns = [
-    { header: '#', accessor: 'id' },
+    
     { header: 'Patient Name', accessor: 'patientName' },
     { header: 'Attending Officer', accessor: 'attendingOfficerUserName' },
     { header: 'Assigned Officer', accessor: 'assignedOfficer' },

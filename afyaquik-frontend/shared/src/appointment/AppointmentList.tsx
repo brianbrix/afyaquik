@@ -5,7 +5,7 @@ import DataTable from "../DataTable";
 
 
 const columns = [
-    { header: '#', accessor: 'id' },
+
     { header: 'First Name', accessor: 'patient.firstName' },
     { header: 'Last Name', accessor: 'patient.lastName' },
     { header: 'Doctor Name', accessor: 'doctor.username' },

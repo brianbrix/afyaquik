@@ -1,7 +1,7 @@
 import { DataTable } from "@afyaquik/shared";
 
 const columns = [
-    { header: '#', accessor: 'id' },
+    
     { header: 'Name', accessor: 'name' },
     { header: 'Category', accessor: 'categoryName' },
     { header: 'Form', accessor: 'drugFormName' },

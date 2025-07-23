@@ -3,7 +3,7 @@ import {apiRequest, DataTable, DataTableRef, useAlert, useToast} from "@afyaquik
 import { Button } from "react-bootstrap";
 
 const columns = [
-    { header: '#', accessor: 'id' },
+
     { header: 'Drug Name', accessor: 'drugName' },
     { header: 'Quantity', accessor: 'quantity' },
     { header: 'Dosage Instructions', accessor: 'dosageInstructions', type: 'wysiwyg' },

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { apiRequest, DataTable } from "@afyaquik/shared";
 
 const columns = [
-    { header: '#', accessor: 'id' },
+
     { header: 'Patient Name', accessor: 'patientName' },
     { header: 'Visit Date', accessor: 'visitDate', type: 'date' },
     { header: 'Status', accessor: 'status' }

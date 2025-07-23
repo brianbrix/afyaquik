@@ -6,7 +6,7 @@ interface AuthResponse {
 }
 
 const columns = [
-    { header: '#', accessor: 'id' },
+    
     { header: 'Patient Name', accessor: 'patientName' },
     { header: 'Visit Type', accessor: 'visitType' },
     { header: 'Date of Visit', accessor: 'visitDate', type: 'datetime' }

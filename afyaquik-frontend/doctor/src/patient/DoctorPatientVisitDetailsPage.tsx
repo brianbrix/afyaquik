@@ -19,7 +19,7 @@ const components = function (visitId:any){
     )
 }
 const columns = [
-    { header: '#', accessor: 'id' },
+
     { header: 'Patient Name', accessor: 'patientName' },
     { header: 'Assigning Officer', accessor: 'attendingOfficerUserName' },
     { header: 'Assigned Date/Time', accessor: 'updatedAt', type:'datetime' },

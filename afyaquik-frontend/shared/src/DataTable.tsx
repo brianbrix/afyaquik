@@ -437,6 +437,8 @@ function DataTable<T extends { id: number }>({
             <Table bordered hover responsive className="table-sm align-middle">
                 <thead className="table-light">
                 <tr>
+                    <th className="py-3 ps-4">#</th>
+
                     {showSelectionMode && (
                         <th className="py-3 ps-4" style={{ width: '50px' }}>
                             Select
@@ -466,8 +468,9 @@ function DataTable<T extends { id: number }>({
                         </td>
                     </tr>
                 ) : (
-                    data.map(record => (
+                    data.map((record,index) => (
                         <tr key={record.id}>
+                            <td>{(currentPage * pageSize) + index + 1}</td>
                             {showSelectionMode && (
                                 <td>
                                     <Form.Check
