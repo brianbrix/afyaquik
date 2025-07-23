@@ -14,4 +14,6 @@ public interface BillingDetailMapper extends EntityMapper<BillingDetail, Billing
     @Mapping(source = "billingItem.id", target = "billingItemId")
     @Mapping(source = "billingItem.name", target = "billingItemName")
     BillingDetailDto toDto(BillingDetail entity);
+
+//    BillingDetail toEntity(BillingDetailDto dto);
 }

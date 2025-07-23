@@ -80,7 +80,7 @@ public interface BillingService {
      * @param billingDetailDto the billing detail data
      * @return the updated billing
      */
-    BillingDto addBillingDetail(Long billingId, BillingDetailDto billingDetailDto);
+    BillingDetailDto addBillingDetail(Long billingId, BillingDetailDto billingDetailDto);
 
     /**
      * Update a billing detail
@@ -102,4 +102,6 @@ public interface BillingService {
      * @return list of billing details
      */
     List<BillingDetailDto> getBillingDetailsByBillingId(Long billingId);
+
+
 }

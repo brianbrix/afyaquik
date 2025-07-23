@@ -1,5 +1,6 @@
 package com.afyaquik.pharmacy.entity;
 
+import com.afyaquik.billing.entity.BillingDetail;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.utils.SuperEntity;
 import jakarta.persistence.*;
@@ -35,4 +36,5 @@ public class PatientDrug extends SuperEntity {
     @Column(nullable = false)
     @ColumnDefault("false")
     private boolean dispensed = false;
+
 }

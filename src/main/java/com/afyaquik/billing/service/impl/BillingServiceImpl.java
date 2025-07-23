@@ -159,7 +159,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     @Transactional
-    public BillingDto addBillingDetail(Long billingId, BillingDetailDto billingDetailDto) {
+    public BillingDetailDto addBillingDetail(Long billingId, BillingDetailDto billingDetailDto) {
         Billing billing = billingRepository.findById(billingId)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + billingId));
 
@@ -183,8 +183,8 @@ public class BillingServiceImpl implements BillingService {
         // Update billing amount and total amount
         updateBillingAmounts(billing);
 
-        Billing savedBilling = billingRepository.save(billing);
-        return billingMapper.toDto(savedBilling);
+        billingRepository.save(billing);
+        return billingDetailMapper.toDto(billingDetail);
     }
 
     @Override
@@ -207,7 +207,9 @@ public class BillingServiceImpl implements BillingService {
         }
 
         // Calculate total amount
-        billingDetail.setTotalAmount(billingDetail.getAmount().multiply(BigDecimal.valueOf(billingDetail.getQuantity())));
+        if (billingDetailDto.getTotalAmount()!=null) {
+            billingDetail.setTotalAmount(billingDetail.getAmount().multiply(BigDecimal.valueOf(billingDetail.getQuantity())));
+        }
 
         // Update billing amount and total amount
         updateBillingAmounts(billingDetail.getBilling());

@@ -2,6 +2,7 @@ package com.afyaquik.pharmacy.services.impl;
 
 import com.afyaquik.billing.dto.BillingDetailDto;
 import com.afyaquik.billing.dto.BillingDto;
+import com.afyaquik.billing.entity.BillingDetail;
 import com.afyaquik.billing.entity.BillingItem;
 import com.afyaquik.billing.repository.BillingItemRepository;
 import com.afyaquik.billing.service.BillingService;
@@ -176,7 +177,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         patientDrugRepository.save(patientDrug);
 
         // Update the pharmacy billing detail
-        updatePharmacyBillingDetail(patientVisit);
+//        updatePharmacyBillingDetail(patientVisit);
     }
 
     @Override
@@ -186,40 +187,43 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                 .orElseThrow(() -> new EntityNotFoundException("Patient drug not found with id: " + id));
 
         // Only update inventory if the drug wasn't already dispensed
-        if (!patientDrug.isDispensed()) {
-            Drug drug = patientDrug.getDrug();
-            double quantityToDispense = patientDrug.getQuantity();
-
-            // Find active inventory entries for this drug
-            List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugIdAndActiveTrue(drug.getId()).stream()
-                    .filter(DrugInventory::isActive)
-                    .filter(inventory -> inventory.getCurrentQuantity() > 0)
-                    .toList();
-
-            if (activeInventories.isEmpty()) {
-                throw new EntityNotFoundException("No active inventory found for drug: " + drug.getName());
-            }
-
-            double remainingQuantity = quantityToDispense;
-
-            // Dispense from each inventory batch until the required quantity is met
-            for (DrugInventory inventory : activeInventories) {
-                if (remainingQuantity <= 0) {
-                    break;
-                }
-
-                double quantityFromThisBatch = Math.min(remainingQuantity, inventory.getCurrentQuantity());
-
-                // Adjust inventory for this batch
-                drugInventoryService.adjustInventory(drug.getId(), inventory.getBatchNumber(), -quantityFromThisBatch);
-
-                remainingQuantity -= quantityFromThisBatch;
-            }
-
-            if (remainingQuantity > 0) {
-                throw new DrugServiceException("Not enough inventory to dispense drug: " + drug.getName());
-            }
+        if (patientDrug.isDispensed())
+        {
+            throw new DrugServiceException("You cannot dispense a drug record multiple times");
         }
+        Drug drug = patientDrug.getDrug();
+        double quantityToDispense = patientDrug.getQuantity();
+
+        // Find active inventory entries for this drug
+        List<DrugInventory> activeInventories = drugInventoryRepository.findByDrugIdAndActiveTrue(drug.getId()).stream()
+                .filter(DrugInventory::isActive)
+                .filter(inventory -> inventory.getCurrentQuantity() > 0)
+                .toList();
+
+        if (activeInventories.isEmpty()) {
+            throw new EntityNotFoundException("No active inventory found for drug: " + drug.getName());
+        }
+
+        double remainingQuantity = quantityToDispense;
+
+        // Dispense from each inventory batch until the required quantity is met
+        for (DrugInventory inventory : activeInventories) {
+            if (remainingQuantity <= 0) {
+                break;
+            }
+
+            double quantityFromThisBatch = Math.min(remainingQuantity, inventory.getCurrentQuantity());
+
+            // Adjust inventory for this batch
+            drugInventoryService.adjustInventory(drug.getId(), inventory.getBatchNumber(), -quantityFromThisBatch);
+
+            remainingQuantity -= quantityFromThisBatch;
+        }
+
+        if (remainingQuantity > 0) {
+            throw new DrugServiceException("Not enough inventory to dispense drug: " + drug.getName());
+        }
+
         patientDrug.setPrice(patientDrug.getPrice()==null?patientDrug.getDrug().getCurrentPrice() : patientDrug.getPrice());
 
         patientDrug.setDispensed(true);
@@ -227,7 +231,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         PatientDrugDto dispensedPatientDrugDto = patientDrugMapper.toDto(patientDrugRepository.save(patientDrug));
 
         // Update the pharmacy billing detail
-        updatePharmacyBillingDetail(patientDrug.getPatientVisit());
+        updatePharmacyBillingDetail(patientDrug);
 
         return dispensedPatientDrugDto;
     }
@@ -249,35 +253,25 @@ public class PatientDrugServiceImpl implements PatientDrugService {
     }
 
     /**
-     * Updates the Pharmacy billing detail for a patient visit with the total price of all drugs assigned to the visit.
+     *
      * If a Pharmacy billing detail doesn't exist, it creates one.
      *
-     * @param patientVisit the patient visit
+     * @param patientDrug the patientDrug
      */
-    private void updatePharmacyBillingDetail(PatientVisit patientVisit) {
-        // Get all drugs assigned to the patient visit
-        List<PatientDrug> patientDrugs = patientDrugRepository.findByPatientVisitIdAndDeletedFalse(patientVisit.getId());
-
-        // If there are no drugs, return
-        if (patientDrugs.isEmpty()) {
-            return;
-        }
-
-        // Calculate the total price of all assigned drugs
-        BigDecimal totalPrice = BigDecimal.valueOf(patientDrugs.stream().mapToDouble(PatientDrug::getPrice).sum());
+    private void updatePharmacyBillingDetail(PatientDrug patientDrug) {
 
         // Get or create the billing for this patient visit
         BillingDto billingDto;
         try {
-            billingDto = billingService.getBillingByPatientVisitId(patientVisit.getId());
+            billingDto = billingService.getBillingByPatientVisitId(patientDrug.getPatientVisit().getId());
         } catch (EntityNotFoundException e) {
             // Create a new billing if one doesn't exist
             billingDto = billingService.createBilling(BillingDto.builder()
-                    .patientVisitId(patientVisit.getId())
+                    .patientVisitId(patientDrug.getPatientVisit().getId())
                     .amount(BigDecimal.ZERO)
                     .totalAmount(BigDecimal.ZERO)
                     .discount(BigDecimal.ZERO)
-                    .description("Billing info for "+patientVisit.getPatientName())
+                    .description("Billing info for "+patientDrug.getPatientVisit().getPatientName())
                     .build());
         }
 
@@ -285,35 +279,16 @@ public class PatientDrugServiceImpl implements PatientDrugService {
         BillingItem pharmacyBillingItem = billingItemRepository.findByNameIgnoreCase("Pharmacy")
                 .orElseThrow(() -> new EntityNotFoundException("Pharmacy billing item not found"));
 
-        // Check if a Pharmacy billing detail already exists
-        List<BillingDetailDto> billingDetails = billingService.getBillingDetailsByBillingId(billingDto.getId());
-        BillingDetailDto pharmacyBillingDetailDto = null;
+            BillingDetailDto billingDetailDto = new BillingDetailDto();
+            billingDetailDto.setBillingId(billingDto.getId());
+            billingDetailDto.setBillingItemId(pharmacyBillingItem.getId());
+            billingDetailDto.setAmount(BigDecimal.valueOf(patientDrug.getPrice()));
+            billingDetailDto.setQuantity(1);
+            billingDetailDto.setDescription(patientDrug.getDrug().getName());
+            billingDetailDto.setTotalAmount(BigDecimal.valueOf(patientDrug.getPrice()));
 
-        for (BillingDetailDto billingDetailDto : billingDetails) {
-            if (billingDetailDto.getBillingItemId().equals(pharmacyBillingItem.getId())) {
-                pharmacyBillingDetailDto = billingDetailDto;
-                break;
-            }
-        }
+            billingService.addBillingDetail(billingDto.getId(), billingDetailDto);
 
-        if (pharmacyBillingDetailDto != null) {
-            // Update the existing Pharmacy billing detail
-            pharmacyBillingDetailDto.setAmount(totalPrice);
-            pharmacyBillingDetailDto.setQuantity(1);
-            pharmacyBillingDetailDto.setDescription("Pharmacy drugs for patient visit\n"+getAllDrugsAndPrices(patientDrugs));
-            billingService.updateBillingDetail(pharmacyBillingDetailDto.getId(), pharmacyBillingDetailDto);
-        } else {
-            // Create a new Pharmacy billing detail
-            BillingDetailDto newBillingDetailDto = BillingDetailDto.builder()
-                    .billingId(billingDto.getId())
-                    .billingItemId(pharmacyBillingItem.getId())
-                    .amount(totalPrice)
-                    .quantity(1)
-                    .description("Pharmacy drugs for patient visit\n"+getAllDrugsAndPrices(patientDrugs))
-                    .build();
-
-            billingService.addBillingDetail(billingDto.getId(), newBillingDetailDto);
-        }
     }
     private String getAllDrugsAndPrices(List<PatientDrug> patientDrugs) {
         StringBuilder drugsAndPrices = new StringBuilder();

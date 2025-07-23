@@ -67,7 +67,7 @@ public class BillingController {
     }
 
     @PostMapping("/{id}/details")
-    public ResponseEntity<BillingDto> addBillingDetail(
+    public ResponseEntity<BillingDetailDto> addBillingDetail(
             @PathVariable Long id,
             @RequestBody BillingDetailDto billingDetailDto) {
         return ResponseEntity.ok(billingService.addBillingDetail(id, billingDetailDto));

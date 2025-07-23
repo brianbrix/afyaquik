@@ -456,8 +456,10 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                 setDetailQuantity(detail.quantity);
                 setShowEditItemModal(true);
               } : undefined}
+
               editTitle="Edit"
               editButtonEnabled={billing.status !== 'PAID' && billing.status !== 'CANCELLED'}
+              detailsClassName={"bi bi-trash"}
               detailsButtonAction={billing.status !== 'PAID' && billing.status !== 'CANCELLED' ? (detail) => {
                 handleRemoveBillingDetail(detail.id);
               } : undefined}
@@ -719,7 +721,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                     {
                       name: "description",
                       label: "Description",
-                      type: "text",
+                      type: "wysiwyg",
                       value: detailDescription,
                       defaultValue: detailDescription,
                       onChange: (value) => setDetailDescription(value)
