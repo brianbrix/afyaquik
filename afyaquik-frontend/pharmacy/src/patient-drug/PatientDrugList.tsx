@@ -1,6 +1,5 @@
 import {useEffect, useRef, useState} from "react";
 import {apiRequest, DataTable, DataTableRef, useAlert, useToast} from "@afyaquik/shared";
-import { Button } from "react-bootstrap";
 
 const columns = [
 
