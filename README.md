@@ -71,7 +71,7 @@ The project follows a modular architecture with separate backend services and fr
 ### Backend Setup
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/afyaquik.git
+   git clone https://github.com/brianbrix/afyaquik.git
    cd afyaquik
    ```
 
@@ -103,7 +103,7 @@ The project follows a modular architecture with separate backend services and fr
    npm run build:all
    ```
 
-4. Copy built files to their respective backend modules (optional):
+4. Copy built files to their respective backend modules:
    ```
    npm run copy:all
    ```
@@ -115,12 +115,13 @@ The project follows a modular architecture with separate backend services and fr
    ```
 
 2. Access the services at:
-   - Backend API: http://localhost:8080
-   - Admin Frontend: http://localhost:3001
-   - Auth Frontend: http://localhost:3002
-   - Doctor Frontend: http://localhost:3003
-   - Receptionist Frontend: http://localhost:3004
-   - Reports Frontend: http://localhost:3005
+   - Backend API: http://localhost:8080/api
+   - Admin Frontend: http://localhost:8080/client/admin/index.html
+   - Auth Frontend: http://localhost:8080/client/auth/index.html
+   - Doctor Frontend: http://localhost:8080/client/doctor/index.html
+   - Receptionist Frontend: http://localhost:8080/client/receptionist/index.html
+   - Reports Frontend: http://localhost:8080/client/reports/index.html
+   - Pharmacy Frontend: http://localhost:8080/client/pharmacy/index.html
 
 ## API Documentation
 
