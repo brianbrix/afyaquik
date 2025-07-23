@@ -2,12 +2,13 @@ package com.afyaquik.utils.otherservices.impl;
 
 import com.afyaquik.utils.mappers.EntityMapper;
 import com.afyaquik.utils.mappers.MapperRegistry;
-import com.afyaquik.utils.otherservices.SearchService;
+import com.afyaquik.utils.otherservices.EntityUtilService;
 import com.afyaquik.utils.dto.search.SearchDto;
 import com.afyaquik.utils.dto.search.SearchResponseDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SearchServiceImpl implements SearchService {
+public class EntityUtilServiceImpl implements EntityUtilService {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -257,6 +258,9 @@ public class SearchServiceImpl implements SearchService {
                        else if (type.equals(Long.class)) {
                                 extraTermPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(value)));
                             }
+                        else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+                            extraTermPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(value)));
+                        }
                          else {
                             extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
                         }
@@ -349,5 +353,51 @@ public class SearchServiceImpl implements SearchService {
         Path<?> path = root;
         for (String part : parts) path = path.get(part);
         return (Path<String>) path;
+    }
+
+    @Override
+    @Transactional
+    //Rename it this to use in clearing cache after delete
+    public void softdelete(String entityName, List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+
+        try {
+            Class<Object> entityClass =(Class<Object>) resolveEntityClass(entityName);
+
+            // Check if the entity or its superclasses have a 'deleted' property
+            boolean hasDeletedField = false;
+            Class<?> currentClass = entityClass;
+            while (currentClass != null && !hasDeletedField) {
+                try {
+                    currentClass.getDeclaredField("deleted");
+                    hasDeletedField = true;
+                } catch (NoSuchFieldException e) {
+                    currentClass = currentClass.getSuperclass();
+                }
+            }
+
+            if (!hasDeletedField) {
+                throw new IllegalArgumentException("Entity " + entityName +
+                        " and its superclasses do not have a 'deleted' property");
+            }
+
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaUpdate<Object> update = cb.createCriteriaUpdate(entityClass);
+            Root<?> root = update.from(entityClass);
+
+            // Set deleted = true
+            update.set("deleted", true);
+
+            // Add WHERE clause for IDs
+            update.where(root.get("id").in(ids));
+
+            // Execute the update
+            entityManager.createQuery(update).executeUpdate();
+
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Entity class not found for: " + entityName, e);
+        }
     }
 }

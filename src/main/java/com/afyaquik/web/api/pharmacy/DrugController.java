@@ -15,10 +15,17 @@ public class DrugController {
     private final DrugService drugService;
 
     @GetMapping
-    public ResponseEntity<ListFetchDto<DrugDto>> getAllDrugs(Pageable pageable) {
-        ListFetchDto<DrugDto> drugs = drugService.getAllDrugs(pageable);
+    public ResponseEntity<ListFetchDto<DrugDto>> getAllDrugs(Pageable pageable, @RequestParam(required = false) Boolean enabled) {
+        ListFetchDto<DrugDto> drugs;
+        if (enabled != null) {
+            drugs= drugService.getDrugsByEnabled(pageable, enabled);
+        }
+        else {
+            drugs = drugService.getAllDrugs(pageable);
+        }
         return ResponseEntity.ok(drugs);
     }
+
     @PostMapping
     public ResponseEntity<DrugDto> createDrug(@RequestBody DrugDto drugDto) {
         DrugDto createdDrug = drugService.createDrug(drugDto);

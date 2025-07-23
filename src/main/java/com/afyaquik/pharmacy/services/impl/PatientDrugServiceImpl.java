@@ -44,7 +44,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
     @Override
     @Transactional
-    public PatientDrugDto assignDrugToPatientVisit(PatientDrugDto patientDrugDto) {
+    public PatientDrugDto addDrugAssignmentToPatientVisit(PatientDrugDto patientDrugDto) {
         PatientVisit patientVisit = patientVisitRepo.findById(patientDrugDto.getPatientVisitId())
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found with id: " + patientDrugDto.getPatientVisitId()));
 
@@ -118,7 +118,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
     @Override
     public List<PatientDrugDto> getDrugsForPatientVisit(Long patientVisitId) {
-        return patientDrugRepository.findByPatientVisitId(patientVisitId)
+        return patientDrugRepository.findByPatientVisitIdAndDeletedFalse(patientVisitId)
                 .stream()
                 .map(patientDrugMapper::toDto)
                 .collect(Collectors.toList());
@@ -149,6 +149,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
         // Update only the fields that can be updated
         existingPatientDrug.setQuantity(patientDrugDto.getQuantity());
+        existingPatientDrug.setPrice(patientDrugDto.getPrice());
         existingPatientDrug.setDosageInstructions(patientDrugDto.getDosageInstructions());
         existingPatientDrug.setDispensed(patientDrugDto.isDispensed());
 
@@ -166,7 +167,13 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
         PatientVisit patientVisit = patientDrug.getPatientVisit();
 
-        patientDrugRepository.delete(patientDrug);
+        if (patientDrug.isDispensed())
+        {
+            throw new DrugServiceException("You cannot delete an already dispensed drug");
+        }
+        patientDrug.setDeleted(true);
+
+        patientDrugRepository.save(patientDrug);
 
         // Update the pharmacy billing detail
         updatePharmacyBillingDetail(patientVisit);
@@ -213,6 +220,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
                 throw new DrugServiceException("Not enough inventory to dispense drug: " + drug.getName());
             }
         }
+        patientDrug.setPrice(patientDrug.getPrice()==null?patientDrug.getDrug().getCurrentPrice() : patientDrug.getPrice());
 
         patientDrug.setDispensed(true);
 
@@ -226,7 +234,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
     @Override
     public List<PatientDrugDto> getDispensedDrugsForPatientVisit(Long patientVisitId) {
-        return patientDrugRepository.findByPatientVisitIdAndDispensed(patientVisitId, true)
+        return patientDrugRepository.findByPatientVisitIdAndDispensedAndDeletedFalse(patientVisitId, true)
                 .stream()
                 .map(patientDrugMapper::toDto)
                 .collect(Collectors.toList());
@@ -234,7 +242,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
 
     @Override
     public List<PatientDrugDto> getUndispensedDrugsForPatientVisit(Long patientVisitId) {
-        return patientDrugRepository.findByPatientVisitIdAndDispensed(patientVisitId, false)
+        return patientDrugRepository.findByPatientVisitIdAndDispensedAndDeletedFalse(patientVisitId, false)
                 .stream()
                 .map(patientDrugMapper::toDto)
                 .collect(Collectors.toList());
@@ -248,7 +256,7 @@ public class PatientDrugServiceImpl implements PatientDrugService {
      */
     private void updatePharmacyBillingDetail(PatientVisit patientVisit) {
         // Get all drugs assigned to the patient visit
-        List<PatientDrug> patientDrugs = patientDrugRepository.findByPatientVisitId(patientVisit.getId());
+        List<PatientDrug> patientDrugs = patientDrugRepository.findByPatientVisitIdAndDeletedFalse(patientVisit.getId());
 
         // If there are no drugs, return
         if (patientDrugs.isEmpty()) {

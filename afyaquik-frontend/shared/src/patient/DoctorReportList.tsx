@@ -140,7 +140,8 @@ const DoctorReportList: React.FC<{ reports: DoctorReport[], title?: string }> = 
                                 ${report.treatmentPlanReportItems.map(item => `
                                     <div class="report-item">
                                         <div class="report-item-header">${item.treatmentPlanItemName}</div>
-                                        <div>${item.reportDetails}</div>
+                                       
+                                        <div dangerouslySetInnerHTML={{ __html: item.reportDetails || '' }} />
                                     </div>
                                 `).join('')}
                             ` : ''} 
@@ -203,7 +204,7 @@ const DoctorReportList: React.FC<{ reports: DoctorReport[], title?: string }> = 
                             ${report.treatmentPlanReportItems.map(item => `
                                 <div class="report-item">
                                     <div class="report-item-header">${item.treatmentPlanItemName}</div>
-                                    <div>${item.reportDetails}</div>
+                                    <div dangerouslySetInnerHTML={{ __html: item.reportDetails || '' }} />
                                 </div>
                             `).join('')}
                         ` : ''}

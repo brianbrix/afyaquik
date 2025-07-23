@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PatientDrugService {
 
-    PatientDrugDto assignDrugToPatientVisit(PatientDrugDto patientDrugDto);
+    PatientDrugDto addDrugAssignmentToPatientVisit(PatientDrugDto patientDrugDto);
     List<PatientDrugDto> assignManyDrugsToPatientVisit(List<PatientDrugDto> patientDrugDtos);
 
     PatientDrugDto getPatientDrugById(Long id);

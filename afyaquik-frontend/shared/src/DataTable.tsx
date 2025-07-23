@@ -3,12 +3,16 @@ import { Table, Button, Form } from 'react-bootstrap';
 import Papa from 'papaparse';
 import apiRequest from "./api";
 import {FieldConfig, FieldType} from "./StepConfig";
-import {SearchBar} from "./index";
-import formatDate, {formatForDatetimeLocal, formatJustDate} from "./dateFormatter";
+import {DataTableRef, SearchBar} from "./index";
+import formatDate from "./dateFormatter";
 import {formatCurrency, formatNumber, formatPercentage, formatWysiwyg} from "./formaterUtils";
 
+
 interface DataTableProps<T> {
+    onRef?: (ref: DataTableRef<T>) => void;
     title: string;
+    loading?:boolean;
+    error?:any;
     columns: { header: string; accessor: string, sortable?: boolean, type?:string }[];
     data?: T[];
     editView?: string;
@@ -16,6 +20,10 @@ interface DataTableProps<T> {
     editTitle?: string;
     editClassName?: string;
     editButtonEnabled?: boolean | ((row: T) => boolean);
+    deleteButtonAction?: (rowData: T) => void;
+    deleteTitle?: string;
+    deleteClassName?: string;
+    deleteButtonEnabled?: boolean | ((row: T) => boolean);
     addView?: string;
     addTitle?: string;
     addClassName?: string;
@@ -38,6 +46,12 @@ interface DataTableProps<T> {
     selectionModeActionTitle?: string;
     selectionModeActionDisabled?: (selectedItems: T[]) => boolean;
     showPagination?:boolean;
+    showMultipleDeleteButton?: boolean;
+    deleteMultipleButtonTitle?: string;
+    deleteEndpoint?: string;
+    preventDeleteMultipleAction?:(selectedRows: T[]) => boolean;
+    showDeletedRecords?:boolean;
+
 }
 
 interface PaginatedResponse<T> {
@@ -54,12 +68,20 @@ interface PaginatedResponse<T> {
 
 
 function DataTable<T extends { id: number }>({
+                                                 loading=false,
+                                                 error,
                                                  title,
+        onRef,
                                                  columns,
                                                  data: initialData = [],
                                                  editView,
-                                                 editTitle = 'Edit',
+                                                 editTitle = '',
                                                  editClassName = 'bi bi-pencil',
+                                                deleteButtonEnabled=true,
+                                                deleteClassName='bi bi-trash',
+                                                deleteButtonAction,
+                                                deleteTitle='',
+
                                                  addView,
                                                  addTitle = 'Add Record',
                                                  addClassName = 'bi bi-plus-circle me-1',
@@ -73,15 +95,20 @@ function DataTable<T extends { id: number }>({
                                                  defaultPageSize = 10,
                                                  editButtonAction,
                                                  detailsButtonAction,
-    additionalParams,
+                                                 additionalParams,
                                                  editButtonEnabled = true,
                                                  detailsButtonEnabled = true,
+                                                 showDeletedRecords = false,
                                                  isSearchable,dateFieldName='createdAt', combinedSearchFieldsAndTerms,
                                                  showSelectionMode = false,
                                                  selectionModeAction,
                                                  selectionModeActionTitle = 'Process Selected',
                                                  selectionModeActionDisabled = (selectedItems) => selectedItems.length === 0,
-    showPagination=true
+                                                 showPagination=true,
+                                                deleteMultipleButtonTitle,
+                                                deleteEndpoint,
+                                                showMultipleDeleteButton,
+                                                preventDeleteMultipleAction
                                              }: DataTableProps<T>) {
 
     let [searchTerm, setSearchTerm] = useState('');
@@ -114,6 +141,52 @@ function DataTable<T extends { id: number }>({
             setSelectedRows(selectedRows.filter(r => r.id !== row.id));
         }
     };
+    useEffect(() => {
+        if (onRef) {
+            onRef({
+                refreshData: () => {
+                    fetchData(currentPage, pageSize, sortField ? `${sortField},${sortDirection}` : undefined);
+                },
+                getSelectedRows: () => selectedRows
+            });
+        }
+    }, [currentPage, pageSize, sortField, sortDirection, selectedRows]);
+
+
+    const handleDeleteMultiple = async () => {
+        if (selectedRows.length === 0) {
+            return; // No records selected
+        }
+        if (typeof preventDeleteMultipleAction === 'function')
+        {
+            if (preventDeleteMultipleAction(selectedRows)){
+                return;
+            }
+        }
+        const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedRows.length} records?`);
+        if (!confirmDelete) {
+            return;
+        }
+        try {
+            if (!deleteEndpoint) {//use default global delete endpoint
+                await apiRequest('/delete', {
+                    method: 'POST',
+                    body: {
+                        ids: selectedRows.map(row => row.id),
+                        entityName: searchEntity
+                    },
+                });
+            }
+
+            // Refresh data after deletion
+            fetchData(currentPage, pageSize, sortField ? `${sortField},${sortDirection}` : undefined);
+            setSelectedRows([]); // Clear selected rows after deletion
+        } catch (error) {
+            console.error('Delete error:', error);
+        }
+    };
+
+
 
     const handleSelectAll = (isSelected: boolean) => {
         setSelectAll(isSelected);
@@ -130,6 +203,10 @@ function DataTable<T extends { id: number }>({
     };
     const fetchData = async (page: number, size: number, sort?: string) => {
         setIsSearching(true);
+        if (!showDeletedRecords)
+        {
+            searchTerm+='deleted=false'
+        }
         try {
             let params = {
                 page,
@@ -154,6 +231,7 @@ function DataTable<T extends { id: number }>({
 
                 response = await apiRequest(`${dataEndpoint}?${queryParams.toString()}`);
             } else {
+
                 if (combinedSearchFieldsAndTerms)
                 {
                     if (searchTerm.length > 0)
@@ -284,7 +362,8 @@ function DataTable<T extends { id: number }>({
         link.click();
         document.body.removeChild(link);
     };
-
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="container my-4">
@@ -305,8 +384,18 @@ function DataTable<T extends { id: number }>({
                         <i className="bi bi-download me-1"></i> Download CSV
                     </Button>
                     {addView && (
-                        <Button variant="primary" onClick={() => window.location.href = addView}>
+                        <Button variant="primary" className="me-2" onClick={() => window.location.href = addView}>
                             <i className={addClassName}></i> {addTitle}
+                        </Button>
+                    )}
+                    {showMultipleDeleteButton && (
+                        <Button
+                            variant="danger"
+                            className="me-2"
+                            onClick={handleDeleteMultiple}
+                            disabled={selectedRows.length === 0}
+                        >
+                            {deleteMultipleButtonTitle || 'Delete Selected'}
                         </Button>
                     )}
                 </div>
@@ -435,6 +524,19 @@ function DataTable<T extends { id: number }>({
                                             }}
                                         >
                                             <i className={editClassName}></i> {editTitle}
+                                        </Button>
+                                    )}
+                                    {deleteButtonAction && (
+                                        <Button
+                                            disabled={ typeof deleteButtonEnabled === 'function'
+                                                ? !deleteButtonEnabled(record)
+                                                : !deleteButtonEnabled
+                                            }
+                                            variant="danger"
+                                            className="ms-2"
+                                            onClick={() => deleteButtonAction(record)}
+                                        >
+                                            <i className={deleteClassName}></i> {deleteTitle}
                                         </Button>
                                     )}
                                 </td>

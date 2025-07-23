@@ -19,7 +19,7 @@ public class PatientDrugController {
 
     @PostMapping
     public ResponseEntity<PatientDrugDto> assignDrugToPatientVisit(@RequestBody PatientDrugDto patientDrugDto) {
-        return ResponseEntity.ok(patientDrugService.assignDrugToPatientVisit(patientDrugDto));
+        return ResponseEntity.ok(patientDrugService.addDrugAssignmentToPatientVisit(patientDrugDto));
     }
     @PostMapping("/bulk")
     public ResponseEntity<List<PatientDrugDto>> assignManyDrugsToPatientVisit(@RequestBody List<PatientDrugDto> patientDrugDtos) {

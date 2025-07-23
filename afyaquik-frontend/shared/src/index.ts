@@ -6,6 +6,7 @@ export { default as StepForm } from './StepForm';
 export { default as DataTable } from './DataTable';
 export { default as SearchBar } from './SearchBar';
 export { default as DetailsPage } from './DetailsPage';
+export { default as DataTableRef } from './DataTableRef';
 export { ToastProvider, useToast } from './ToastContext';
 export { AlertProvider, useAlert } from './AlertContext';
 export {default as NotificationsBell} from './communication/NotificationsBell'

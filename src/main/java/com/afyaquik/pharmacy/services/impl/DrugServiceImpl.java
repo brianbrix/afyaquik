@@ -73,6 +73,13 @@ public class DrugServiceImpl implements DrugService {
     }
 
     @Override
+    public ListFetchDto<DrugDto> getDrugsByEnabled(Pageable pageable, boolean enabled) {
+        return ListFetchDto.<DrugDto>builder()
+                .results(drugRepository.findAllByEnabled(pageable, enabled).map(drugMapper::toDto))
+                .build();
+    }
+
+    @Override
     public DrugDto updateDrug(Long id, DrugDto drugDto) {
         Drug existingDrug = drugRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Drug not found with id: " + id));
@@ -102,7 +109,7 @@ public class DrugServiceImpl implements DrugService {
         existingDrug.setBrandName(drugDto.getBrandName());
         existingDrug.setDescription(drugDto.getDescription());
         existingDrug.setDrugForm(drugForm);
-        existingDrug.setCurrentPrice(drugDto.getCurrentPrice()!=null?drugDto.getCurrentPrice():0.0);
+        existingDrug.setCurrentPrice(drugDto.getCurrentPrice()!=null?drugDto.getCurrentPrice():0.00);
         existingDrug.setStrength(drugDto.getStrength());
         existingDrug.setManufacturer(drugDto.getManufacturer());
         existingDrug.setSampleDosageInstruction(drugDto.getSampleDosageInstruction());

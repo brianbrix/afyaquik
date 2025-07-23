@@ -13,10 +13,16 @@ interface StepFormProps {
     idFromParent?: number;
     submitButtonLabel?: string;
     bottomComponents?: React.ReactNode[];
+    formMethodsRef?: React.RefObject<any>;
+
 }
 
-const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents }) => {
-    const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = useForm({ defaultValues });
+const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents, formMethodsRef }) => {
+    const methods = useForm({ defaultValues });
+
+    // const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = useForm({ defaultValues });
+    const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = methods;
+
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
     const [selectedItem, setSelectedItem] = useState<string>('');
@@ -28,6 +34,11 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
         }
     }, [defaultValues, reset]);
 
+    useEffect(() => {
+        if (formMethodsRef) {
+            formMethodsRef.current = methods;
+        }
+    }, [formMethodsRef, methods]);
 
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);

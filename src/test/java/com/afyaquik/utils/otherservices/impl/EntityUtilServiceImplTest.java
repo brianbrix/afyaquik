@@ -1,9 +1,7 @@
 package com.afyaquik.utils.otherservices.impl;
 
-import com.afyaquik.utils.mappers.EntityMapper;
 import com.afyaquik.utils.mappers.MapperRegistry;
 import com.afyaquik.utils.dto.search.SearchDto;
-import com.afyaquik.utils.dto.search.SearchResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,20 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for SearchServiceImpl
  */
 @ExtendWith(MockitoExtension.class)
-class SearchServiceImplTest {
+class EntityUtilServiceImplTest {
 
     @Mock
     private MapperRegistry mapperRegistry;
 
     @InjectMocks
-    private SearchServiceImpl searchService;
+    private EntityUtilServiceImpl searchService;
 
     private SearchDto searchDto;
 

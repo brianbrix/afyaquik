@@ -3,6 +3,7 @@ package com.afyaquik.pharmacy.entity;
 import com.afyaquik.utils.SuperEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "drugs")
@@ -27,10 +28,13 @@ public class Drug extends SuperEntity {
     private String strength;
     private String manufacturer;
     private String sampleDosageInstruction;
-    private double stockQuantity=0;
-    @Column(nullable = false, columnDefinition = "boolean default true")
+    @ColumnDefault("0.00")
+    private double stockQuantity=0.00;
+    @Column(nullable = false)
+    @ColumnDefault("0.00")
     private Double currentPrice=0.00;
     private boolean isPrescriptionRequired=false;
     private String atcCode;
+    @ColumnDefault("true")
     private boolean enabled=true;
 }

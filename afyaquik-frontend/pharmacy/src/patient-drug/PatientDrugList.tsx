@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import {apiRequest, DataTable, useAlert, useToast} from "@afyaquik/shared";
-import { useParams } from "react-router-dom";
+import {useEffect, useRef, useState} from "react";
+import {apiRequest, DataTable, DataTableRef, useAlert, useToast} from "@afyaquik/shared";
 import { Button } from "react-bootstrap";
 
 const columns = [
@@ -33,22 +32,17 @@ const searchFields = [
 
 const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: PatientDrug[]}) => {
     const [data, setData] = useState<PatientDrug[]>(initialData);
-    const [showSelectionMode, setShowSelectionMode] = useState(false);
-    const { showToast } = useToast()
     const { showAlert } = useAlert();
+    const dataTableRef = useRef<DataTableRef<PatientDrug>>(null);
 
     useEffect(() => {
         setData(initialData);
     }, [initialData]);
 
     const reloadData = () => {
-        apiRequest(`/patient-drugs/visit/${visitId}`)
-            .then(response => {
-                setData(response);
-            })
-            .catch(error => {
-                console.error('Error reloading data:', error);
-            });
+        if (dataTableRef.current) {
+            dataTableRef.current.refreshData();
+        }
     };
 
     const handleDispense = (drug: PatientDrug) => {
@@ -64,6 +58,19 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 showAlert(error.message, 'Drug Dispense Error', 'error');
             });
     };
+    const handleDrugRemove = (drug: PatientDrug)=>{
+        apiRequest(`/patient-drugs/${drug.id}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                showAlert('Drug removed successfully', 'Drug Remove', 'success');
+                reloadData();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert(error.message, 'Drug Remove Error', 'error');
+            });
+    }
 
     const handleMultipleDispense = (selectedDrugs: PatientDrug[]) => {
         const undispensedDrugs = selectedDrugs.filter(drug => !drug.dispensed);
@@ -83,7 +90,6 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
             .then(responses => {
                 showAlert(`${responses.length} drugs dispensed successfully`,'Drug Dispense', 'success');
                 reloadData();
-                setShowSelectionMode(false);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -92,21 +98,20 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
             });
     };
 
-    const toggleSelectionMode = () => {
-        setShowSelectionMode(!showSelectionMode);
-    };
-
+    const deleteMultipleErrorAction =(selectedRows: PatientDrug[]) : boolean=>
+    {
+    const dispensedDrugs = selectedRows.find(drug=>drug.dispensed)
+        if (dispensedDrugs)
+        {
+            showAlert("You cannot delete dispensed records.Unselect any dispensed records to continue.",'Drug Dispense', 'warning')
+            return true;
+        }
+        return false;
+    }
     return (
 
         <div>
-            <div className="d-flex justify-content-end mb-3">
-                <Button
-                    variant="primary"
-                    onClick={toggleSelectionMode}
-                >
-                    {showSelectionMode ? 'Cancel' : 'Dispense Multiple Drugs'}
-                </Button>
-            </div>
+
 
             <DataTable
                 title="Patient Drugs"
@@ -114,18 +119,23 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 detailsClassName={'primary'}
                 editView="index.html#/patient-drugs/#id/edit"
                 searchFields={searchFields}
-                detailsButtonAction={!showSelectionMode ? handleDispense : undefined}
+                detailsButtonAction={handleDispense}
+                deleteButtonAction={handleDrugRemove}
+                deleteButtonEnabled={(drug: PatientDrug) => !drug.dispensed}
                 detailsTitle={'Dispense Drug'}
-                detailsButtonEnabled={(drug) => !drug.dispensed}
+                detailsButtonEnabled={(drug: PatientDrug) => !drug.dispensed}
                 searchEntity="patientDrugs"
-                combinedSearchFieldsAndTerms={`patientVisit.id=${visitId}`}
+                combinedSearchFieldsAndTerms={`patientVisit.id=${visitId},deleted=false`}
                 dataEndpoint={`/search`}
+                preventDeleteMultipleAction={deleteMultipleErrorAction}
                 data={data}
                 addTitle="Add Drug"
                 addView={`index.html#/patient-drugs/add/${visitId}`}
-                showSelectionMode={showSelectionMode}
+                showSelectionMode={true}
+                showMultipleDeleteButton={true}
                 selectionModeAction={handleMultipleDispense}
                 selectionModeActionTitle="Dispense Selected"
+                onRef={(ref) => dataTableRef.current = ref}
                 selectionModeActionDisabled={(selectedItems) =>
                     selectedItems.length === 0 || !selectedItems.some(drug => !drug.dispensed)
                 }

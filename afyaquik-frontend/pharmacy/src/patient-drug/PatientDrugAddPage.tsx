@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { apiRequest, FieldConfig, StepConfig, StepForm } from "@afyaquik/shared";
 import { multiSelectorWysiwygConfig } from "@afyaquik/shared/dist/StepConfig";
 import { useParams } from "react-router-dom";
 
 const PatientDrugAddPage = () => {
+    const formRef = useRef<any>(null);
     const { patientVisitId } = useParams();
     const [formConfig, setFormConfig] = useState<StepConfig>();
     const [drugs, setDrugs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [bulkMode, setBulkMode] = useState(false);
-    const [selectedDrugId, setSelectedDrugId] = useState<number | null>(null);
-    const [defaultPrice, setDefaultPrice] = useState<number | null>(null);
+    const [selectedDrugId, setSelectedDrugId]= useState(0);
+    const [defaultValues, setDefaultValues] = useState({
+        dispensed: false,
+        quantity: 1,
+        price: null as number | null,
+        drugId: null as number | null
+    });
 
     useEffect(() => {
         if (!patientVisitId) {
@@ -19,7 +25,7 @@ const PatientDrugAddPage = () => {
             return;
         }
 
-        apiRequest('/drugs', { method: 'GET' })
+        apiRequest('/drugs?enabled=true', { method: 'GET' })
             .then((response) => {
                 if (response?.results?.content) {
                     setDrugs(response.results.content);
@@ -34,17 +40,15 @@ const PatientDrugAddPage = () => {
             .finally(() => setLoading(false));
     }, [patientVisitId]);
 
-    // Update default price when drug selection changes
+    // Update default price when drugId changes
     useEffect(() => {
-        if (selectedDrugId) {
-            const selectedDrug = drugs.find(drug => drug.id === selectedDrugId);
-            if (selectedDrug) {
-                setDefaultPrice(selectedDrug.currentPrice);
+        if (selectedDrugId && !bulkMode) {
+            const selectedDrug = drugs.find(drug => drug.id == selectedDrugId);
+            if (selectedDrug && formRef.current) {
+                formRef.current.setValue("price", selectedDrug.currentPrice || 0.00);
             }
-        } else {
-            setDefaultPrice(null);
         }
-    }, [selectedDrugId, drugs]);
+    }, [selectedDrugId, drugs, bulkMode]);
 
     useEffect(() => {
         if (drugs.length === 0) return;
@@ -66,7 +70,7 @@ const PatientDrugAddPage = () => {
                 type: "select",
                 required: true,
                 options: drugOptions,
-                onChange: (value: number) => setSelectedDrugId(value) // Add onChange handler
+                onChange: (value)=>setSelectedDrugId(value)
             },
             {
                 name: "quantity",
@@ -77,10 +81,9 @@ const PatientDrugAddPage = () => {
             },
             {
                 name: "price",
-                label: "Price",
+                label: "Total Price",
                 type: "number",
-                step: "0.01",
-                defaultValue: defaultPrice
+                step: "0.01"
             },
             {
                 name: "dosageInstructions",
@@ -123,7 +126,15 @@ const PatientDrugAddPage = () => {
                     <button
                         type="button"
                         className="btn btn-outline-primary"
-                        onClick={() => setBulkMode(!bulkMode)}
+                        onClick={() => {
+                            setBulkMode(!bulkMode);
+                            setDefaultValues({
+                                dispensed: false,
+                                quantity: 1,
+                                price: null,
+                                drugId: null
+                            });
+                        }}
                     >
                         {bulkMode ? "Switch to Single Drug Mode" : "Switch to Bulk Mode"}
                     </button>
@@ -133,7 +144,7 @@ const PatientDrugAddPage = () => {
         };
 
         setFormConfig(config);
-    }, [drugs, bulkMode, defaultPrice]);
+    }, [drugs, bulkMode]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -144,6 +155,7 @@ const PatientDrugAddPage = () => {
             {formConfig && (
                 <StepForm
                     config={[formConfig]}
+                    formMethodsRef={formRef}
                     onSubmit={(data) => {
                         const endpoint = bulkMode ? '/patient-drugs/bulk' : '/patient-drugs';
                         const body = bulkMode
@@ -164,16 +176,14 @@ const PatientDrugAddPage = () => {
                             body
                         })
                             .then(() => {
-                                window.location.href = `index.html#/visit/${patientVisitId}/details?tab=Drugs`;
+                                window.location.href = `index.html#/visits/${patientVisitId}/details?tab=Drugs`;
                             })
                             .catch(console.error);
                     }}
-                    defaultValues={{
-                        dispensed: false,
-                        quantity: 1,
-                        price: defaultPrice
-                    }}
+                    defaultValues={defaultValues}
                     submitButtonLabel={bulkMode ? "Add Drugs in Bulk" : "Add Drug"}
+                    key={bulkMode ? 'bulk' : 'single'}
+
                 />
             )}
         </div>

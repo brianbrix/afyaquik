@@ -26,6 +26,11 @@ public abstract class SuperEntity implements Serializable {
     @CreatedBy
     private String createdBy;
 
+
+    @Column(name = "deleted", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
+    private boolean deleted = false;
+
     @LastModifiedBy
     private String updatedBy;
 
@@ -44,4 +49,16 @@ public abstract class SuperEntity implements Serializable {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
+    public void setDeleted(boolean deleted)
+    {
+        this.deleted = deleted;
+    }
+    public boolean isDeleted()
+    {
+        return deleted;
+    }
+
+
+
+
 }
