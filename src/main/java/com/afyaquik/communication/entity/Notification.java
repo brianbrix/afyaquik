@@ -1,6 +1,7 @@
 package com.afyaquik.communication.entity;
 
 import com.afyaquik.communication.enums.NotificationType;
+import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.utils.SuperEntity;
 import jakarta.persistence.*;
@@ -38,4 +39,8 @@ public class Notification extends SuperEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")
     private User recipient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipient_role_id")
+    private Role recipientRole;
 }

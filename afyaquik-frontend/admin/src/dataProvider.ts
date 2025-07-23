@@ -18,13 +18,21 @@ const resourceUrlMap: { [key: string]: string } = {
     stations: 'stations',
     triageItems:'patient/triage/items',
     generalSettings: 'settings/general',
-    observationItems: 'observations/admin/items'
+    observationItems: 'observation/items',
+    observationItemCategories: 'observation/items/categories',
+    treatmentPlanItems: 'plan/items',
+    drugCategories: 'drugs/categories',
+    drugForms: 'drugs/forms',
+    drugs: 'drugs',
+    drugInventory: 'drugs/inventory',
+    apiPermissions: 'admin/permissions',
+    billingItems: 'billing/items',
+    currencies: 'currencies'
 };
 const dataProvider = {
     ...baseDataProvider,
 
         getList: (resource: string, params: any) => {
-            const endpoint = resourceUrlMap[resource] || resource;
             const url = `${apiUrl}/search`;
 
             const shouldPaginate = params?.pagination !== false;
@@ -53,6 +61,30 @@ const dataProvider = {
             if (params.filter?.createdAt) {
                 requestBody.createdAt = params.filter.createdAt;
             }
+
+            return httpClient(url, {
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+            }).then(({ json }) => {
+                const results = json.results || {};
+                return {
+                    data: results.content || [],
+                    total: results.page?.totalElements || (Array.isArray(results) ? results.length : 0),
+                };
+            });
+        },
+        getMany: (resource: string, params: any) => {
+            const url = `${apiUrl}/search`;
+
+            const requestBody: any = {
+                searchEntity: resource,
+                sort: 'createdAt,DESC',
+                query: params.ids.join(','),
+                searchFields: ['id'],
+                page: 0,
+                operator:'equals',
+                size: params.ids.length || 100
+            };
 
             return httpClient(url, {
                 method: 'POST',

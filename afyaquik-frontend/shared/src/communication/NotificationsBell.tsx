@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Badge, Button } from 'react-bootstrap';
+import { Dropdown, Badge } from 'react-bootstrap';
 import formatDate from "../dateFormatter";
 import {fetchNotifications, markAllAsRead, markAsRead} from "./NotificationService";
 
-const NotificationsBell = ({ userId }: { userId: number }) => {
+const NotificationsBell = ({ userId, userRole }: { userId: number,userRole:string }) => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
-        fetchNotifications(setNotifications,userId);
-    }, []);
+        fetchNotifications(setNotifications,userId, userRole);
+        console.log("Notifications", notifications)
+    }, [userId, userRole]);
 
     return (
         <Dropdown>
@@ -24,11 +25,13 @@ const NotificationsBell = ({ userId }: { userId: number }) => {
                 {notifications.length === 0 ? (
                     <Dropdown.Item disabled>No new notifications</Dropdown.Item>
                 ) : (
-                    notifications.map((n: any) => (
+                    notifications.filter((n: any) => (
+                        n.recipientRole === userRole
+                    )).map((n: any) => (
                         <Dropdown.Item
                             key={n.id}
                             onClick={() => {
-                                markAsRead(n.id, setNotifications, userId)
+                                markAsRead(n.id, setNotifications, userId, userRole)
                                 if (n.targetUrl) window.location.href = n.targetUrl;
                             }}
                             className="text-wrap"
@@ -46,7 +49,7 @@ const NotificationsBell = ({ userId }: { userId: number }) => {
                     <Dropdown.Item
                         className="text-center text-primary"
                         onClick={async () => {
-                           markAllAsRead(setNotifications, userId)
+                           markAllAsRead(setNotifications, userId, userRole)
                         }}
                     >
                         Mark all as read

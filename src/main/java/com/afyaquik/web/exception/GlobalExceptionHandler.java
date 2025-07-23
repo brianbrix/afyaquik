@@ -1,5 +1,6 @@
 package com.afyaquik.web.exception;
 
+import com.afyaquik.utils.exceptions.DrugServiceException;
 import com.afyaquik.utils.exceptions.DuplicateValueException;
 import com.afyaquik.utils.exceptions.LoginException;
 import jakarta.persistence.EntityExistsException;
@@ -68,6 +69,15 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage()
+        );
+        return new  ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DrugServiceException.class)
+    public ResponseEntity<ErrorResponse> handleDrugServiceException(DrugServiceException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Drug service error: " + ex.getMessage()
         );
         return new  ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }

@@ -4,25 +4,31 @@ interface AuthGuardProps {
     children: React.ReactNode;
     requiredRoles?: string[];
 }
-const isAuthenticated = () => {
-    const validToken =  fetch("/api/auth/validate-token",{
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'credentials': 'include',
-        }
-    })
-    validToken.then((res) => {
-        if(res.status === 200){
+
+const isAuthenticated = async (): Promise<boolean> => {
+    try {
+        const response = await fetch("/api/auth/validate-token", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        if (response.status === 200) {
             localStorage.setItem('isLoggedIn', 'true');
-        }
-        else
-            {
+            return true;
+        } else {
             localStorage.clear();
+            return false;
         }
-    })
-    return !!localStorage.getItem('isLoggedIn');
+    } catch (error) {
+        console.error('Authentication check failed:', error);
+        localStorage.clear();
+        return false;
+    }
 };
+
 const userHasAnyRole = (requiredRoles: string[]): boolean => {
     const roles = JSON.parse(localStorage.getItem('userRoles') || '[]');
     return requiredRoles.some(role => roles.includes(role));
@@ -32,19 +38,30 @@ const AuthGuard = ({ children, requiredRoles = [] }: AuthGuardProps) => {
     const [checked, setChecked] = useState(false);
 
     useEffect(() => {
-        const currentPath = window.location.pathname + window.location.search + window.location.hash;
+        const checkAuth = async () => {
+            const currentPath = window.location.pathname + window.location.search + window.location.hash;
 
-        if (!isAuthenticated()) {
-            window.location.href = `/client/auth/index.html#/login?redirect=${encodeURIComponent(currentPath)}`;
-            return;
-        }
+            try {
+                const authenticated = await isAuthenticated();
 
-        if (requiredRoles.length > 0 && !userHasAnyRole(requiredRoles)) {
-            window.location.href = `/client/auth/index.html#/home`;
-            return;
-        }
+                if (!authenticated) {
+                    window.location.href = `/client/auth/index.html#/login?redirect=${encodeURIComponent(currentPath)}`;
+                    return;
+                }
 
-        setChecked(true);
+                if (requiredRoles.length > 0 && !userHasAnyRole(requiredRoles)) {
+                    window.location.href = `/client/auth/index.html#/home`;
+                    return;
+                }
+
+                setChecked(true);
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                window.location.href = `/client/auth/index.html#/login?redirect=${encodeURIComponent(currentPath)}`;
+            }
+        };
+
+        checkAuth();
     }, [requiredRoles]);
 
     if (!checked) {

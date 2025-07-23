@@ -1,11 +1,11 @@
 import {List, Datagrid, TextField, EmailField, EditButton, BooleanField, TextInput, SelectInput} from 'react-admin';
 
-const ItemFilters = [
+const UserFilters = [
     <TextInput label="Search by username" source="username" alwaysOn />,
     <TextInput label="Search by first name" source="firstName" alwaysOn />,
 ];
 const UserList = () => (
-    <List>
+    <List filters={UserFilters}>
         <Datagrid rowClick="edit">
             <TextField source="id" />
             <TextField source="username" />

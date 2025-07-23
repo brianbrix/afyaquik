@@ -1,17 +1,18 @@
 package com.afyaquik.patients.services.impl;
 
-import com.afyaquik.patients.dto.PatientAttendingPlanDto;
+import com.afyaquik.patients.dto.PatientAssignmentDto;
 import com.afyaquik.patients.dto.PatientDto;
 import com.afyaquik.patients.dto.PatientVisitDto;
+import com.afyaquik.patients.entity.PatientAssignment;
 import com.afyaquik.users.service.SecurityService;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.entity.Patient;
-import com.afyaquik.patients.entity.PatientAttendingPlan;
 import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.patients.enums.Gender;
 import com.afyaquik.patients.enums.MaritalStatus;
+import com.afyaquik.utils.mappers.patients.PatientAssignmentsMapper;
 import com.afyaquik.utils.mappers.patients.PatientVisitMapper;
-import com.afyaquik.patients.repository.PatientAttendingPlanRepo;
+import com.afyaquik.patients.repository.PatientAssignmentsRepo;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.patients.repository.PatientVisitRepo;
 import com.afyaquik.patients.services.PatientService;
@@ -36,10 +37,11 @@ public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
     private final PatientVisitRepo patientVisitRepository;
     private final StationRepository stationRepository;
-    private final PatientAttendingPlanRepo  patientAttendingPlanRepo;
+    private final PatientAssignmentsRepo  patientAssignmentsRepo;
     private final UserService userService;
     private final SecurityService securityService;
     private final PatientVisitMapper patientVisitMapper;
+    private final PatientAssignmentsMapper patientAssignmentsMapper;
 
     private static PatientDto buildPatientDto(Patient patient) {
         PatientDto patientDto = PatientDto.builder()
@@ -159,70 +161,56 @@ public class PatientServiceImpl implements PatientService {
 
     @Transactional
     @Override
-    public PatientAttendingPlanDto createPatientAttendingPlan(PatientAttendingPlanDto patientAttendingPlanDto) {
-        PatientVisit  patientVisit = patientVisitRepository.findById(patientAttendingPlanDto.getPatientVisitId())
+    public PatientAssignmentDto createPatientAssignments(PatientAssignmentDto patientAssignmentDto) {
+        PatientVisit  patientVisit = patientVisitRepository.findById(patientAssignmentDto.getPatientVisitId())
             .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
 
-    PatientAttendingPlan  patientAttendingPlan = PatientAttendingPlan.builder()
+    PatientAssignment patientAssignment = PatientAssignment.builder()
             .patientVisit(patientVisit)
             .build();
         String userName = securityService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
-        patientAttendingPlan.setAttendingOfficer(attendingOfficer);
-        Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).
+        patientAssignment.setAttendingOfficer(attendingOfficer);
+        Station nextStation = stationRepository.findByName(patientAssignmentDto.getNextStation()).
                 orElseThrow(()-> new EntityNotFoundException("Station not found"));
-        User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
+        User assignedOfficer = userService.findByUsername(patientAssignmentDto.getAssignedOfficer());
         if (!assignedOfficer.isAvailable())
         {
             throw new IllegalArgumentException("Assigned officer is not available");
         }
-       var plan = patientAttendingPlanRepo.findByAssignedOfficerAndNextStationAndPatientVisit(assignedOfficer,nextStation,patientVisit);
+       var plan = patientAssignmentsRepo.findByAssignedOfficerAndNextStationAndPatientVisit(assignedOfficer,nextStation,patientVisit);
        if (plan.isPresent())
        {
            throw new EntityExistsException("You cannot assign the same station and officer to one patient visit.");
 
        }
-        patientAttendingPlan.setNextStation(nextStation);
-        patientAttendingPlan.setAssignedOfficer(assignedOfficer);
-        patientVisit.getPatientAttendingPlan().add(patientAttendingPlan);
+        patientAssignment.setNextStation(nextStation);
+        patientAssignment.setAssignedOfficer(assignedOfficer);
+        patientVisit.getPatientAssignments().add(patientAssignment);
         patientVisitRepository.save(patientVisit);
 
-        return PatientAttendingPlanDto.builder()
-                .id(patientAttendingPlan.getId())
-                .patientName(patientVisit.getPatient().getPatientName())
-                .nextStation(patientAttendingPlan.getNextStation().getName())
-                .assignedOfficer(patientAttendingPlan.getAssignedOfficer().getUsername())
-                .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
-                .attendingOfficerUserName(patientAttendingPlan.getAttendingOfficer().getUsername())
-                .build();
+        return patientAssignmentsMapper.toDto(patientAssignment);
 
     }
 
     @Transactional
     @Override
-    public PatientAttendingPlanDto updatePatientAttendingPlan(PatientAttendingPlanDto patientAttendingPlanDto) {
-       PatientAttendingPlan  patientAttendingPlan = patientAttendingPlanRepo.findById(patientAttendingPlanDto.getId())
+    public PatientAssignmentDto updatePatientAssignments(PatientAssignmentDto patientAssignmentDto) {
+       PatientAssignment patientAssignment = patientAssignmentsRepo.findById(patientAssignmentDto.getId())
             .orElseThrow(() -> new EntityNotFoundException("Patient attending plan not found"));
-        patientAttendingPlan.setPatientVisit(patientAttendingPlan.getPatientVisit());
+        patientAssignment.setPatientVisit(patientAssignment.getPatientVisit());
 
         String userName = securityService.getCurrentUsername();
         User attendingOfficer = userService.findByUsername(userName);
-        patientAttendingPlan.setAttendingOfficer(attendingOfficer);
-        Station nextStation = stationRepository.findByName(patientAttendingPlanDto.getNextStation()).orElseThrow(()-> new EntityNotFoundException("Station not found"));
-        User assignedOfficer = userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer());
-        patientAttendingPlan.setNextStation(nextStation);
-        patientAttendingPlan.setAssignedOfficer(assignedOfficer);
-        patientAttendingPlan.setAssignedOfficer(userService.findByUsername(patientAttendingPlanDto.getAssignedOfficer()));
+        patientAssignment.setAttendingOfficer(attendingOfficer);
+        Station nextStation = stationRepository.findByName(patientAssignmentDto.getNextStation()).orElseThrow(()-> new EntityNotFoundException("Station not found"));
+        User assignedOfficer = userService.findByUsername(patientAssignmentDto.getAssignedOfficer());
+        patientAssignment.setNextStation(nextStation);
+        patientAssignment.setAssignedOfficer(assignedOfficer);
+        patientAssignment.setAssignedOfficer(userService.findByUsername(patientAssignmentDto.getAssignedOfficer()));
 
-        patientAttendingPlan = patientAttendingPlanRepo.save(patientAttendingPlan);
-        return PatientAttendingPlanDto.builder()
-            .id(patientAttendingPlan.getId())
-                .patientName(patientAttendingPlan.getPatientVisit().getPatient().getPatientName())
-                .nextStation(patientAttendingPlan.getNextStation().getName())
-                .assignedOfficer(patientAttendingPlan.getAssignedOfficer().getUsername())
-            .patientVisitId(patientAttendingPlan.getPatientVisit().getId())
-            .attendingOfficerUserName(patientAttendingPlan.getAttendingOfficer().getUsername())
-            .build();
+        patientAssignment = patientAssignmentsRepo.save(patientAssignment);
+        return patientAssignmentsMapper.toDto(patientAssignment);
     }
 
 

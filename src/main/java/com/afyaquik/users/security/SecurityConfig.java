@@ -3,10 +3,13 @@ package com.afyaquik.users.security;
 
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
+import com.afyaquik.users.service.ApiPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final UsersRepository userRepository;
+    private final ApiPermissionService apiPermissionService;
 
     @Bean
     public AuditorAware<String> auditorProvider() {
@@ -45,11 +49,12 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        var authorizeRequests = http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
+                .authorizeHttpRequests(auth -> {
+                    // Public endpoints that don't require authentication
+                    auth.requestMatchers("/").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/.well-known/**").permitAll()
@@ -58,18 +63,25 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/client/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()
-                        .requestMatchers("/api/search/**").hasAnyRole("RECEPTIONIST","DOCTOR","NURSE","ADMIN","SUPERADMIN")
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN","SUPERADMIN")
-                        .requestMatchers("/api/s_admin/**").hasRole("SUPERADMIN")
-                        .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
-                        .requestMatchers("/api/reception/**").hasRole("RECEPTIONIST")
-                        .requestMatchers("/api/patients/**").hasAnyRole("RECEPTIONIST","DOCTOR","NURSE","ADMIN")
-                        .requestMatchers("/api/cashier/**").hasRole("CASHIER")
-                        .requestMatchers("/api/pharmacy/**").hasRole("PHARMACIST")
-                        .requestMatchers("/api/lab/**").hasRole("LAB_TECHNICIAN")
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/api/test/**").permitAll();
+
+                    // Get all API permissions from the database
+                    var permissions = apiPermissionService.getEnabledPermissions();
+
+                    // Configure role-based access for each API endpoint
+                    for (var permission : permissions) {
+                        var urlPattern = permission.getUrlPattern();
+                        var roles = permission.getRoleNames().stream()
+                                .map(role -> "ROLE_" + role)
+                                .toArray(String[]::new);
+                        if (roles.length > 0) {
+                            auth.requestMatchers(urlPattern).hasAnyAuthority(roles);
+                        }
+                    }
+
+                    // Any other request requires authentication
+                    auth.anyRequest().authenticated();
+                })
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

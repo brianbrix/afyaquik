@@ -4,6 +4,7 @@ import apiRequest from "../api";
 import React, { useEffect, useState } from "react";
 import {Button} from "react-bootstrap";
 import {useToast} from "../ToastContext";
+import {sendNotification} from "../communication/NotificationService";
 interface PatientAssignProps {
     visitId?: number;
 }
@@ -32,7 +33,7 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
         return (  <Button
             variant="outline-info"
             className="btn btn-success mb-4"
-            onClick={() => window.location.href = `index.html#/patients/visits/${visitId}/details`}
+            onClick={() => window.location.href = `index.html#/visits/${visitId}/details`}
         >
             <i className="bi bi-arrow-left me-1"></i> Back to Summary
         </Button>)
@@ -97,10 +98,16 @@ const PatientAssignForm:React.FC<PatientAssignProps>  = ({visitId}) => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log("Submitting data:", data);
-                apiRequest(`/patient/visits/plan/create`, { method: "POST", body: data }, showToast)
+                apiRequest(`/patient/visits/assignments/create`, { method: "POST", body: data })
                     .then((response) => {
                         console.log(response)
-                        window.location.href = `index.html#/patients/visits/${visitId}/details`
+                        sendNotification(
+                            response.assignedOfficerId,'New Patient Alert',
+                            `You have been assigned a new patient by ${response.attendingOfficerUserName}`,
+                            `index.html#/visits/${visitId}/details`,
+                            'VISIT', `${response.nextStation}`
+                        )
+                        window.location.href = `index.html#/visits/${visitId}/details`
                     })
                     .catch((err) => console.error(err));
             }}

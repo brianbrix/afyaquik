@@ -3,6 +3,7 @@ package com.afyaquik.web.api.auth;
 import com.afyaquik.users.dto.LoginRequest;
 import com.afyaquik.users.service.SecurityService;
 import com.afyaquik.users.service.UserService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ import java.util.Map;
 public class AuthController {
     private final SecurityService securityService;
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request) {
-        return new ResponseEntity<>(Map.of("isLoggedIn", true),securityService.login(request.getUsername(), request.getPassword()), HttpStatus.OK);
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+        return new ResponseEntity<>(Map.of("isLoggedIn", true),securityService.login(request.getUsername(), request.getPassword(), httpRequest), HttpStatus.OK);
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {

@@ -1,4 +1,4 @@
-import { List, Datagrid, TextField, EditButton, SelectInput, TextInput } from 'react-admin';
+import {List, Datagrid, TextField, EditButton, SelectInput, TextInput, BooleanField} from 'react-admin';
 
 const itemTypeChoices = [
     { id: 'SYSTEMIC', name: 'Systemic' },
@@ -16,8 +16,9 @@ const ObservationItemList = () => (
         <Datagrid rowClick="edit">
             <TextField source="id" />
             <TextField source="name" />
-            <TextField source="type" />
-            <TextField source="price" />
+            <TextField source="categoryName" />
+            <TextField source="stationName" />
+            <BooleanField source="mandatory" />
             <EditButton />
         </Datagrid>
     </List>

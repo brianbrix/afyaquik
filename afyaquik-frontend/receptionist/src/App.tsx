@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {AppointmentDetailsPage, AppointmentList, AuthGuard, Header, ToastProvider,} from "@afyaquik/shared";
+import {AppointmentDetailsPage, AppointmentList, AuthGuard, Header, ToastProvider, AlertProvider,} from "@afyaquik/shared";
 import {HashRouter, Route, Routes} from "react-router-dom";
 
 import HomePage from "./HomePage";
@@ -19,28 +19,29 @@ import ReceptionAppointmentDetailsPage from "./appointment/ReceptionAppointmentD
 function App() {
   return (
         <ToastProvider>
+          <AlertProvider>
+            <AuthGuard requiredRoles={['RECEPTIONIST']}>
+              <Header homeUrl="/client/receptionist/index.html" userRole={'RECEPTIONIST'} />
+              <div className="container my-4">
+                <Routes>
+                  <Route path="" element={<HomePage />} />
+                  <Route path="/patients" element={<ReceptionPatientList />} />
+                  <Route path="/appointments" element={<AppointmentList />} />
+                  <Route path="/patients/add" element={<PatientRegisterForm />} />
+                  <Route path="/patients/:id/edit" element={<PatientEditForm />} />
+                  <Route path="/patients/:id/details" element={<PatientDetailsPage />} />
+                  <Route path="/patients/:id/visits/add" element={<ReceptionPatientVisitForm />} />
+                  <Route path="/visits/:id/edit" element={<PatientVisitEditForm />} />
+                  <Route path="/visits/:id/details" element={<PatientVisitDetailsPage />} />
+                  <Route path="/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
 
-        <AuthGuard requiredRoles={['RECEPTIONIST']}>
-        <Header homeUrl="/client/receptionist/index.html" />
-        <div className="container my-4">
-        <Routes>
-          <Route path="" element={<HomePage />} />
-          <Route path="/patients" element={<ReceptionPatientList />} />
-          <Route path="/appointments" element={<AppointmentList />} />
-          <Route path="/patients/add" element={<PatientRegisterForm />} />
-          <Route path="/patients/:id/edit" element={<PatientEditForm />} />
-          <Route path="/patients/:id/details" element={<PatientDetailsPage />} />
-          <Route path="/patients/:id/visits/add" element={<ReceptionPatientVisitForm />} />
-          <Route path="/patients/visits/:id/edit" element={<PatientVisitEditForm />} />
-          <Route path="/patients/visits/:id/details" element={<PatientVisitDetailsPage />} />
-          <Route path="/patients/visits/:id/assign" element={<ReceptionPatientAssignForm />} />
-
-          <Route path="/patients/:id/appointments/add" element={<AppointmentCreateForm />} />
-          <Route path="/appointments/:id/edit" element={<AppointmentEditForm />} />
-          <Route path="/appointments/:id/details" element={<ReceptionAppointmentDetailsPage />} />
-        </Routes>
-        </div>
-      </AuthGuard>
+                  <Route path="/patients/:id/appointments/add" element={<AppointmentCreateForm />} />
+                  <Route path="/appointments/:id/edit" element={<AppointmentEditForm />} />
+                  <Route path="/appointments/:id/details" element={<ReceptionAppointmentDetailsPage />} />
+                </Routes>
+              </div>
+            </AuthGuard>
+          </AlertProvider>
         </ToastProvider>
 
 );

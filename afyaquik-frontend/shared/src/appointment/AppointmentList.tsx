@@ -5,7 +5,7 @@ import DataTable from "../DataTable";
 
 
 const columns = [
-    { header: '#', accessor: 'id' },
+
     { header: 'First Name', accessor: 'patient.firstName' },
     { header: 'Last Name', accessor: 'patient.lastName' },
     { header: 'Doctor Name', accessor: 'doctor.username' },
@@ -17,9 +17,10 @@ interface AppointmentListProps{
     patientId?:number;
     data?:any;
     title?:string;
+    query?:string;
 }
 
-const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, title}) => {
+const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, title, query}) => {
     const [appointments, setAppointments] = useState([]);
 
     const searchFields:FieldConfig[] =[
@@ -52,28 +53,13 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, titl
             />
         ):
             (
-        patientId ? (
+
+            query?(
             <DataTable
                 title={title?title:"Appointments List"}
                 columns={columns}
                 data={appointments}
                 editView={"index.html#/appointments/#id/edit"}
-                addView={`index.html#/patients/${patientId}/appointments/add`}
-                detailsView={"index.html#/appointments/#id/details"}
-                searchFields={searchFields}
-                searchEntity={'appointments'}
-                requestMethod={'GET'}
-                isSearchable={true}
-                dateFieldName={'appointmentDateTime'}
-                dataEndpoint={`/appointments/patient/${patientId}`}
-            />
-        ) : (
-            <DataTable
-                title={title?title:"Appointments List"}
-                columns={columns}
-                data={appointments}
-                editView={"index.html#/appointments/#id/edit"}
-                addView={"index.html#/patients"}
                 detailsView={"index.html#/appointments/#id/details"}
                 searchFields={searchFields}
                 searchEntity={'appointments'}
@@ -81,8 +67,29 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, titl
                 isSearchable={true}
                 dateFieldName={'appointmentDateTime'}
                 dataEndpoint={'/search'}
-            />
-        ))
+                combinedSearchFieldsAndTerms={query}
+            />):
+            (
+                <DataTable
+                    title={title?title:"Appointments List"}
+                    columns={columns}
+                    data={appointments}
+                    editView={"index.html#/appointments/#id/edit"}
+                    addView={"index.html#/patients"}
+                    detailsView={"index.html#/appointments/#id/details"}
+                    searchFields={searchFields}
+                    searchEntity={'appointments'}
+                    requestMethod={'POST'}
+                    isSearchable={true}
+                    dateFieldName={'appointmentDateTime'}
+                    dataEndpoint={'/search'}
+        />
+    )
+
+
+
+
+        )
 
     );
 }

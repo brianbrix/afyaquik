@@ -18,5 +18,6 @@ copy_module doctor
 copy_module receptionist
 copy_module reports
 copy_module nurse
+copy_module pharmacy
 
 echo "All modules copied successfully."

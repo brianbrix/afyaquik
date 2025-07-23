@@ -1,8 +1,9 @@
 import {apiRequest} from "@afyaquik/shared";
 
 const data = {
-    roles: undefined,
-    isLoggedIn: false
+    roles: [],
+    isLoggedIn: false,
+    userId: 0
 };
 export const authService = {
 
@@ -16,8 +17,10 @@ export const authService = {
             data.isLoggedIn = true;
             const rolesData = await apiRequest('/users/me');
             data.roles = rolesData.roles;
+            data.userId = rolesData.id;
 
             localStorage.setItem('userRoles', JSON.stringify(data.roles));
+            localStorage.setItem('userId',String(data.userId))
             localStorage.setItem('isLoggedIn', String(true));
         }
         return data;

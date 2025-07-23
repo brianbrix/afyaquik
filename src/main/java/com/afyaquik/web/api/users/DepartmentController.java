@@ -2,6 +2,7 @@ package com.afyaquik.web.api.users;
 
 import com.afyaquik.users.dto.department.DepartmentDto;
 import com.afyaquik.users.service.DepartmentService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

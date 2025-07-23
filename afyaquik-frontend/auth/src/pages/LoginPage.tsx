@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { authService } from '../utils/authService';
+import {sendNotification} from "@afyaquik/shared";
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [roles, setRoles] = useState<string[]>([]);
+    const [selectedRole, setSelectedRole] = useState('');
+
     const getRedirectParam = () => {
         const hash = window.location.hash;
         const queryString = hash.split('?')[1];
@@ -14,6 +18,7 @@ export default function LoginPage() {
         const params = new URLSearchParams(queryString);
         return params.get('redirect');
     };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -21,26 +26,41 @@ export default function LoginPage() {
 
         try {
             const result = await authService.login(username, password);
-            console.log("Result", result);
             setLoading(false);
 
-            if (authService.isLoggedIn()) {
-                const redirect = getRedirectParam();
-                console.log('Redirect:', redirect);
-
-                if (redirect && redirect.startsWith('/client/')) {
-                    window.location.href = redirect;
-                }
-                else {
-                    window.location.href = '/client/auth/index.html#/home';
-                }
+            if (authService.isLoggedIn() && result.roles?.length > 0) {
+                setRoles(result.roles);
             } else {
+                if (authService.isLoggedIn() && result.roles?.length<=0)
+                {
+                    sendNotification(
+                        null,'User issue alert',
+                        `The user ${result.userId} does not have any roles set`,
+                        `/client/admin/index.html`,
+                        'SYSTEM', `SUPERADMIN`
+                    )
+                }
                 setError('Invalid username or password.');
             }
         } catch (err) {
-            console.log("Error", error)
             setLoading(false);
             setError('An unexpected error occurred. Please try again.');
+        }
+    };
+
+    const handleRoleConfirm = () => {
+        if (!selectedRole) {
+            setError('Please select a role to continue.');
+            return;
+        }
+
+        localStorage.setItem('currentRole', selectedRole);
+
+        const redirect = getRedirectParam();
+        if (redirect && redirect.startsWith('/client/')) {
+            window.location.href = redirect;
+        } else {
+            window.location.href = '/client/auth/index.html#/home';
         }
     };
 
@@ -56,30 +76,56 @@ export default function LoginPage() {
                     </div>
                 )}
 
-                <div className="mb-3">
-                    <input
-                        className="form-control"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                        placeholder="Username"
-                        required
-                    />
-                </div>
+                {!roles.length ? (
+                    <>
+                        <div className="mb-3">
+                            <input
+                                className="form-control"
+                                value={username}
+                                onChange={e => setUsername(e.target.value)}
+                                placeholder="Username"
+                                required
+                            />
+                        </div>
 
-                <div className="mb-3">
-                    <input
-                        type="password"
-                        className="form-control"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder="Password"
-                        required
-                    />
-                </div>
+                        <div className="mb-3">
+                            <input
+                                type="password"
+                                className="form-control"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder="Password"
+                                required
+                            />
+                        </div>
 
-                <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-                    {loading ? 'Logging in...' : 'Login'}
-                </button>
+                        <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                            {loading ? 'Logging in...' : 'Login'}
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <div className="mb-3">
+                            <label className="form-label fw-semibold">Select Role</label>
+                            <select
+                                className="form-select"
+                                value={selectedRole}
+                                onChange={e => setSelectedRole(e.target.value)}
+                            >
+                                <option value="">Choose a role</option>
+                                {roles.map(role => (
+                                    <option key={role} value={role}>
+                                        {role}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <button type="button" className="btn btn-success w-100" onClick={handleRoleConfirm}>
+                            Continue
+                        </button>
+                    </>
+                )}
             </form>
         </div>
     );

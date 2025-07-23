@@ -27,6 +27,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
@@ -63,6 +64,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     @Override
     @CacheEvict(value = "searchResults", allEntries = true)
+    @Transactional
     public UserResponse createUser(UserDto request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateValueException("Username already exists");
@@ -213,6 +215,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @CacheEvict(value = "searchResults", allEntries = true)
+    @Transactional
     public UserResponse updateUserDetails(Long userId, UserDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));

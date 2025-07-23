@@ -1,24 +1,27 @@
 package com.afyaquik.utils.dto.search;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
-@Getter
-@Builder
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchDto {
     private String query;
     private String searchEntity;
-    private List<String> searchFields= new ArrayList<>();
-    private int page=0;
-    private int size=10;
+    private String operator="like";
+    @Builder.Default
+    private List<String> searchFields = new ArrayList<>();
+    @Builder.Default
+    private int page = 0;
+    @Builder.Default
+    private int size = 10;
     private String dateFilter;
     private String sort;
-
 }

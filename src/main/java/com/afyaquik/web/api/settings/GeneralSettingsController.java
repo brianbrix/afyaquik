@@ -2,6 +2,7 @@ package com.afyaquik.web.api.settings;
 
 import com.afyaquik.utils.otherservices.GeneralSettingsService;
 import com.afyaquik.dtos.settings.GeneralSettingsDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -53,7 +53,7 @@ return (
                       apiRequest(`/patients/${id}/visits/create`, { method:'POST' , body: data})
                           .then(response => {
                               console.log(response)
-                              window.location.href = `index.html#/patients/visits/${response.id}/assign`;
+                              window.location.href = `index.html#/visits/${response.id}/assign`;
                           })
                           .catch(err => console.error(err));
                   }}

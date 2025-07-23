@@ -5,6 +5,7 @@ import com.afyaquik.patients.dto.PatientVisitDto;
 import com.afyaquik.utils.dto.search.ListFetchDto;
 import com.afyaquik.patients.services.PatientService;
 import com.afyaquik.patients.services.PatientVisitService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

@@ -4,11 +4,11 @@ const UserEdit = () => (
     <Edit>
         <SimpleForm>
             <TextInput source="id" disabled />
-            <TextInput source="username" />
-            <TextInput source="firstName" />
-            <TextInput source="secondName" />
-            <TextInput source="lastName" />
-            <TextInput source="email" />
+            <TextInput source="username" required={true} />
+            <TextInput source="firstName" required={true} />
+            <TextInput source="secondName" required={true} />
+            <TextInput source="lastName" required={true} />
+            <TextInput source="email" required={true} />
             <BooleanInput source="available" />
             <ReferenceArrayInput source="roles" reference="roles">
                 <CheckboxGroupInput optionText="name" optionValue="name" />

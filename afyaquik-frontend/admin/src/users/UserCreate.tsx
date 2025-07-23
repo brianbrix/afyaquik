@@ -5,7 +5,7 @@ const UserCreate = () => (
         <SimpleForm>
             <TextInput source="username" />
             <TextInput source="firstName" required={true} />
-            <TextInput source="secondName" />
+            <TextInput source="secondName" required={true} />
             <TextInput source="lastName" required={true} />
             <ReferenceArrayInput source="roles" reference="roles">
                 <CheckboxGroupInput optionText="name" optionValue="name" />

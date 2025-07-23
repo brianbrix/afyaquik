@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import {FieldConfig, StepConfig} from "./StepConfig";
+import {FieldConfig, multiSelectorWysiwygConfig, StepConfig} from "./StepConfig";
 import DraftEditor from "./DraftEditor";
 import {Button, Col, Row} from "react-bootstrap";
 import {useParams} from "react-router-dom";
@@ -13,24 +13,48 @@ interface StepFormProps {
     idFromParent?: number;
     submitButtonLabel?: string;
     bottomComponents?: React.ReactNode[];
+    formMethodsRef?: React.RefObject<any>;
 
 }
 
-const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents }) => {
-    const { control, handleSubmit, formState: { errors }, reset } = useForm({ defaultValues });
+const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues, idFromParent, submitButtonLabel, bottomComponents, formMethodsRef }) => {
+    const methods = useForm({ defaultValues });
+
+    // const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = useForm({ defaultValues });
+    const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = methods;
+
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
+    const [selectedItem, setSelectedItem] = useState<string>('');
+    const [entryList, setEntryList] = useState<{ item: string; content: string, label?:string }[]>([]);
+    const [wysiwygContent, setWysiwygContent] = useState<string>('');
     useEffect(() => {
         if (defaultValues) {
             reset(defaultValues);
         }
     }, [defaultValues, reset]);
+
+    useEffect(() => {
+        if (formMethodsRef) {
+            formMethodsRef.current = methods;
+        }
+    }, [formMethodsRef, methods]);
+
     const nextStep = () => setStep(step + 1);
     const prevStep = () => setStep(step - 1);
 
     const isLastStep = step === config.length - 1;
     const currentStep = config[step];
 
+    useEffect(() => {
+        currentStep.fields.forEach((field) => {
+            if (field.type === 'wysiwyg') {
+                register(field.name, {
+                    required: field.required ? `${field.label} is required` : false,
+                });
+            }
+        });
+    }, [currentStep, register]);
     const renderField = (field: FieldConfig) => {
         return (
             <div key={field.name} className="mb-3">
@@ -74,7 +98,15 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                         }
                         else if (field.type === 'wysiwyg')
                         {
-                            return <DraftEditor disabled={field.disabled} hidden={field.hidden} value={controllerField.value || ''} onChange={controllerField.onChange} />
+                            return <DraftEditor
+                                disabled={field.disabled}
+                                hidden={field.hidden}
+                                value={getValues(field.name) || ''}
+                                onChange={(value) => {
+                                    setValue(field.name, value, { shouldValidate: true });
+                                    field.onChange?.(value);
+                                }}
+                            />
                         }
                         else if (field.type === 'datetime') {
                             // Handle datetime-local input
@@ -100,9 +132,20 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                 />
                             );
                         }
+                        else if (field.type==='number' && field.step)
+                            {
+                                return (
+                                    <input defaultValue={field.defaultValue} hidden={field.hidden} disabled={field.disabled}
+                                           {...controllerField}
+                                           type={field.type}
+                                           step={field.step}
+                                           className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
+                                    />
+                                );
+                            }
                         else {
                             return (
-                                <input hidden={field.hidden} disabled={field.disabled}
+                                <input hidden={field.hidden} defaultValue={field.defaultValue} disabled={field.disabled}
                                        {...controllerField}
                                        type={field.type}
                                        className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
@@ -122,8 +165,19 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
     const submitStep = handleSubmit(async (data) => {
         const stepData = { ...formData, ...data };
         const current = config[step];
-        console.log('id', idFromParent)
+        console.log('Parent ID', idFromParent)
         console.log('Type of', typeof idFromParent)
+
+        current.multiSelectorWysiwygConfigs?.forEach(conf => {
+            if (conf.configName) {
+                const entryListKey = conf.configName;
+                const entryListValue = entryList.map(entry => ({
+                    [conf.selectedItemName]: entry.item,
+                    [conf.inputValueName || 'content']: entry.content
+                }));
+                stepData[entryListKey] = entryListValue;
+            }
+        });
 
 
         try {
@@ -173,6 +227,64 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                 </div>
                             ))}
                         </div>
+                        {
+                            currentStep.multiSelectorWysiwygConfigs && currentStep.multiSelectorWysiwygConfigs.length > 0 && (
+                                <Row className="mt-4 g-3">
+                                    {currentStep.multiSelectorWysiwygConfigs.map((conf:multiSelectorWysiwygConfig, idx:number) => (
+                                        <Col key={`wysiwyg-${idx}`} md={12}>
+                                            <label className="form-label fw-semibold">{conf.title}</label>
+                                            <div className="d-flex align-items-center mb-2">
+                                                <select
+                                                    className="form-select me-2"
+                                                    value={selectedItem}
+                                                    onChange={(e) => setSelectedItem(e.target.value)}
+                                                >
+                                                    <option value="">{conf.selectLabel|| 'Select Item'}</option>
+                                                    {conf.items.map((item:{name:string,value:any}) => (
+                                                        <option key={conf.selectedItemName} value={item.value}>
+                                                            {item.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+
+                                            </div>
+                                            <DraftEditor
+                                                value={wysiwygContent}
+                                                onChange={setWysiwygContent}
+                                            />
+                                            <Button
+                                                className="mt-2"
+                                                onClick={() => {
+                                                    console.log("Items", conf.items)
+                                                    if (!selectedItem || !wysiwygContent.trim()) return;
+                                                    if (selectedItem) {
+                                                        const content = wysiwygContent || '';
+                                                        setEntryList([...entryList, { item: selectedItem, content: content, label:conf.items.find(x=>x.value==selectedItem)?.name }]);
+                                                        setSelectedItem('');
+                                                        setWysiwygContent('');
+                                                    }
+                                                }}
+                                            >
+                                                {conf.addButtonLabel || 'Add'}
+                                            </Button>
+                                            {entryList.length > 0 && (
+                                                <div className="mt-4">
+                                                    <h6>Items Added:</h6>
+                                                    <ul className="list-group">
+                                                        {entryList.map((entry, index) => (
+                                                            <li className="list-group-item" key={index}>
+                                                                <strong>{entry.label}</strong>
+                                                                <div dangerouslySetInnerHTML={{ __html: entry.content }} />
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </Col>
+                                    ))}
+                                </Row>
+                            )
+                        }
                         {bottomComponents && bottomComponents.length > 0 && (
                             <Row className="mt-4 g-3">
                                 {bottomComponents.map((component, idx) => (
@@ -206,7 +318,7 @@ const StepForm: React.FC<StepFormProps> = ({ config, onSubmit, defaultValues, id
                                         </>
                                     ) : (
                                         <>
-                                            Continue <i className="bi bi-arrow-right ms-1"></i>
+                                            {`${currentStep.stepButtonLabel}` || 'Continue'}<i className="bi bi-arrow-right ms-1"></i>
                                         </>
                                     )}
                                 </button>

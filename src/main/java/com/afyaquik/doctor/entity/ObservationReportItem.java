@@ -23,7 +23,7 @@ public class ObservationReportItem extends SuperEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "observation_item_id")
     private ObservationItem item;
-    @Column(length = 10000, columnDefinition = "TEXT")
+    @Column(length = 20000, columnDefinition = "TEXT")
     private String value;
     @Column(length = 3000, columnDefinition = "TEXT")
     private String comment;

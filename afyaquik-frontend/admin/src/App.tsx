@@ -22,16 +22,52 @@ import authProvider from "./authProvider";
 import ObservationItemList from "./doctor/observation_item/ObservationItemList";
 import ObservationItemEdit from "./doctor/observation_item/ObservationItemEdit";
 import ObservationItemCreate from "./doctor/observation_item/ObservationItemCreate";
+import ObservationItemCategoryList from "./doctor/observation_item_category/ObservationItemCategoryList";
+import ObservationItemCategoryEdit from "./doctor/observation_item_category/ObservationItemCategoryEdit";
+import ObservationItemCategoryCreate from "./doctor/observation_item_category/ObservationItemCategoryCreate";
+import TreatmentPlanItemList from "./doctor/treatment_plan_item/TreatmentPlanItemList";
+import TreatmentPlanItemCreate from "./doctor/treatment_plan_item/TreatmentPlanItemCreate";
+import TreatmentPlanItemEdit from "./doctor/treatment_plan_item/TreatmentPlanItemEdit";
+import DrugCategoryList from "./pharmacy/drug_categories/DrugCategoryList";
+import DrugCategoryCreate from "./pharmacy/drug_categories/DrugCategoryCreate";
+import DrugCategoryEdit from "./pharmacy/drug_categories/DrugCategoryEdit";
+import DrugList from "./pharmacy/drugs/DrugList";
+import DrugCreate from "./pharmacy/drugs/DrugCreate";
+import DrugEdit from "./pharmacy/drugs/DrugEdit";
+import DrugInventoryEdit from "./pharmacy/drug_inventory/DrugInventoryEdit";
+import DrugInventoryList from "./pharmacy/drug_inventory/DrugInventoryList";
+import DrugInventoryCreate from "./pharmacy/drug_inventory/DrugInventoryCreate";
+import DrugFormList from "./pharmacy/drug_forms/DrugFormList";
+import DrugFormCreate from "./pharmacy/drug_forms/DrugFromCreate";
+import DrugFormEdit from "./pharmacy/drug_forms/DrugFormEdit";
+import PermissionList from "./permissions/PermissionList";
+import PermissionEdit from "./permissions/PermissionEdit";
+import PermissionCreate from "./permissions/PermissionCreate";
+import BillingItemList from "./billing/items/BillingItemList";
+import BillingItemCreate from "./billing/items/BillingItemCreate";
+import BillingItemEdit from "./billing/items/BillingItemEdit";
+import CurrencyList from "./billing/currencies/CurrencyList";
+import CurrencyCreate from "./billing/currencies/CurrencyCreate";
+import CurrencyEdit from "./billing/currencies/CurrencyEdit";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
     <Admin dataProvider={dataProvider} authProvider={authProvider}>
       <Resource name="users" list={UserList} edit={UserEdit} create={UserCreate} />
       <Resource name="roles" list={RoleList} edit={RoleEdit} create={RoleCreate} />
+      <Resource name="apiPermissions" list={PermissionList} create={PermissionCreate} edit={PermissionEdit} />
       <Resource name="stations" list={StationList} edit={StationEdit} create={StationCreate} />
       <Resource name="generalSettings" list={SettingsList} edit={SettingsEdit} create={SettingsCreate} />
       <Resource name="triageItems" list={TriageItemList} edit={TriageItemEdit} create={TriageItemCreate} />
         <Resource name="observationItems" list={ObservationItemList} edit={ObservationItemEdit} create={ObservationItemCreate} />
+        <Resource name="observationItemCategories" list={ObservationItemCategoryList} edit={ObservationItemCategoryEdit} create={ObservationItemCategoryCreate} />
+        <Resource name="treatmentPlanItems" list={TreatmentPlanItemList} create={TreatmentPlanItemCreate} edit={TreatmentPlanItemEdit} />
+        <Resource name="drugCategories" list={DrugCategoryList} create={DrugCategoryCreate} edit={DrugCategoryEdit} />
+        <Resource name="drugs" list={DrugList} create={DrugCreate} edit={DrugEdit} />
+        <Resource name="drugInventory" list={DrugInventoryList} create={DrugInventoryCreate} edit={DrugInventoryEdit} />
+        <Resource name="drugForms" list={DrugFormList} create={DrugFormCreate} edit={DrugFormEdit} />
+        <Resource name="billingItems" list={BillingItemList} create={BillingItemCreate} edit={BillingItemEdit} />
+        <Resource name="currencies" list={CurrencyList} create={CurrencyCreate} edit={CurrencyEdit} />
     </Admin>
     </AuthGuard>
 );

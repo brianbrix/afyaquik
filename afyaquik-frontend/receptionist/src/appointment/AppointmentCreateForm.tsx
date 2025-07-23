@@ -95,14 +95,14 @@ const AppointmentCreateForm = () => {
             config={formConfig}
             onSubmit={(data) => {
                 console.log('Submitted data:', data);
-                apiRequest(`/appointments`, {method: 'POST', body: data}, showToast)
+                apiRequest(`/appointments`, {method: 'POST', body: data})
                     .then(response => {
                         sendNotification(
                             data.doctorId,
                             "New Appointment",
-                            `You have a new appointment with ${data.patientId} on ${data.appointmentDateTime}.`,
+                            `You have a new appointment with ${data.patient.firstName} on ${data.appointmentDateTime}.`,
                             `index.html#/appointments/${response.id}/details`,
-                            'APPOINTMENT'
+                            'APPOINTMENT','DOCTOR'
                         );
                         window.location.href = `index.html#/appointments/${response.id}/details`;
 

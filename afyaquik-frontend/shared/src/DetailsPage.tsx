@@ -9,12 +9,13 @@ interface DetailsPageProps {
     title?: string;
     otherComponentsToRender?: { title: string; content: React.ReactNode }[]; // Changed structure
     topComponents?: React.ReactNode[];
+    activeTab?: string;
 }
 
-const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, otherComponentsToRender, topComponents }) => {
+const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, otherComponentsToRender, topComponents, activeTab }) => {
     const [record, setRecord] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<string | null>(null);
+    const [initialActiveTab, setInitialActiveTab] = useState<string | null>(null);
 
     useEffect(() => {
         apiRequest(endpoint)
@@ -32,10 +33,12 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
     }, [endpoint]);
 
     useEffect(() => {
-        if (otherComponentsToRender?.length) {
-            setActiveTab(otherComponentsToRender[0].title);
+        if (activeTab && otherComponentsToRender?.some(comp => comp.title === activeTab)) {
+            setInitialActiveTab(activeTab);
+        } else if (otherComponentsToRender?.length) {
+            setInitialActiveTab(otherComponentsToRender[0].title);
         }
-    }, [otherComponentsToRender]);
+    }, [otherComponentsToRender, activeTab]);
 
     if (loading) return <div className="text-center py-5"><Spinner animation="border" /></div>;
     if (!record) return <div className="text-danger text-center py-5">Record not found.</div>;
@@ -43,13 +46,15 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
     return (
         <div className="container py-5">
             {topComponents && topComponents.length > 0 && (
-                <Row className="g-3">
-                    {topComponents.map((component, idx) => (
-                        <Col key={idx} md={12}>
-                            {component}
-                        </Col>
-                    ))}
-                </Row>
+                <div className="mb-4">
+                    <div className="d-flex flex-wrap gap-2 justify-content-start align-items-center">
+                        {topComponents.map((component, idx) => (
+                            <div key={idx}>
+                                {component}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
 
             <Card className="shadow-sm">
@@ -86,8 +91,8 @@ const DetailsPage: React.FC<DetailsPageProps> = ({ fields, endpoint, title, othe
                 <Card className="mt-4 shadow-sm">
                     <Card.Body>
                         <Tabs
-                            activeKey={activeTab || ''}
-                            onSelect={(k) => setActiveTab(k)}
+                            activeKey={initialActiveTab || ''}
+                            onSelect={(k) => setInitialActiveTab(k)}
                             className="mb-3"
                             id="details-page-tabs"
                         >

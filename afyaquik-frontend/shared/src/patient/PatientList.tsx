@@ -8,7 +8,7 @@ import {useToast} from "../ToastContext";
 
 
 const columns = [
-    { header: '#', accessor: 'id' },
+
     { header: 'First Name', accessor: 'firstName' },
     { header: 'Last Name', accessor: 'lastName' },
     { header: 'When Registered', accessor: 'createdAt' , type:'datetime'},

@@ -7,6 +7,7 @@ export interface AfyaQuikModule {
     description: string;
     icon: string;
     requiredRoles: string[];
+    currentRole?: string;
 }
 
 
@@ -15,9 +16,9 @@ const hasRole = (roles: string[]): boolean => {
     if (!isLoggedIn) {
         return true;
     }
-    const userRoles = JSON.parse(localStorage.getItem('userRoles') || '[]');
-    console.log("ROles", roles, userRoles)
-    return roles.some(role => userRoles.includes(role));
+    const currentRole = localStorage.getItem('currentRole');
+    console.log("Current Roles", roles, currentRole)
+    return roles.includes(currentRole as string)
 };
 
 interface BaseHomePageProps {

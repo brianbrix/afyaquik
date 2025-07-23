@@ -1,13 +1,14 @@
 import apiRequest from "../api";
 
 export type NotificationType = 'APPOINTMENT' | 'SYSTEM' | 'VISIT';
-export const sendNotification= async (recipientId:number, title:string, message:string, targetUrl:string, type:NotificationType)=>{
+export const sendNotification= async (recipientId:any, title:string, message:string, targetUrl:string, type:NotificationType, recipientRole:string)=>{
     const requestBody = {
         recipientId: recipientId,
         title: title,
         message: message,
         targetUrl: targetUrl,
-        type: type
+        type: type,
+        recipientRole: recipientRole
     }
     console.log('Sending notification', requestBody)
     const response = await apiRequest(`/notifications/send`, { method: 'POST', body: requestBody });
@@ -16,17 +17,17 @@ export const sendNotification= async (recipientId:number, title:string, message:
 
 }
 
-export  const fetchNotifications = async (setNotifications:any, userId:number) => {
-    const data = await apiRequest(`/notifications/unread/${userId}`);
+export  const fetchNotifications = async (setNotifications:any, userId:number, roleName:string) => {
+    const data = await apiRequest(`/notifications/unread/${userId}?roleName=${roleName}`);
     setNotifications(data);
 };
 
-export   const markAsRead = async (id: number,setNotifications:any, userId:number) => {
-    await apiRequest(`/notifications/mark-read/${id}`, { method: 'POST' });
-    fetchNotifications(setNotifications, userId);
+export   const markAsRead = async (id: number,setNotifications:any, userId:number, roleName:string) => {
+    await apiRequest(`/notifications/mark-read/${id}`, { method: 'PUT' });
+    fetchNotifications(setNotifications, userId, roleName);
 };
 
-export const markAllAsRead = async (setNotifications:any, userId:number) => {
-    await apiRequest(`/notifications/mark-all-read/${userId}`, { method: 'POST' });
-    fetchNotifications(setNotifications, userId);
+export const markAllAsRead = async (setNotifications:any, userId:number, roleName:string) => {
+    await apiRequest(`/notifications/mark-all-read/${userId}?roleName=${roleName}`, { method: 'PUT' });
+    fetchNotifications(setNotifications, userId,roleName);
 };

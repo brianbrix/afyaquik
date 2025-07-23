@@ -9,11 +9,12 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class SuperEntity {
+public abstract class SuperEntity implements Serializable {
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -24,6 +25,11 @@ public abstract class SuperEntity {
 
     @CreatedBy
     private String createdBy;
+
+
+    @Column(name = "deleted", nullable = false)
+    @org.hibernate.annotations.ColumnDefault("false")
+    private boolean deleted = false;
 
     @LastModifiedBy
     private String updatedBy;
@@ -43,4 +49,16 @@ public abstract class SuperEntity {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
+    public void setDeleted(boolean deleted)
+    {
+        this.deleted = deleted;
+    }
+    public boolean isDeleted()
+    {
+        return deleted;
+    }
+
+
+
+
 }

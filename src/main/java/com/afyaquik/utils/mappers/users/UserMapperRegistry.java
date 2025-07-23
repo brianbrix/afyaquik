@@ -7,12 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapperRegistry {
     @Autowired
-    UserMapperRegistry(RoleMapper roleMapper, UserMapper userMapper, StationMapper stationMapper, MapperRegistry mapperRegistry)
+    UserMapperRegistry(RoleMapper roleMapper, UserMapper userMapper, StationMapper stationMapper, ApiPermissionMapper apiPermissionMapper, MapperRegistry mapperRegistry)
     {
         {
             mapperRegistry.registerMapper("stations", stationMapper);
             mapperRegistry.registerMapper("users", userMapper);
             mapperRegistry.registerMapper("roles", roleMapper);
+            mapperRegistry.registerMapper("apiPermissions", apiPermissionMapper);
         }
     }
 }

@@ -1,9 +1,12 @@
 package com.afyaquik.users.security;
 
+import com.afyaquik.users.dto.security.ApiPermissionDto;
 import com.afyaquik.users.entity.Role;
 import com.afyaquik.users.entity.User;
+import com.afyaquik.users.repository.ApiPermissionRepository;
 import com.afyaquik.users.repository.RolesRepository;
 import com.afyaquik.users.repository.UsersRepository;
+import com.afyaquik.users.service.ApiPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +18,9 @@ public class DataInitializer implements CommandLineRunner {
 
     private final RolesRepository roleRepository;
     private final UsersRepository userRepository;
+    private final ApiPermissionRepository apiPermissionRepository;
     private final PasswordEncoder passwordEncoder; // BCrypt
+    private final ApiPermissionService apiPermissionService;
 
     @Override
     public void run(String... args) {
