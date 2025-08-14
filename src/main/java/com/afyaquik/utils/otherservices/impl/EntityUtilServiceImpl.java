@@ -38,7 +38,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
 
 
     @Override
-    @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort")
+    @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort+ '-' + #searchDto.dateFilter")
     public SearchResponseDto search(SearchDto searchDto) {
         String entityKey = searchDto.getSearchEntity();
         if (entityKey == null) throw new IllegalArgumentException("Search entity not specified");
@@ -198,7 +198,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
             for (String term : searchTerms) {
                 term = term.trim();
                 List<Predicate> fieldPredicates = new ArrayList<>();
-                if (!term.contains("=") &&  dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
+                if (!term.contains("=")) {
                     term= term.toLowerCase(Locale.ROOT);
                     for (String field : dto.getSearchFields()) {
                         try {
@@ -248,27 +248,55 @@ public class EntityUtilServiceImpl implements EntityUtilService {
                         Path<?> path = resolveJoinPath(root, field, entityClass);
                         Class<?> type = path.getJavaType();
 
-                        if (type.equals(String.class)) {
-                            extraTermPredicates.add(cb.equal(cb.lower(path.as(String.class)), value.toLowerCase(Locale.ROOT)));
-                        } else if (type.equals(LocalDateTime.class)) {
-                            LocalDateTime parsed = parseDate(value);
-                            if (parsed != null)
-                                extraTermPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
-                        }
-                       else if (type.equals(Long.class)) {
-                                extraTermPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(value)));
+                        // Check if the value contains || for OR operation
+                        if (value.contains("||")) {
+                            String[] orValues = value.split("\\|\\|");
+                            List<Predicate> orPredicates = new ArrayList<>();
+
+                            for (String orValue : orValues) {
+                                orValue = orValue.trim();
+                                if (type.equals(String.class)) {
+                                    orPredicates.add(cb.equal(cb.lower(path.as(String.class)), orValue.toLowerCase(Locale.ROOT)));
+                                } else if (type.equals(LocalDateTime.class)) {
+                                    LocalDateTime parsed = parseDate(orValue);
+                                    if (parsed != null) {
+                                        orPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                                    }
+                                } else if (type.equals(Long.class)) {
+                                    orPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(orValue)));
+                                } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+                                    orPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(orValue)));
+                                } else {
+                                    orPredicates.add(cb.equal(path.as(String.class), orValue));
+                                }
                             }
-                        else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
-                            extraTermPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(value)));
-                        }
-                         else {
-                            extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
+
+                            if (!orPredicates.isEmpty()) {
+                                extraTermPredicates.add(cb.or(orPredicates.toArray(new Predicate[0])));
+                            }
+                        } else {
+                            // logic for single value
+                            if (type.equals(String.class)) {
+                                extraTermPredicates.add(cb.equal(cb.lower(path.as(String.class)), value.toLowerCase(Locale.ROOT)));
+                            } else if (type.equals(LocalDateTime.class)) {
+                                LocalDateTime parsed = parseDate(value);
+                                if (parsed != null)
+                                    extraTermPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                            } else if (type.equals(Long.class)) {
+                                extraTermPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(value)));
+                            } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+                                extraTermPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(value)));
+                            } else {
+                                extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
+                            }
                         }
                     } catch (IllegalArgumentException e) {
                         log.warn("Invalid search term: {}", term);
                     }
                     if (!extraTermPredicates.isEmpty()) {
-                        termPredicates.add(cb.and(extraTermPredicates.toArray(new Predicate[0])));
+                            // If we have multiple conditions, combine them with AND
+                            termPredicates.add(cb.and(extraTermPredicates.toArray(new Predicate[0])));
+
                     }
 
                 }

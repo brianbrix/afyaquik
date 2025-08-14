@@ -205,6 +205,10 @@ function DataTable<T extends { id: number }>({
         setIsSearching(true);
         if (!showDeletedRecords)
         {
+            if (searchTerm.length > 0)
+            {
+                searchTerm+=',';
+            }
             searchTerm+='deleted=false'
         }
         try {
@@ -268,17 +272,15 @@ function DataTable<T extends { id: number }>({
             setIsSearching(false);
         }
     };
-    if (dataEndpoint) {
-        useEffect(() => {
-            if (searchTerm.length >= 3 || searchTerm.length === 0) {
-                let sortParam = sortField ? `${sortField},${sortDirection}` : 'createdAt,desc';
-                if (dateFieldName)
-                    sortParam = `${dateFieldName},desc`;
-                fetchData(currentPage, pageSize, sortParam);
+    useEffect(() => {
+        if (dataEndpoint && (searchTerm.length >= 3 || searchTerm.length === 0)) {
+            let sortParam = sortField ? `${sortField},${sortDirection}` : 'createdAt,desc';
+            if (dateFieldName && !sortField) {
+                sortParam = `${dateFieldName},desc`;
             }
-
-        }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateFieldValue]);
-    }
+            fetchData(currentPage, pageSize, sortParam);
+        }
+    }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateFieldValue]);
 
     const handleSort = (field: string) => {
         if (sortField === field) {
@@ -448,14 +450,15 @@ function DataTable<T extends { id: number }>({
                         <th
                             key={col.accessor}
                             className="py-3 ps-4"
-                            style={{ cursor: col.sortable !== false ? 'pointer' : 'default' }}
-                            onClick={() => col.sortable !== false && handleSort(col.accessor)}
+                            style={{ cursor: (col.sortable === true || col.sortable === undefined) ? 'pointer' : 'default' }}
+                            onClick={() => (col.sortable === true || col.sortable === undefined) && handleSort(col.accessor)}
                         >
                             {col.header}
                             {sortField === col.accessor && (
-                                sortDirection === 'asc' ? ' 🔼' : ' 🔽'
+                                isSearching ? ' ⏳' : (sortDirection === 'asc' ? ' 🔼' : ' 🔽')
                             )}
                         </th>
+
                     ))}
                     {(editView || detailsView || (!showSelectionMode && (detailsButtonAction || editButtonAction))) && <th>Actions</th>}
                 </tr>
