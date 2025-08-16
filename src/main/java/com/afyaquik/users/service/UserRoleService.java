@@ -10,6 +10,7 @@ public interface UserRoleService {
     RoleResponse updateRole(Long id, RoleRequest roleRequest);
     void deleteRole(Long id);
     List<RoleResponse> getAllRoles();
+    RoleResponse getRoleByName(String name);
 
     RoleResponse getRole(Long id);
 }

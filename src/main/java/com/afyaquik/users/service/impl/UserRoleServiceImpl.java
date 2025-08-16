@@ -3,6 +3,7 @@ package com.afyaquik.users.service.impl;
 import com.afyaquik.users.dto.RoleRequest;
 import com.afyaquik.users.dto.RoleResponse;
 import com.afyaquik.users.entity.Role;
+import com.afyaquik.users.entity.Station;
 import com.afyaquik.users.repository.RolesRepository;
 import com.afyaquik.users.service.UserRoleService;
 import jakarta.persistence.EntityNotFoundException;
@@ -51,6 +52,12 @@ public class UserRoleServiceImpl implements UserRoleService {
     @Override
     public List<RoleResponse> getAllRoles() {
         return rolesRepository.findAll().stream().map(role -> RoleResponse.builder().id(role.getId()).name(role.getName()).build()).toList();
+    }
+
+    @Override
+    public RoleResponse getRoleByName(String name) {
+        Role role = rolesRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Role not found"));
+        return  RoleResponse.builder().id(role.getId()).name(role.getName()).stations(role.getStations().stream().map(Station::getName).toList()).build();
     }
 
     @Override

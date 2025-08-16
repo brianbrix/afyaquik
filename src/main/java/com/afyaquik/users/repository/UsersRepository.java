@@ -26,6 +26,8 @@ public interface UsersRepository extends CrudRepository<User, Long> {
 
     List<User> findByRolesIn(Collection<Role> roles);
     Set<User> findByStationsIn(Collection<Station> stations);
+    Set<User> findByStationsContaining(Station station);
+    
     @Query("SELECT u FROM User u")
     Page<User> getAllUsersPaginated(Pageable pageable);
 }

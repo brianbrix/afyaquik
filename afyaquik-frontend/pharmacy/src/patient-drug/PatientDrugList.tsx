@@ -1,6 +1,5 @@
 import {useEffect, useRef, useState} from "react";
 import {apiRequest, DataTable, DataTableRef, useAlert, useToast} from "@afyaquik/shared";
-import { Button } from "react-bootstrap";
 
 const columns = [
 
@@ -125,7 +124,7 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 detailsTitle={'Dispense Drug'}
                 detailsButtonEnabled={(drug: PatientDrug) => !drug.dispensed}
                 searchEntity="patientDrugs"
-                combinedSearchFieldsAndTerms={`patientVisit.id=${visitId},deleted=false`}
+                combinedSearchFieldsAndTerms={`patientVisit.id=${visitId}`}
                 dataEndpoint={`/search`}
                 preventDeleteMultipleAction={deleteMultipleErrorAction}
                 data={data}
