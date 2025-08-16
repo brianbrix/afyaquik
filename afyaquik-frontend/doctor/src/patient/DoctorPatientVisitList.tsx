@@ -6,7 +6,7 @@ interface AuthResponse {
 }
 
 const columns = [
-    
+
     { header: 'Patient Name', accessor: 'patientName' },
     { header: 'Visit Type', accessor: 'visitType' },
     { header: 'Date of Visit', accessor: 'visitDate', type: 'datetime' }
@@ -64,7 +64,7 @@ const DoctorPatientVisitList = () => {
             data={patientVisits}
             // editView="index.html#/visits/#id/edit"
             detailsView="index.html#/visits/#id/details"
-            combinedSearchFieldsAndTerms={`patientAssignments.assignedOfficer.id=${assignedDoctorId}`}
+            combinedSearchFieldsAndTerms={`patientAssignments.nextStation.name=${localStorage.getItem('formattedStations')},patientAssignments.assignedOfficer.id=${assignedDoctorId}`}
             searchFields={searchFields}
             searchEntity="visits"
             dateFieldName={"patientAssignments.updatedAt"}

@@ -18,11 +18,11 @@ public class Role extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false, unique = true)
     private String name;
-    
-    @ManyToMany(mappedBy = "allowedRoles")
+
+    @ManyToMany(mappedBy = "allowedRoles", fetch =  FetchType.LAZY)
     @Builder.Default
     private Set<Station> stations = new HashSet<>();
 }

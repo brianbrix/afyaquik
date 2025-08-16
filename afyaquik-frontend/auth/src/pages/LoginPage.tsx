@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../utils/authService';
-import {sendNotification} from "@afyaquik/shared";
+import {apiRequest, sendNotification} from "@afyaquik/shared";
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -53,6 +53,13 @@ export default function LoginPage() {
             setError('Please select a role to continue.');
             return;
         }
+        apiRequest(`/roles/byName/${selectedRole}`,{method:'GET'})
+            .then(response=>
+                {
+                    localStorage.setItem('allowedStations', response.stations)
+                    localStorage.setItem('formattedStations', response.stations.join('||'))
+                }
+            )
 
         localStorage.setItem('currentRole', selectedRole);
 
