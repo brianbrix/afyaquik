@@ -64,7 +64,7 @@ const DoctorPatientVisitList = () => {
             data={patientVisits}
             // editView="index.html#/visits/#id/edit"
             detailsView="index.html#/visits/#id/details"
-            combinedSearchFieldsAndTerms={`patientAssignments.nextStation.name=${localStorage.getItem('formattedStations')},patientAssignments.assignedOfficer.id=${assignedDoctorId}`}
+            combinedSearchFieldsAndTerms={`patientAssignments.nextStation.nam   e=${localStorage.getItem('formattedStations')},patientAssignments.assignedOfficer.id=${assignedDoctorId}`}
             searchFields={searchFields}
             searchEntity="visits"
             dateFieldName={"patientAssignments.updatedAt"}

@@ -11,6 +11,9 @@ import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.patients.repository.PatientRepository;
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
+import com.afyaquik.patients.entity.PatientVisit;
+import com.afyaquik.patients.repository.PatientVisitRepo;
+import com.afyaquik.patients.enums.VisitType;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -29,6 +32,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PatientRepository patientRepo;
     private final UsersRepository usersRepo;
     private final AppointmentMapper appointmentMapper;
+    private final PatientVisitRepo patientVisitRepo;
     @Override
     @Transactional
     public AppointmentDto create(AppointmentDto appointmentDto) {
@@ -88,6 +92,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (dto.getStatus() != null) {
             appointment.setStatus(AppointmentStatus.valueOf(dto.getStatus()));
         }
+        if (dto.getNotes()!=null) {
+            appointment.setNotes(dto.getNotes());
+        }
         if (dto.getAppointmentDateTime() != null) {
             appointment.setAppointmentDateTime(dto.getAppointmentDateTime());
         }
@@ -101,5 +108,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDto getAppointmentDetails(Long appointmentId) {
        return appointmentMapper.toDto(appointmentRepo.findById(appointmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found")));
+    }
+
+    @Override
+    @Transactional
+    public void convertToVisit(Long appointmentId) {
+        Appointment appointment = appointmentRepo.findById(appointmentId)
+            .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
+            throw new IllegalStateException("Appointment status is already completed or cancelled.Cannot convert to visit.");
+        }
+        PatientVisit visit = PatientVisit.builder()
+            .patient(appointment.getPatient())
+            .visitType(VisitType.CONSULTATION) // or map from appointment if needed
+            .summaryReasonForVisit(appointment.getNotes()!= null ? appointment.getNotes() :appointment.getReason())
+            .visitDate(appointment.getAppointmentDateTime().toLocalDate())
+            .build();
+        patientVisitRepo.save(visit);
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointmentRepo.save(appointment);
     }
 }

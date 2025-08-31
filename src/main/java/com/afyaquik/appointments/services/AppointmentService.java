@@ -10,5 +10,5 @@ public interface AppointmentService {
     ListFetchDto<AppointmentDto> getPatientAppointments(Long patientId, Pageable pageable);
     AppointmentDto updateAppointment(Long appointmentId, AppointmentDto dto);
     AppointmentDto getAppointmentDetails(Long appointmentId);
-
+    void convertToVisit(Long appointmentId);
     }
