@@ -118,11 +118,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
             throw new IllegalStateException("Appointment status is already completed or cancelled.Cannot convert to visit.");
         }
+        if (patientVisitRepo.existsByAppointment(appointment)) {
+            throw new EntityExistsException("Appointment already has a visit.");
+        }
         PatientVisit visit = PatientVisit.builder()
             .patient(appointment.getPatient())
-            .visitType(VisitType.CONSULTATION) // or map from appointment if needed
+            .visitType(VisitType.CONSULTATION)
             .summaryReasonForVisit(appointment.getNotes()!= null ? appointment.getNotes() :appointment.getReason())
             .visitDate(appointment.getAppointmentDateTime().toLocalDate())
+                .appointment(appointment)
             .build();
         patientVisitRepo.save(visit);
         appointment.setStatus(AppointmentStatus.COMPLETED);

@@ -1,6 +1,7 @@
 package com.afyaquik.appointments.entity;
 
 import com.afyaquik.appointments.enums.AppointmentStatus;
+import com.afyaquik.patients.entity.PatientVisit;
 import com.afyaquik.utils.SuperEntity;
 import com.afyaquik.patients.entity.Patient;
 import com.afyaquik.users.entity.User;
@@ -41,4 +42,8 @@ public class Appointment extends SuperEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
     private User doctor;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_visit_id", nullable = true)
+    private PatientVisit patientVisit;
 }
