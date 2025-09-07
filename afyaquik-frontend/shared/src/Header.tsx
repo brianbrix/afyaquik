@@ -36,6 +36,9 @@ const Header: React.FC<HeaderProps>  = ({homeUrl, userRole}) => {
             }
             {isLoggedIn ? (
                 <><NotificationsBell userId= {Number(localStorage.getItem('userId'))} userRole={userRole|| currentRole} />
+                    <a href="/client/auth/index.html#/profile" className="nav-link text-light ms-3">
+                        <i className="bi bi-person-circle me-1"></i> Profile
+                    </a>
                     <button className="btn btn-light text-primary ms-auto" onClick={handleLogout}>
                         <i className="bi-box-arrow-right me-1"></i> Logout
                     </button>

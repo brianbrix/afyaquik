@@ -134,6 +134,15 @@ export default function LoginPage() {
                     </>
                 )}
             </form>
+            <div className="mt-3 text-center">
+                <a
+                    href="/client/auth/index.html#/forgot-password"
+                    className="text-primary"
+                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                    Forgot password?
+                </a>
+            </div>
         </div>
     );
 }

@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -36,12 +38,40 @@ public class EntityUtilServiceImpl implements EntityUtilService {
 
     private final Map<String, Join<?, ?>> joins = new HashMap<>();
 
+    // Map of allowed roles for each entity
+    private static final Map<String, Set<String>> ENTITY_ROLE_MAP = Map.of(
+        "Patient", Set.of("ADMIN", "DOCTOR", "NURSE", "SUPER_ADMIN"),
+        "Billing", Set.of("ADMIN", "ACCOUNTANT", "SUPER_ADMIN","DOCTOR","RECEPTIONIST"),
+        "User", Set.of("ADMIN", "SUPERADMIN")
+        // Add more entities and allowed roles as needed
+    );
+
+
+    private Set<String> getCurrentUserRoles() {
+         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+    }
+
+    private boolean isRoleAllowedForEntity(String entity, Set<String> userRoles) {
+        Set<String> allowedRoles = ENTITY_ROLE_MAP.get(entity);
+        // If no allowed roles are specified, entity is public
+        if (allowedRoles == null) return true;
+        for (String role : userRoles) {
+            if (allowedRoles.contains(role)) return true;
+        }
+        return false;
+    }
 
     @Override
     @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort+ '-' + #searchDto.dateFilter")
     public SearchResponseDto search(SearchDto searchDto) {
         String entityKey = searchDto.getSearchEntity();
         if (entityKey == null) throw new IllegalArgumentException("Search entity not specified");
+
+        // Role-based entity search restriction
+        Set<String> userRoles = getCurrentUserRoles();
+        if (!isRoleAllowedForEntity(entityKey, userRoles)) {
+            throw new SecurityException("You do not have permission to search this entity.");
+        }
 
         try {
             Class<?> entityClass = resolveEntityClass(entityKey);
@@ -333,6 +363,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
             case "billings" -> Class.forName("com.afyaquik.billing.entity.Billing");
             case "billingDetails" -> Class.forName("com.afyaquik.billing.entity.BillingDetail");
             case "currencies" -> Class.forName("com.afyaquik.billing.entity.Currency");
+            case "passwordResetRequests" -> Class.forName("com.afyaquik.users.entity.PasswordResetRequest");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -362,6 +393,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
             case "billings" -> Class.forName("com.afyaquik.billing.dto.BillingDto");
             case "billingDetails" -> Class.forName("com.afyaquik.billing.dto.BillingDetailDto");
             case "currencies" -> Class.forName("com.afyaquik.billing.dto.CurrencyDto");
+            case "passwordResetRequests" -> Class.forName("com.afyaquik.users.dto.PasswordResetRequestDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }

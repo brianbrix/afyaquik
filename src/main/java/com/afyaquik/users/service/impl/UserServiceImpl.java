@@ -228,6 +228,9 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setEnabled(request.getEnabled());
         user.setAvailable(request.isAvailable());
+        if (request.getPassword() != null) {
+            user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        }
         AssignRolesRequest assignRolesRequest= new AssignRolesRequest();
         assignRolesRequest.setRoles(request.getRoles());
         assignRoles(user, assignRolesRequest);

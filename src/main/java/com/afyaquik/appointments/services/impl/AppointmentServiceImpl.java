@@ -86,6 +86,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
         }
 
+        // Prevent status change if appointment is already completed or cancelled
+        if ((appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED)
+            && dto.getStatus() != null && !dto.getStatus().equals(appointment.getStatus().name())) {
+            throw new IllegalStateException("Cannot change status of a completed or cancelled appointment.");
+        }
+
         if (dto.getReason() != null) {
             appointment.setReason(dto.getReason());
         }

@@ -49,6 +49,8 @@ import BillingItemEdit from "./billing/items/BillingItemEdit";
 import CurrencyList from "./billing/currencies/CurrencyList";
 import CurrencyCreate from "./billing/currencies/CurrencyCreate";
 import CurrencyEdit from "./billing/currencies/CurrencyEdit";
+import PasswordResetRequestList from "./users/PasswordResetRequestList";
+import PasswordResetRequestAction from "./users/PasswordResetRequestAction";
 
 const App = () => (
     <AuthGuard requiredRoles={['ADMIN', 'SUPERADMIN']}>
@@ -68,6 +70,7 @@ const App = () => (
         <Resource name="drugForms" list={DrugFormList} create={DrugFormCreate} edit={DrugFormEdit} />
         <Resource name="billingItems" list={BillingItemList} create={BillingItemCreate} edit={BillingItemEdit} />
         <Resource name="currencies" list={CurrencyList} create={CurrencyCreate} edit={CurrencyEdit} />
+        <Resource name="passwordResetRequests" list={PasswordResetRequestList} edit={PasswordResetRequestAction} />
     </Admin>
     </AuthGuard>
 );

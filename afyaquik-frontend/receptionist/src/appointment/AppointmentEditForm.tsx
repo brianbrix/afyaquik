@@ -97,7 +97,7 @@ const AppointmentEditForm = () => {
                 apiRequest(`/appointments/${id}`, { method:'PUT' , body: data})
                     .then(response => {
                         console.log(response)
-                        window.location.href = `index.html#/patients/${response.id}/details`;
+                        window.location.href = `index.html#/appointments/${response.id}/details`;
                     })
                     .catch(err => console.error(err));
             }}
