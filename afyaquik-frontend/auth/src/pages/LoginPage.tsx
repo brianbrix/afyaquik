@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../utils/authService';
-import {sendNotification} from "@afyaquik/shared";
+import {apiRequest, sendNotification} from "@afyaquik/shared";
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -53,6 +53,13 @@ export default function LoginPage() {
             setError('Please select a role to continue.');
             return;
         }
+        apiRequest(`/roles/byName/${selectedRole}`,{method:'GET'})
+            .then(response=>
+                {
+                    localStorage.setItem('allowedStations', response.stations)
+                    localStorage.setItem('formattedStations', response.stations.join('||'))
+                }
+            )
 
         localStorage.setItem('currentRole', selectedRole);
 
@@ -127,6 +134,15 @@ export default function LoginPage() {
                     </>
                 )}
             </form>
+            <div className="mt-3 text-center">
+                <a
+                    href="/client/auth/index.html#/forgot-password"
+                    className="text-primary"
+                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                    Forgot password?
+                </a>
+            </div>
         </div>
     );
 }

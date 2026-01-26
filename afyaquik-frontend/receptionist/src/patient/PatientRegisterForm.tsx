@@ -32,6 +32,7 @@ const formConfig: StepConfig[] = [
                     { label: 'Separated', value: 'SEPARATED' }
                 ] },
         ],
+        stepButtonLabel: 'Next',
         topComponents: [backtoList()]
     },
     {

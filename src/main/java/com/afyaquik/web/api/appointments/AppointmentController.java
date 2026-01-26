@@ -38,4 +38,9 @@ public class AppointmentController {
     public ResponseEntity<AppointmentDto> getAppointmentDetails(@PathVariable Long appointmentId) {
         return ResponseEntity.ok(service.getAppointmentDetails(appointmentId));
     }
+    @PostMapping("/{appointmentId}/convert-to-visit")
+    public ResponseEntity<Void> convertToVisit(@PathVariable Long appointmentId) {
+        service.convertToVisit(appointmentId);
+        return ResponseEntity.ok().build();
+    }
 }

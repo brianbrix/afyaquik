@@ -48,4 +48,10 @@ public class RoleController {
         headers.add("Access-Control-Expose-Headers","Content-Range");
         return ResponseEntity.ok().headers(headers).body(roles);
     }
+    @GetMapping("/byName/{name}")
+    @PreAuthorize("isAuthenticated()")
+    public  ResponseEntity<?> getRoleByName(@PathVariable String name) {
+        return  ResponseEntity.ok(userRoleService.getRoleByName(name));
+    }
+
 }

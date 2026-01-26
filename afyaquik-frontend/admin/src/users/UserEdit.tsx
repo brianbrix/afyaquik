@@ -1,6 +1,18 @@
-import { Edit, SimpleForm, TextInput, ReferenceArrayInput, CheckboxGroupInput,BooleanInput } from 'react-admin';
+import {
+    Edit,
+    SimpleForm,
+    TextInput,
+    ReferenceArrayInput,
+    CheckboxGroupInput,
+    BooleanInput,
+    PasswordInput
+} from 'react-admin';
+import {generatePassword, passwordValidator} from "../utils";
+import {useState} from "react";
 
-const UserEdit = () => (
+const UserEdit = () => {
+    const [generatedPassword, setGeneratedPassword] = useState("");
+    return (
     <Edit>
         <SimpleForm>
             <TextInput source="id" disabled />
@@ -9,6 +21,12 @@ const UserEdit = () => (
             <TextInput source="secondName" required={true} />
             <TextInput source="lastName" required={true} />
             <TextInput source="email" required={true} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PasswordInput source="password" type="password" validate={passwordValidator} defaultValue={generatedPassword} />
+                <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setGeneratedPassword(generatePassword())}>
+                    Generate Password
+                </button>
+            </div>
             <BooleanInput source="available" />
             <ReferenceArrayInput source="roles" reference="roles">
                 <CheckboxGroupInput optionText="name" optionValue="name" />
@@ -19,6 +37,6 @@ const UserEdit = () => (
             <BooleanInput source="enabled" label="Enabled" />
         </SimpleForm>
     </Edit>
-);
+)};
 
 export default UserEdit;

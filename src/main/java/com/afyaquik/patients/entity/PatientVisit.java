@@ -1,5 +1,6 @@
 package com.afyaquik.patients.entity;
 
+import com.afyaquik.appointments.entity.Appointment;
 import com.afyaquik.billing.entity.Billing;
 import com.afyaquik.utils.SuperEntity;
 import com.afyaquik.patients.enums.Status;
@@ -51,8 +52,11 @@ public class PatientVisit extends SuperEntity {
     @Enumerated(EnumType.STRING)
     private Status visitStatus= Status.PENDING;
 
-    @OneToOne(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true)
     private Billing billing;
+
+    @OneToOne(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Appointment appointment;
 
     public String getPatientName()
     {

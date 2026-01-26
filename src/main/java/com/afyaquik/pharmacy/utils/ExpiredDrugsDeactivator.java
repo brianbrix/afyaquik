@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 public class ExpiredDrugsDeactivator {
     private final DrugInventoryService drugInventoryService;
     //cron to deactivate expired drugs
-//    @Scheduled(cron = "0 0 0 * * ?") // every day at midnight
-    @Scheduled(cron = "0 */2 * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?") // every day at midnight
+//    @Scheduled(cron = "0 */2 * * * ?")
     public void deactivateExpiredDrugs() {
         log.info("Deactivating expired inventories");
         drugInventoryService.deactivateExpiredDrugs();

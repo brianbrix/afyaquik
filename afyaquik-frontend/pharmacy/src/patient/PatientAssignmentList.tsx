@@ -29,10 +29,10 @@ const PatientAssignmentList = ({query}:{query?:string}) => {
 
     const userId = Number(localStorage.getItem("userId"));
     if (!query) {
-        query = `nextStation.name=PHARMACY,assignedOfficer.id=${userId}`
+        query = `nextStation.name=${localStorage.getItem('formattedStations')},assignedOfficer.id=${userId}`
     }
     else {
-        query = `${query},nextStation.name=PHARMACY,assignedOfficer.id=${userId}`
+        query = `${query},nextStation.name=${localStorage.getItem('formattedStations')},assignedOfficer.id=${userId}`
     }
 
     console.log("Assignments query", query)

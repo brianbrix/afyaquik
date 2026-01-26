@@ -29,7 +29,7 @@ const searchFields = [
 
 const VisitList = () => {
     const  userId  = Number(localStorage.getItem("userId"));
-    const query=`patientAssignments.nextStation.name=PHARMACY,patientAssignments.assignedOfficer.id=${userId}`;
+    const query=`patientAssignments.nextStation.name=${localStorage.getItem('formattedStations')},patientAssignments.assignedOfficer.id=${userId}`;
 
     return (
         <DataTable

@@ -20,7 +20,7 @@ const PatientList = () => {
 
     const [patients, setPatients] = useState([]);
     useEffect(() => {
-        apiRequest("/patients/search", { method: 'POST', body: {} })
+        apiRequest("/search", { method: 'POST', body: {} })
             .then(data => {
                 setPatients(data);
             })

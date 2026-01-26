@@ -17,7 +17,6 @@ const hasRole = (roles: string[]): boolean => {
         return true;
     }
     const currentRole = localStorage.getItem('currentRole');
-    console.log("Current Roles", roles, currentRole)
     return roles.includes(currentRole as string)
 };
 

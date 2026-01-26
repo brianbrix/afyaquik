@@ -16,8 +16,6 @@ public class EntityUtilController {
     private final EntityUtilService entityUtilService;
     @PostMapping("/search")
     public ResponseEntity<SearchResponseDto> search(@RequestBody SearchDto searchDto) {
-
-
         SearchResponseDto response = entityUtilService.search(searchDto);
         return ResponseEntity.ok(response);
     }

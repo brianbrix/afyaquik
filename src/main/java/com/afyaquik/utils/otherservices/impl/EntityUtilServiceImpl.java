@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -36,12 +38,40 @@ public class EntityUtilServiceImpl implements EntityUtilService {
 
     private final Map<String, Join<?, ?>> joins = new HashMap<>();
 
+    // Map of allowed roles for each entity
+    private static final Map<String, Set<String>> ENTITY_ROLE_MAP = Map.of(
+        "Patient", Set.of("ADMIN", "DOCTOR", "NURSE", "SUPER_ADMIN"),
+        "Billing", Set.of("ADMIN", "ACCOUNTANT", "SUPER_ADMIN","DOCTOR","RECEPTIONIST"),
+        "User", Set.of("ADMIN", "SUPERADMIN")
+        // Add more entities and allowed roles as needed
+    );
+
+
+    private Set<String> getCurrentUserRoles() {
+         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+    }
+
+    private boolean isRoleAllowedForEntity(String entity, Set<String> userRoles) {
+        Set<String> allowedRoles = ENTITY_ROLE_MAP.get(entity);
+        // If no allowed roles are specified, entity is public
+        if (allowedRoles == null) return true;
+        for (String role : userRoles) {
+            if (allowedRoles.contains(role)) return true;
+        }
+        return false;
+    }
 
     @Override
-    @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort")
+    @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort+ '-' + #searchDto.dateFilter")
     public SearchResponseDto search(SearchDto searchDto) {
         String entityKey = searchDto.getSearchEntity();
         if (entityKey == null) throw new IllegalArgumentException("Search entity not specified");
+
+        // Role-based entity search restriction
+        Set<String> userRoles = getCurrentUserRoles();
+        if (!isRoleAllowedForEntity(entityKey, userRoles)) {
+            throw new SecurityException("You do not have permission to search this entity.");
+        }
 
         try {
             Class<?> entityClass = resolveEntityClass(entityKey);
@@ -198,7 +228,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
             for (String term : searchTerms) {
                 term = term.trim();
                 List<Predicate> fieldPredicates = new ArrayList<>();
-                if (!term.contains("=") &&  dto.getSearchFields() != null && !dto.getSearchFields().isEmpty()) {
+                if (!term.contains("=")) {
                     term= term.toLowerCase(Locale.ROOT);
                     for (String field : dto.getSearchFields()) {
                         try {
@@ -248,27 +278,55 @@ public class EntityUtilServiceImpl implements EntityUtilService {
                         Path<?> path = resolveJoinPath(root, field, entityClass);
                         Class<?> type = path.getJavaType();
 
-                        if (type.equals(String.class)) {
-                            extraTermPredicates.add(cb.equal(cb.lower(path.as(String.class)), value.toLowerCase(Locale.ROOT)));
-                        } else if (type.equals(LocalDateTime.class)) {
-                            LocalDateTime parsed = parseDate(value);
-                            if (parsed != null)
-                                extraTermPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
-                        }
-                       else if (type.equals(Long.class)) {
-                                extraTermPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(value)));
+                        // Check if the value contains || for OR operation
+                        if (value.contains("||")) {
+                            String[] orValues = value.split("\\|\\|");
+                            List<Predicate> orPredicates = new ArrayList<>();
+
+                            for (String orValue : orValues) {
+                                orValue = orValue.trim();
+                                if (type.equals(String.class)) {
+                                    orPredicates.add(cb.equal(cb.lower(path.as(String.class)), orValue.toLowerCase(Locale.ROOT)));
+                                } else if (type.equals(LocalDateTime.class)) {
+                                    LocalDateTime parsed = parseDate(orValue);
+                                    if (parsed != null) {
+                                        orPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                                    }
+                                } else if (type.equals(Long.class)) {
+                                    orPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(orValue)));
+                                } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+                                    orPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(orValue)));
+                                } else {
+                                    orPredicates.add(cb.equal(path.as(String.class), orValue));
+                                }
                             }
-                        else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
-                            extraTermPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(value)));
-                        }
-                         else {
-                            extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
+
+                            if (!orPredicates.isEmpty()) {
+                                extraTermPredicates.add(cb.or(orPredicates.toArray(new Predicate[0])));
+                            }
+                        } else {
+                            // logic for single value
+                            if (type.equals(String.class)) {
+                                extraTermPredicates.add(cb.equal(cb.lower(path.as(String.class)), value.toLowerCase(Locale.ROOT)));
+                            } else if (type.equals(LocalDateTime.class)) {
+                                LocalDateTime parsed = parseDate(value);
+                                if (parsed != null)
+                                    extraTermPredicates.add(cb.equal(path.as(LocalDateTime.class), parsed));
+                            } else if (type.equals(Long.class)) {
+                                extraTermPredicates.add(cb.equal(path.as(Long.class), Long.parseLong(value)));
+                            } else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+                                extraTermPredicates.add(cb.equal(path.as(Boolean.class), Boolean.parseBoolean(value)));
+                            } else {
+                                extraTermPredicates.add(cb.equal(path.as(String.class), value)); // fallback
+                            }
                         }
                     } catch (IllegalArgumentException e) {
                         log.warn("Invalid search term: {}", term);
                     }
                     if (!extraTermPredicates.isEmpty()) {
-                        termPredicates.add(cb.and(extraTermPredicates.toArray(new Predicate[0])));
+                            // If we have multiple conditions, combine them with AND
+                            termPredicates.add(cb.and(extraTermPredicates.toArray(new Predicate[0])));
+
                     }
 
                 }
@@ -305,6 +363,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
             case "billings" -> Class.forName("com.afyaquik.billing.entity.Billing");
             case "billingDetails" -> Class.forName("com.afyaquik.billing.entity.BillingDetail");
             case "currencies" -> Class.forName("com.afyaquik.billing.entity.Currency");
+            case "passwordResetRequests" -> Class.forName("com.afyaquik.users.entity.PasswordResetRequest");
             default -> throw new ClassNotFoundException("No entity class for " + key);
         };
     }
@@ -334,6 +393,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
             case "billings" -> Class.forName("com.afyaquik.billing.dto.BillingDto");
             case "billingDetails" -> Class.forName("com.afyaquik.billing.dto.BillingDetailDto");
             case "currencies" -> Class.forName("com.afyaquik.billing.dto.CurrencyDto");
+            case "passwordResetRequests" -> Class.forName("com.afyaquik.users.dto.PasswordResetRequestDto");
             default -> throw new ClassNotFoundException("No DTO class for " + key);
         };
     }
