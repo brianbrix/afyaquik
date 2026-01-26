@@ -71,7 +71,7 @@ The project follows a modular architecture with separate backend services and fr
 ### Backend Setup
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/afyaquik.git
+   git clone https://github.com/brianbrix/afyaquik.git
    cd afyaquik
    ```
 
