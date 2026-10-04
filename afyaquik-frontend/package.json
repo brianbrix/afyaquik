@@ -6,7 +6,9 @@
     "admin",
     "receptionist",
     "doctor",
-    "pharmacy"
+    "pharmacy",
+    "nurse",
+    "reports"
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^2.7.0",

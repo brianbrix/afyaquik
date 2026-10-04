@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import {AppointmentDetailsPage, AppointmentList, AuthGuard, Header, ToastProvider, AlertProvider,} from "@afyaquik/shared";
-import {HashRouter, Route, Routes} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 
 import HomePage from "./HomePage";
 import ReceptionPatientList from "./patient/ReceptionPatientList";
@@ -38,6 +38,7 @@ function App() {
                   <Route path="/patients/:id/appointments/add" element={<AppointmentCreateForm />} />
                   <Route path="/appointments/:id/edit" element={<AppointmentEditForm />} />
                   <Route path="/appointments/:id/details" element={<ReceptionAppointmentDetailsPage />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
             </AuthGuard>

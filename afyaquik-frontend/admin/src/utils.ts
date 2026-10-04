@@ -9,7 +9,7 @@ export const generatePassword = () => {
 };
 
 export const passwordValidator = (value: string) => {
-    if (!value) return 'Password is required';
+    if (!value) return undefined; // empty = keep existing password
     if (value.length < 8) return 'Password must be at least 8 characters';
     if (!/[A-Z]/.test(value)) return 'Password must contain an uppercase letter';
     if (!/[a-z]/.test(value)) return 'Password must contain a lowercase letter';

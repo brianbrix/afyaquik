@@ -6,9 +6,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 
 @Repository
 public interface BillPaymentRepository extends JpaRepository<BillPayment, Long> {
+
+    Optional<BillPayment> findByBillingIdAndPaymentMethodIgnoreCaseAndPaymentReferenceIgnoreCase(Long billingId, String method, String reference);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select payment from BillPayment payment where payment.id = :id")
+    Optional<BillPayment> findForUpdate(@Param("id") Long id);
 
     /**
      * Find all payments for a specific billing

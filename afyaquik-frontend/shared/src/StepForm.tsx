@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, get } from 'react-hook-form';
 import {FieldConfig, multiSelectorWysiwygConfig, StepConfig} from "./StepConfig";
 import DraftEditor from "./DraftEditor";
 import {Button, Col, Row} from "react-bootstrap";
@@ -8,7 +8,7 @@ import {formatForDatetimeLocal} from "./dateFormatter";
 
 interface StepFormProps {
     config: StepConfig[];
-    onSubmit: (data: any) => void;
+    onSubmit: (data: any) => void | Promise<void>;
     defaultValues?: any;
     idFromParent?: number;
     submitButtonLabel?: string;
@@ -21,7 +21,8 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
     const methods = useForm({ defaultValues });
 
     // const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = useForm({ defaultValues });
-    const { control, handleSubmit, formState: { errors }, reset, register, setValue, getValues, trigger } = methods;
+    const { control, handleSubmit, formState: { errors, isSubmitting }, reset, register, setValue, getValues, trigger } = methods;
+    const [submitError, setSubmitError] = useState('');
 
     const [step, setStep] = useState(0);
     const [formData, setFormData] = useState<any>({});
@@ -58,16 +59,20 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
     const renderField = (field: FieldConfig) => {
         return (
             <div key={field.name} className="mb-3">
-                <label className="form-label fw-semibold">
+                <label htmlFor={field.name} className="form-label fw-semibold">
                     {field.label}{field.required && <span className="text-danger"> *</span>}
                 </label>
 
                 <Controller
                     name={field.name}
                     control={control}
-                    rules={{ required: field.required ? `${field.label} is required` : false }}
+                    rules={{
+                        required: field.required ? `${field.label} is required` : false,
+                        min: field.min === undefined ? undefined : { value: field.min, message: `${field.label} must be at least ${field.min}` },
+                        max: field.max === undefined ? undefined : { value: field.max, message: `${field.label} must be at most ${field.max}` },
+                    }}
                     render={({ field: controllerField }) => {
-                        const isInvalid = errors[field.name];
+                        const isInvalid = get(errors, field.name);
                         if (field.type === 'select' && field.options) {
                             const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                                 const value = field.multiple
@@ -80,6 +85,7 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
 
                             return (
                                 <select
+                                    id={field.name}
                                     disabled={field.disabled}
                                     multiple={field.multiple}
                                     {...controllerField}
@@ -123,6 +129,7 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
 
                             return (
                                 <input
+                                    id={field.name}
                                     hidden={field.hidden}
                                     disabled={field.disabled}
                                     type="datetime-local"
@@ -137,6 +144,11 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                                 return (
                                     <input defaultValue={field.defaultValue} hidden={field.hidden} disabled={field.disabled}
                                            {...controllerField}
+                                         id={field.name}
+                                         value={controllerField.value ?? ''}
+                                         min={field.min}
+                                         max={field.max}
+                                         placeholder={field.placeholder}
                                            type={field.type}
                                            step={field.step}
                                            className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
@@ -147,6 +159,11 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                             return (
                                 <input hidden={field.hidden} defaultValue={field.defaultValue} disabled={field.disabled}
                                        {...controllerField}
+                                        id={field.name}
+                                        value={controllerField.value ?? ''}
+                                        min={field.min}
+                                        max={field.max}
+                                        placeholder={field.placeholder}
                                        type={field.type}
                                        className={`form-control ${isInvalid ? 'is-invalid' : ''}`}
                                 />
@@ -155,18 +172,17 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                     }}
                 />
 
-                {errors[field.name] && (
-                    <div className="invalid-feedback">{errors[field.name]?.message as string}</div>
+                {get(errors, field.name) && (
+                    <div className="invalid-feedback d-block" role="alert">{get(errors, field.name)?.message as string}</div>
                 )}
             </div>
         );
     };
 
     const submitStep = handleSubmit(async (data) => {
+        setSubmitError('');
         const stepData = { ...formData, ...data };
         const current = config[step];
-        console.log('Parent ID', idFromParent)
-        console.log('Type of', typeof idFromParent)
 
         current.multiSelectorWysiwygConfigs?.forEach(conf => {
             if (conf.configName) {
@@ -190,12 +206,12 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
             }
 
             if (isLastStep) {
-                onSubmit(stepData)
+                await onSubmit(stepData);
             } else {
                 nextStep();
             }
         } catch (error) {
-            console.error("Step submission failed", error);
+            setSubmitError(error instanceof Error ? error.message : 'Unable to save. Please try again.');
         }
     });
 
@@ -217,6 +233,7 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
 
                     <form onSubmit={submitStep} className="card shadow-sm p-4 bg-white border-0 rounded-3">
                         <h4 className="mb-4 text-primary text-center fw-semibold">{currentStep.label}</h4>
+                        {submitError && <div className="alert alert-danger" role="alert">{submitError}</div>}
                         <div className="row">
                             {currentStep.fields.map((field, index) => (
                                 <div
@@ -301,6 +318,7 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                                     <button
                                         type="button"
                                         className="btn btn-outline-secondary me-2"
+                                        disabled={isSubmitting}
                                         onClick={prevStep}
                                     >
                                         <i className="bi bi-arrow-left me-1"></i> Previous
@@ -310,6 +328,7 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                             <div>
                                 <button
                                     type="submit"
+                                    disabled={isSubmitting}
                                     className={`btn ${isLastStep ? 'btn-success' : 'btn-primary'}`}
                                 >
                                     {isLastStep ? (
@@ -318,7 +337,7 @@ const StepForm: React.FC<StepFormProps> = ({ config=[], onSubmit, defaultValues,
                                         </>
                                     ) : (
                                         <>
-                                            {`${currentStep.stepButtonLabel}` || 'Continue'}<i className="bi bi-arrow-right ms-1"></i>
+                                            {currentStep.stepButtonLabel || 'Continue'}<i className="bi bi-arrow-right ms-1"></i>
                                         </>
                                     )}
                                 </button>

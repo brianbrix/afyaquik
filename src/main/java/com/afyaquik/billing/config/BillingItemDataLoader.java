@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,6 +21,7 @@ public class BillingItemDataLoader {
     private final CurrencyRepository currencyRepository;
 
     @Bean
+    @Order(1)
     public CommandLineRunner loadBillingItems() {
         return args -> {
             // Check if Pharmacy billing item already exists

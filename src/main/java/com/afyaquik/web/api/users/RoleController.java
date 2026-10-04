@@ -24,7 +24,7 @@ public class RoleController {
         return ResponseEntity.ok(userRoleService.createRole(roleRequest));
     }
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     public ResponseEntity<RoleResponse> getRole(@PathVariable Long id) {
         return ResponseEntity.ok(userRoleService.getRole(id));
     }

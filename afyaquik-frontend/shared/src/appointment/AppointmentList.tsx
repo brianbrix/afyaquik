@@ -18,9 +18,10 @@ interface AppointmentListProps{
     data?:any;
     title?:string;
     query?:string;
+    canEdit?:boolean;
 }
 
-const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, title, query}) => {
+const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, title, query, canEdit = true}) => {
     const [appointments, setAppointments] = useState([]);
 
     const searchFields:FieldConfig[] =[
@@ -59,7 +60,8 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, titl
                 title={title?title:"Appointments List"}
                 columns={columns}
                 data={appointments}
-                editView={"index.html#/appointments/#id/edit"}
+                editView={canEdit ? "index.html#/appointments/#id/edit" : undefined}
+                showMultipleDeleteButton={canEdit}
                 detailsView={"index.html#/appointments/#id/details"}
                 searchFields={searchFields}
                 searchEntity={'appointments'}
@@ -74,8 +76,9 @@ const AppointmentList:  React.FC<AppointmentListProps> = ({patientId, data, titl
                     title={title?title:"Appointments List"}
                     columns={columns}
                     data={appointments}
-                    editView={"index.html#/appointments/#id/edit"}
-                    addView={"index.html#/patients"}
+                    editView={canEdit ? "index.html#/appointments/#id/edit" : undefined}
+                    addView={canEdit ? "index.html#/patients" : undefined}
+                    showMultipleDeleteButton={canEdit}
                     detailsView={"index.html#/appointments/#id/details"}
                     searchFields={searchFields}
                     searchEntity={'appointments'}

@@ -1,0 +1,56 @@
+import React from 'react';
+import { FieldConfig } from "./StepConfig";
+import { DataTableRef } from "./index";
+interface DataTableProps<T> {
+    onRef?: (ref: DataTableRef<T>) => void;
+    title: string;
+    loading?: boolean;
+    error?: any;
+    columns: {
+        header: string;
+        accessor: string;
+        sortable?: boolean;
+        type?: string;
+    }[];
+    data?: T[];
+    editView?: string;
+    editButtonAction?: (rowData: T) => void;
+    editTitle?: string;
+    editClassName?: string;
+    editButtonEnabled?: boolean | ((row: T) => boolean);
+    deleteButtonAction?: (rowData: T) => void;
+    deleteTitle?: string;
+    deleteClassName?: string;
+    deleteButtonEnabled?: boolean | ((row: T) => boolean);
+    addView?: string;
+    addTitle?: string;
+    addClassName?: string;
+    detailsView?: string;
+    detailsButtonAction?: (rowData: T) => void;
+    detailsTitle?: string;
+    detailsClassName?: string;
+    detailsButtonEnabled?: boolean | ((row: T) => boolean);
+    dataEndpoint?: string;
+    additionalParams?: Record<string, any>;
+    requestMethod?: string;
+    searchFields?: FieldConfig[];
+    searchEntity?: string;
+    combinedSearchFieldsAndTerms?: string;
+    defaultPageSize?: number;
+    isSearchable?: boolean;
+    dateFieldName?: string;
+    showSelectionMode?: boolean;
+    selectionModeAction?: (selectedItems: T[]) => void;
+    selectionModeActionTitle?: string;
+    selectionModeActionDisabled?: (selectedItems: T[]) => boolean;
+    showPagination?: boolean;
+    showMultipleDeleteButton?: boolean;
+    deleteMultipleButtonTitle?: string;
+    deleteEndpoint?: string;
+    preventDeleteMultipleAction?: (selectedRows: T[]) => boolean;
+    showDeletedRecords?: boolean;
+}
+declare function DataTable<T extends {
+    id: number;
+}>({ loading, error, title, onRef, columns, data: initialData, editView, editTitle, editClassName, deleteButtonEnabled, deleteClassName, deleteButtonAction, deleteTitle, addView, addTitle, addClassName, detailsView, detailsTitle, detailsClassName, dataEndpoint, requestMethod, searchFields, searchEntity, defaultPageSize, editButtonAction, detailsButtonAction, additionalParams, editButtonEnabled, detailsButtonEnabled, showDeletedRecords, isSearchable, dateFieldName, combinedSearchFieldsAndTerms, showSelectionMode, selectionModeAction, selectionModeActionTitle, selectionModeActionDisabled, showPagination, deleteMultipleButtonTitle, deleteEndpoint, showMultipleDeleteButton, preventDeleteMultipleAction }: DataTableProps<T>): React.JSX.Element;
+export default DataTable;

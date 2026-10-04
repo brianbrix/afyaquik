@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/billing/payments")
@@ -49,4 +50,17 @@ public class BillPaymentController {
         billPaymentService.deletePayment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/receipt")
+    public ResponseEntity<BillPaymentService.Receipt> receipt(@PathVariable Long id) {
+        return ResponseEntity.ok(billPaymentService.getReceipt(id));
+    }
+
+    @PostMapping("/{id}/reverse")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    public ResponseEntity<BillPaymentDto> reverse(@PathVariable Long id, @RequestBody Reversal request) {
+        return ResponseEntity.ok(billPaymentService.reversePayment(id, request.reason()));
+    }
+
+    public record Reversal(String reason) {}
 }

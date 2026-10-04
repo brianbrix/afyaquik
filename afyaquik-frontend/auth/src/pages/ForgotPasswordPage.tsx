@@ -1,4 +1,4 @@
-import { apiRequest } from "@afyaquik/shared";
+import { apiRequest, portalUrl } from "@afyaquik/shared";
 import React, { useState } from "react";
 
 const ForgotPasswordPage = () => {
@@ -19,18 +19,19 @@ const ForgotPasswordPage = () => {
             });
             setSuccess(true);
         } catch {
-            setError("Failed to request password reset. Please check your username.");
+            setError("Unable to submit your request. Please try again.");
         }
         setLoading(false);
     };
 
     return (
-        <div>
-            <h1>Reset Password</h1>
+        <div className="container py-5" style={{ maxWidth: 440 }}>
+            <h1 className="h3 mb-4">Reset Password</h1>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="username">Username</label>
+                <div className="mb-3">
+                    <label htmlFor="username" className="form-label">Username</label>
                     <input
+                        className="form-control"
                         id="username"
                         type="text"
                         value={username}
@@ -38,12 +39,13 @@ const ForgotPasswordPage = () => {
                         required
                     />
                 </div>
-                {error && <p style={{ color: "red" }}>{error}</p>}
-                {success && <p style={{ color: "green" }}>Check your email for reset link!</p>}
-                <button type="submit" disabled={loading}>
+                {error && <p className="alert alert-danger" role="alert">{error}</p>}
+                {success && <p className="alert alert-success" role="status">If the account exists, a reset request has been sent to your facility administrator.</p>}
+                <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? "Loading..." : "Request Password Reset"}
                 </button>
             </form>
+            <a className="d-inline-block mt-3" href={portalUrl('auth', '/login')}>Back to sign in</a>
         </div>
     );
 };

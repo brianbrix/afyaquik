@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "/client/receptionist",
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@afyaquik/shared": "1.0.0",
     "@testing-library/dom": "^10.4.0",

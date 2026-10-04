@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest, DataTable, StepForm, StepConfig, FieldConfig, useAlert } from '@afyaquik/shared';
 import { Button, Card, Modal } from 'react-bootstrap';
+import PaymentReceipt from './PaymentReceipt';
 
 interface BillingProps {
   visitId: number;
@@ -30,6 +31,8 @@ interface BillingItem {
 }
 
 interface Payment {
+  reversed: boolean;
+  reversalReason?: string;
   id: number;
   billingId: number;
   amount: number;
@@ -42,6 +45,7 @@ interface Payment {
 }
 
 interface Billing {
+  currencyCode: string | null;
   id: number;
   patientVisitId: number;
   patientName: string;
@@ -74,6 +78,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
   const [selectedBillingItem, setSelectedBillingItem] = useState<BillingItem | null>(null);
   const [selectedBillingDetail, setSelectedBillingDetail] = useState<BillingDetail | null>(null);
   const [loadingItems, setLoadingItems] = useState<boolean>(false);
+  const [receiptPaymentId, setReceiptPaymentId] = useState<number | null>(null);
 
   // Form states
   const [amount, setAmount] = useState<number>(0);
@@ -297,8 +302,8 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
 
     try {
       // Validate payment amount
-      const amount = formData.paymentAmount || paymentAmount;
-      if (amount <= 0) {
+      const amount = Number(formData.paymentAmount ?? paymentAmount);
+      if (!Number.isFinite(amount) || amount <= 0) {
         showAlert('Payment amount must be greater than zero', 'Validation Error', 'error');
         return;
       }
@@ -377,6 +382,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                     <Button
                       variant="success"
                       className="me-2"
+                      disabled={billing.status === 'CANCELLED' || billing.amountDue <= 0 || !billing.currencyCode}
                       onClick={() => setShowPaymentModal(true)}
                     >
                       Record Payment
@@ -384,6 +390,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                     <Button
                       variant="primary"
                       className="me-2"
+                      disabled={billing.payments.length > 0 || billing.status === 'CANCELLED'}
                       onClick={() => setShowEditBillingModal(true)}
                     >
                       Edit Billing
@@ -392,6 +399,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                 )}
                 <Button
                   variant={billing.status === 'CANCELLED' ? 'secondary' : 'danger'}
+                  disabled={billing.payments.some(payment => !payment.reversed)}
                   onClick={() => handleUpdateStatus(billing.status === 'CANCELLED' ? 'PENDING' : 'CANCELLED')}
                 >
                   {billing.status === 'CANCELLED' ? 'Reactivate' : 'Cancel'}
@@ -424,6 +432,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                   </span>
                 },
                 { id: 7, field: 'Description', value: billing.description },
+                { id: 9, field: 'Currency', value: billing.currencyCode || 'Historical currency review required' },
                 ...(billing.paidAt ? [
                   { id: 8, field: 'Paid At', value: new Date(billing.paidAt).toLocaleString() }
                 ] : [])
@@ -432,7 +441,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
 
             <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
               <h5 className="mb-0">Billing Items</h5>
-              {billing.status !== 'PAID' && billing.status !== 'CANCELLED' && (
+              {billing.payments.length === 0 && billing.status !== 'PAID' && billing.status !== 'CANCELLED' && (
                 <Button variant="primary" onClick={() => setShowAddItemModal(true)}>
                   <i className="bi bi-plus-circle me-1"></i> Add Item
                 </Button>
@@ -449,7 +458,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                 { header: 'Total', accessor: 'totalAmount', type: 'currency' }
               ]}
               data={billing.billingDetails || []}
-              editButtonAction={billing.status !== 'PAID' && billing.status !== 'CANCELLED' ? (detail) => {
+              editButtonAction={billing.payments.length === 0 && billing.status !== 'PAID' && billing.status !== 'CANCELLED' ? (detail) => {
                 setSelectedBillingDetail(detail as BillingDetail);
                 setDetailAmount(detail.amount);
                 setDetailDescription(detail.description);
@@ -458,13 +467,13 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
               } : undefined}
 
               editTitle="Edit"
-              editButtonEnabled={billing.status !== 'PAID' && billing.status !== 'CANCELLED'}
+              editButtonEnabled={billing.payments.length === 0 && billing.status !== 'PAID' && billing.status !== 'CANCELLED'}
               detailsClassName={"bi bi-trash"}
-              detailsButtonAction={billing.status !== 'PAID' && billing.status !== 'CANCELLED' ? (detail) => {
+              detailsButtonAction={billing.payments.length === 0 && billing.status !== 'PAID' && billing.status !== 'CANCELLED' ? (detail) => {
                 handleRemoveBillingDetail(detail.id);
               } : undefined}
               detailsTitle="Remove"
-              detailsButtonEnabled={billing.status !== 'PAID' && billing.status !== 'CANCELLED'}
+              detailsButtonEnabled={billing.payments.length === 0 && billing.status !== 'PAID' && billing.status !== 'CANCELLED'}
             />
 
             {/* Payment History Section */}
@@ -479,14 +488,20 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                 { header: 'Amount', accessor: 'amount', type: 'currency' },
                 { header: 'Method', accessor: 'paymentMethod' },
                 { header: 'Reference', accessor: 'paymentReference' },
+                { header: 'Status', accessor: 'ledgerStatus' },
                 { header: 'Notes', accessor: 'notes' }
               ]}
-              data={billing.payments || []}
+              data={(billing.payments || []).map(payment => ({ ...payment, ledgerStatus: payment.reversed ? 'Reversed' : 'Recorded' }))}
+              detailsButtonEnabled
+              detailsButtonAction={payment => setReceiptPaymentId(payment.id)}
+              detailsTitle="Receipt"
+              detailsClassName="bi bi-printer"
             />
           </>
         )}
 
         {/* Create Billing Modal */}
+        {receiptPaymentId !== null && <PaymentReceipt paymentId={receiptPaymentId} onClose={() => setReceiptPaymentId(null)} />}
         <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Create Billing</Modal.Title>
@@ -545,7 +560,7 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
         {/* Record Payment Modal */}
         <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)}>
           <Modal.Header closeButton>
-            <Modal.Title>Record Payment {billing && billing.amountDue > 0 ? `(Amount Due: $${billing.amountDue.toFixed(2)})` : ''}</Modal.Title>
+            <Modal.Title>Record Payment {billing && billing.amountDue > 0 ? `(Amount Due: ${billing.currencyCode} ${billing.amountDue.toFixed(2)})` : ''}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <StepForm
@@ -570,11 +585,12 @@ const BillingComponent: React.FC<BillingProps> = ({ visitId }) => {
                       onChange: (value) => setPaymentMethod(value),
                       options: [
                         { label: "Cash", value: "CASH" },
-                        { label: "Credit Card", value: "CREDIT_CARD" },
-                        { label: "Debit Card", value: "DEBIT_CARD" },
+                        { label: "M-Pesa", value: "MPESA" },
+                        { label: "Card", value: "CARD" },
                         { label: "Insurance", value: "INSURANCE" },
-                        { label: "Mobile Money", value: "MOBILE_MONEY" },
-                        { label: "Bank Transfer", value: "BANK_TRANSFER" }
+                        { label: "Bank Transfer", value: "BANK_TRANSFER" },
+                        { label: "Cheque", value: "CHEQUE" },
+                        { label: "Other", value: "OTHER" }
                       ]
                     },
                     {

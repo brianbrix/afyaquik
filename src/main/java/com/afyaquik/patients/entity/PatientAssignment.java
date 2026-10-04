@@ -48,5 +48,6 @@ public class PatientAssignment extends SuperEntity {
     private PatientVisit patientVisit;
 
     @Enumerated(EnumType.STRING)
+        @Builder.Default
     private Status assignmentStatus = Status.PENDING;
 }

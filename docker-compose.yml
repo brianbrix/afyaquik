@@ -1,36 +1,42 @@
-version: '3'
+version: '3.8'
+
 services:
-  afyaquik-api:
-    build: ./afyaquik-api
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: afyaquik
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  afyaquik:
+    platform: linux/amd64
+    build: .
     ports:
       - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/afyaquik
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: docker
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?Set a random JWT signing secret of at least 32 bytes}
+      APP_BOOTSTRAP_USERNAME: ${APP_BOOTSTRAP_USERNAME:-afl}
+      APP_BOOTSTRAP_PASSWORD: ${APP_BOOTSTRAP_PASSWORD:-}
+      APP_BOOTSTRAP_EMAIL: ${APP_BOOTSTRAP_EMAIL:-admin@example.invalid}
+      APP_COOKIE_SECURE: ${APP_COOKIE_SECURE:-true}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3003,http://localhost:3004,http://localhost:3005,http://localhost:3006,http://localhost:3007}
+      TZ: Africa/Nairobi
 
-  admin-frontend:
-    build:
-      context: ./afyaquik-frontend/admin
-    ports:
-      - "3001:3000"
-
-  user-management-frontend:
-    build:
-      context: ./afyaquik-frontend/user-management
-    ports:
-      - "3002:3000"
-
-  doctor-frontend:
-    build:
-      context: ./afyaquik-frontend/doctor
-    ports:
-      - "3003:3000"
-
-  receptionist-frontend:
-    build:
-      context: ./afyaquik-frontend/receptionist
-    ports:
-      - "3004:3000"
-
-  reports-frontend:
-    build:
-      context: ./afyaquik-frontend/reports
-    ports:
-      - "3005:3000"
+volumes:
+  postgres_data:

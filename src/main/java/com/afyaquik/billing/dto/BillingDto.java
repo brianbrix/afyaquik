@@ -30,6 +30,7 @@ public class BillingDto {
     private BigDecimal totalAmount;
 
     private String description;
+    private String currencyCode;
 
     private Status status;
 

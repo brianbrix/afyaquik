@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'email' | 'date' | 'number' | 'select' | 'checkbox' | 'wysiwyg' | 'datetime';
+export type FieldType = 'text' | 'email' | 'tel' | 'date' | 'number' | 'select' | 'checkbox' | 'wysiwyg' | 'datetime';
 
 export interface FieldConfig {
     name: string;
@@ -11,6 +11,9 @@ export interface FieldConfig {
     onChange?: (value: any) => void;
     colSpan?:number,
     step?:string,//for number input
+    min?: string | number;
+    max?: string | number;
+    placeholder?: string;
     value?:any,
     multiple?: boolean;//for select
     options?: { label: string; value: string | number }[];

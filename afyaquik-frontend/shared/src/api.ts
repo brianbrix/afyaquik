@@ -14,6 +14,44 @@ export interface ApiOptions {
 /** Base URL for API requests */
 const BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
+let pendingCsrfToken: Promise<string> | null = null;
+
+export class ApiError extends Error {
+    constructor(message: string, public readonly status: number) {
+        super(message);
+        this.name = 'ApiError';
+    }
+}
+
+export async function csrfHeaders(method = 'GET', existing?: HeadersInit): Promise<Headers> {
+    const headers = new Headers(existing);
+    if (['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase())) return headers;
+    const cookie = document.cookie.split('; ').find(value => value.startsWith('XSRF-TOKEN='));
+    let token = cookie ? decodeURIComponent(cookie.substring('XSRF-TOKEN='.length)) : '';
+    if (!token) {
+        if (!pendingCsrfToken) {
+            pendingCsrfToken = fetch(`${BASE_URL}/auth/csrf`, { credentials: 'include' })
+                .then(async response => {
+                    if (!response.ok) throw new ApiError('Unable to establish a secure session.', response.status);
+                    const result = await response.json();
+                    if (!result.token) throw new Error('Missing session security token.');
+                    return result.token as string;
+                }).finally(() => { pendingCsrfToken = null; });
+        }
+        token = await pendingCsrfToken;
+    }
+    headers.set('X-XSRF-TOKEN', token);
+    return headers;
+}
+
+export async function fetchWithCsrf(url: string, options: RequestInit = {}): Promise<Response> {
+    return fetch(url, {
+        ...options,
+        credentials: 'include',
+        headers: await csrfHeaders(options.method, options.headers),
+    });
+}
+
 /**
  * Makes an API request to the specified endpoint
  *
@@ -30,39 +68,26 @@ export default async function apiRequest<T = any>(endpoint: string, options: Api
         'Content-Type': 'application/json',
     };
 
-    const response = await fetch(url, {
+    const response = await fetchWithCsrf(url, {
         method,
         headers,
-        body: body ? JSON.stringify(body) : undefined,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
         credentials: 'include', // Moved from headers to correct location
     });
 
     if (!response.ok) {
+        let message = response.status === 401 ? 'Your session has expired. Please sign in again.'
+            : response.status === 403 ? 'You do not have permission for this action.'
+            : 'The request could not be completed.';
+        const errorText = await response.text();
         try {
-            // Try to parse error response as JSON
-            const errorText = await response.text();
-            let errorMessage = response.statusText;
-
-            if (errorText) {
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorMessage;
-
-                    // Handle 400 errors with toast if provided
-                    if (response.status === 400 && showToast) {
-                        showToast(errorMessage, 'error');
-                    }
-                } catch (parseError) {
-                    // If JSON parsing fails, use the raw text
-                    errorMessage = errorText;
-                }
-            }
-
-            throw new Error(`${errorMessage}`);
-        } catch (error) {
-            // Re-throw the error we created or pass through any other errors
-            throw new Error(String(error));
+            const error = JSON.parse(errorText);
+            message = error.message || message;
+        } catch {
+            if (errorText && !errorText.includes('<')) message = errorText;
         }
+        showToast?.(message, 'error');
+        throw new ApiError(message, response.status);
     }
 
     // Check if response has JSON content

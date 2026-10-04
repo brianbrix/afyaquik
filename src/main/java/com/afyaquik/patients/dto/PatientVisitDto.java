@@ -25,5 +25,6 @@ public class PatientVisitDto {
     private List<PatientAssignmentDto> assignments;
     private TriageReportDto triageReportDto;
     private String visitStatus;
+    private boolean inpatientActive;
 
 }

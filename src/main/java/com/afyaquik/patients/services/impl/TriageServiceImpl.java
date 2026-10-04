@@ -19,9 +19,12 @@ import com.afyaquik.patients.services.TriageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -34,23 +37,46 @@ public class TriageServiceImpl implements TriageService {
     private final TriageItemMapper triageItemMapper;
 
     @Override
+    @Transactional
     public TriageReportDto updateTriageReport(Long visitId, List<TriageReportItemDto> triageReportItemDtos) {
-        PatientVisit patientVisit = patientVisitRepository.findById(visitId)
+        if (triageReportItemDtos == null || triageReportItemDtos.isEmpty()) {
+            throw new IllegalArgumentException("At least one triage measurement is required");
+        }
+        var names = new HashSet<String>();
+        for (TriageReportItemDto item : triageReportItemDtos) {
+            if (item == null || item.getName() == null || item.getName().isBlank()
+                    || item.getValue() == null || item.getValue().isBlank() || !names.add(item.getName())) {
+                throw new IllegalArgumentException("Each triage measurement must have a unique name and a value");
+            }
+        }
+        PatientVisit patientVisit = patientVisitRepository.findForUpdate(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        if (patientVisit.isDeleted() || patientVisit.getPatient().isDeleted()
+            || patientVisit.getVisitStatus() == com.afyaquik.patients.enums.Status.COMPLETED || patientVisit.getVisitStatus() == com.afyaquik.patients.enums.Status.CANCELLED) {
+            throw new IllegalArgumentException("Closed or archived encounters cannot receive new triage measurements");
+        }
         TriageReport triageReport = new TriageReport();
         if (patientVisit.getTriageReport() != null) {
             triageReport = patientVisit.getTriageReport();
         }
         for (TriageReportItemDto triageReportItemDto : triageReportItemDtos) {
-            TriageReportItem triageReportItem = new TriageReportItem();
-            triageReportItem.setTriageItem(triageItemRepository.
-                    findByName(triageReportItemDto.getName()).orElseThrow(() ->
-                            new EntityNotFoundException("Triage item not found")));
-            triageReportItem.setItemSummary(triageReportItemDto.getValue());
-            triageReportItem.setTriageReport(triageReport);
+            TriageItem triageItem = triageItemRepository.findByName(triageReportItemDto.getName())
+                .orElseThrow(() -> new EntityNotFoundException("Triage item not found"));
+            TriageReportItem triageReportItem = triageReport.getTriageReportItems().stream()
+                .filter(item -> triageReportItemDto.getName().equals(item.getTriageItem().getName()))
+                .findFirst().orElse(null);
+            if (triageReportItem == null) {
+            triageReportItem = new TriageReportItem();
+            triageReportItem.setTriageItem(triageItem);
             triageReport.getTriageReportItems().add(triageReportItem);
+            }
+            triageReportItem.setItemSummary(triageReportItemDto.getValue().trim());
+            triageReportItem.setTriageReport(triageReport);
         }
+        triageReport.setPatientVisit(patientVisit);
         triageReport = triageReportRepository.save(triageReport);
+        patientVisit.setTriageReport(triageReport);
+        patientVisitRepository.save(patientVisit);
 
         return TriageReportDto.builder()
                 .id(triageReport.getId())
@@ -64,14 +90,14 @@ public class TriageServiceImpl implements TriageService {
         PatientVisit patientVisit = patientVisitRepository.findById(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
         if (patientVisit.getTriageReport() != null) {
-            ListFetchDto.<TriageReportItemDto>builder()
+            return ListFetchDto.<TriageReportItemDto>builder()
                     .results( triageReportItemRepository.findAllByTriageReport(pageable, patientVisit.getTriageReport()).map(
                             triageReportItemMapper::toDto
                     ))
                     .build();
 
         }
-        return new ListFetchDto<>();
+        return ListFetchDto.<TriageReportItemDto>builder().results(Page.empty(pageable)).build();
     }
 
     @Override

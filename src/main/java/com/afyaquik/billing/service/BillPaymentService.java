@@ -44,4 +44,13 @@ public interface BillPaymentService {
      * @param id the payment id
      */
     void deletePayment(Long id);
+
+    Receipt getReceipt(Long id);
+    BillPaymentDto reversePayment(Long id, String reason);
+
+    record Receipt(String receiptNumber, Long paymentId, Long billingId, Long visitId, Long patientId,
+                   String patientName, String facilityName, java.time.OffsetDateTime paidAt, String receivedBy,
+                   String currencyCode, BigDecimal amount, String paymentMethod, String paymentReference,
+                   BigDecimal billTotal, BigDecimal paidToDate, BigDecimal balance, boolean historicalSnapshot,
+                   boolean reversed, String reversalReason) {}
 }

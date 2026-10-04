@@ -12,6 +12,8 @@ export { AlertProvider, useAlert } from './AlertContext';
 export {default as NotificationsBell} from './communication/NotificationsBell'
 export {sendNotification} from './communication/NotificationService'
 export {default as apiRequest } from  './api';
+export { ApiError, csrfHeaders, fetchWithCsrf } from './api';
+export { PORTAL_ROLES, portalUrl, safePortalRedirect, sessionRoles, clearSession, saveSession, selectRole } from './session';
 export {default as PatientList} from './patient/PatientList'
 export {default as DoctorReportList} from './patient/DoctorReportList'
 export {default as AppointmentList} from './appointment/AppointmentList'
@@ -21,4 +23,5 @@ export {patientName } from './patient/PatientVisitForm'
 export {default as PatientVisitList} from './patient/PatientVisitList'
 export {default as PatientAssignForm} from './patient/PatientAssignForm'
 export {default as AssignmentsList} from './patient/AssignmentsList'
+export {default as EncounterOperations, VisitWorkflowActions} from './patient/EncounterOperations';
 export {StepConfig, FieldConfig, FieldType } from './StepConfig';

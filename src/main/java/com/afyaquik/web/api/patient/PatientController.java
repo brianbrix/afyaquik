@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -43,12 +44,14 @@ public class PatientController {
         return ResponseEntity.ok(patientService.filterPatients(patientDto));
     }
     @PutMapping("/{id}/update")
-    public ResponseEntity<PatientDto> updatePatient(@RequestBody PatientDto patientDto) {
+    public ResponseEntity<PatientDto> updatePatient(@PathVariable Long id, @Validated @RequestBody PatientDto patientDto) {
+        patientDto.setId(id);
         return ResponseEntity.ok(patientService.updatePatient(patientDto));
     }
     @PostMapping("/{id}/delete")
-    public ResponseEntity<?> deletePatient(@RequestBody PatientDto patientDto) {
-        patientService.deletePatient(patientDto.getId());
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    public ResponseEntity<?> deletePatient(@PathVariable Long id) {
+        patientService.deletePatient(id);
         return ResponseEntity.ok(null);
     }
 

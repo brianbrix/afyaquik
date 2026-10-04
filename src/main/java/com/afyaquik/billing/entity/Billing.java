@@ -37,8 +37,11 @@ public class Billing extends SuperEntity {
     private BigDecimal totalAmount;
 
     private String description;
+    private String currencyCode;
+    private BigDecimal openingAmount;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Status status = Status.PENDING;
 
     private LocalDateTime paidAt;
@@ -48,23 +51,22 @@ public class Billing extends SuperEntity {
     private String paymentReference;
 
     @OneToMany(mappedBy = "billing", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<BillingDetail> billingDetails = new ArrayList<>();
 
     @OneToMany(mappedBy = "billing", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<BillPayment> payments = new ArrayList<>();
 
     // Calculated field for convenience
     public BigDecimal getAmountDue() {
-        if (status == Status.PAID) {
-            return BigDecimal.ZERO;
-        }
-
         // Calculate total paid amount
         if (payments==null)
         {
             payments = new ArrayList<>();
         }
         BigDecimal totalPaid = payments.stream()
+            .filter(payment -> !payment.isReversed() && !payment.isDeleted())
                 .map(BillPayment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -74,6 +76,10 @@ public class Billing extends SuperEntity {
 
     // Helper method to add a payment
     public void addPayment(BillPayment payment) {
+        if (payment == null || payment.getAmount() == null || payment.getAmount().signum() <= 0) {
+            throw new IllegalArgumentException("Payment amount must be positive");
+        }
+        if (payments == null) payments = new ArrayList<>();
         payments.add(payment);
         payment.setBilling(this);
 
@@ -94,6 +100,12 @@ public class Billing extends SuperEntity {
             this.status = Status.PENDING;
             this.paidAt = null;
         }
+    }
+
+    public void refreshPaymentStatus() {
+        if (status == Status.CANCELLED) return;
+        status = getAmountDue().signum() <= 0 ? Status.PAID : Status.PENDING;
+        paidAt = status == Status.PAID ? LocalDateTime.now() : null;
     }
 
     // Helper method to add a billing detail

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../utils/authService';
-import {apiRequest, sendNotification} from "@afyaquik/shared";
+import {ApiError, portalUrl, safePortalRedirect, selectRole} from "@afyaquik/shared";
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -10,13 +10,17 @@ export default function LoginPage() {
     const [roles, setRoles] = useState<string[]>([]);
     const [selectedRole, setSelectedRole] = useState('');
 
-    const getRedirectParam = () => {
+    const getRedirectParam = (): string | null => {
         const hash = window.location.hash;
         const queryString = hash.split('?')[1];
         if (!queryString) return null;
-
         const params = new URLSearchParams(queryString);
         return params.get('redirect');
+    };
+
+    const finishLogin = async (role: string) => {
+        await selectRole(role);
+        window.location.replace(safePortalRedirect(getRedirectParam()) || portalUrl('auth', '/home'));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -26,54 +30,41 @@ export default function LoginPage() {
 
         try {
             const result = await authService.login(username, password);
-            setLoading(false);
-
-            if (authService.isLoggedIn() && result.roles?.length > 0) {
-                setRoles(result.roles);
+            if (result.isLoggedIn && result.roles.length > 0) {
+                if (result.roles.length === 1) await finishLogin(result.roles[0]);
+                else setRoles(result.roles);
+            } else if (result.isLoggedIn && result.roles.length === 0) {
+                setError('Login successful but no roles are assigned to your account. Contact an administrator.');
             } else {
-                if (authService.isLoggedIn() && result.roles?.length<=0)
-                {
-                    sendNotification(
-                        null,'User issue alert',
-                        `The user ${result.userId} does not have any roles set`,
-                        `/client/admin/index.html`,
-                        'SYSTEM', `SUPERADMIN`
-                    )
-                }
                 setError('Invalid username or password.');
             }
         } catch (err) {
+            setError(err instanceof ApiError && err.status === 401
+                ? 'Invalid username or password.' : 'Unable to sign in. Please check your connection and try again.');
+        } finally {
             setLoading(false);
-            setError('An unexpected error occurred. Please try again.');
         }
     };
 
-    const handleRoleConfirm = () => {
-        if (!selectedRole) {
+    const handleRoleConfirm = async () => {
+        if (!selectedRole || !roles.includes(selectedRole)) {
             setError('Please select a role to continue.');
             return;
         }
-        apiRequest(`/roles/byName/${selectedRole}`,{method:'GET'})
-            .then(response=>
-                {
-                    localStorage.setItem('allowedStations', response.stations)
-                    localStorage.setItem('formattedStations', response.stations.join('||'))
-                }
-            )
-
-        localStorage.setItem('currentRole', selectedRole);
-
-        const redirect = getRedirectParam();
-        if (redirect && redirect.startsWith('/client/')) {
-            window.location.href = redirect;
-        } else {
-            window.location.href = '/client/auth/index.html#/home';
+        setLoading(true);
+        setError(null);
+        try {
+            await finishLogin(selectedRole);
+        } catch {
+            setError('Unable to load your role. Please retry.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="container d-flex align-items-center justify-content-center min-vh-100">
-            <form onSubmit={handleSubmit} className="border p-4 rounded shadow-sm bg-white" style={{ maxWidth: '400px', width: '100%' }}>
+        <div className="container py-5">
+            <form onSubmit={handleSubmit} className="border p-4 rounded shadow-sm bg-white mx-auto" style={{ maxWidth: '400px', width: '100%' }}>
                 <h2 className="mb-4 text-primary text-center">AfyaQuik Login</h2>
 
                 {error && (
@@ -86,7 +77,10 @@ export default function LoginPage() {
                 {!roles.length ? (
                     <>
                         <div className="mb-3">
+                            <label htmlFor="username" className="form-label">Username</label>
                             <input
+                                id="username"
+                                autoComplete="username"
                                 className="form-control"
                                 value={username}
                                 onChange={e => setUsername(e.target.value)}
@@ -96,7 +90,10 @@ export default function LoginPage() {
                         </div>
 
                         <div className="mb-3">
+                            <label htmlFor="password" className="form-label">Password</label>
                             <input
+                                id="password"
+                                autoComplete="current-password"
                                 type="password"
                                 className="form-control"
                                 value={password}
@@ -128,7 +125,7 @@ export default function LoginPage() {
                             </select>
                         </div>
 
-                        <button type="button" className="btn btn-success w-100" onClick={handleRoleConfirm}>
+                        <button type="button" className="btn btn-success w-100" disabled={loading} onClick={handleRoleConfirm}>
                             Continue
                         </button>
                     </>
@@ -136,7 +133,7 @@ export default function LoginPage() {
             </form>
             <div className="mt-3 text-center">
                 <a
-                    href="/client/auth/index.html#/forgot-password"
+                    href={portalUrl('auth', '/forgot-password')}
                     className="text-primary"
                     style={{ cursor: 'pointer', textDecoration: 'underline' }}
                 >

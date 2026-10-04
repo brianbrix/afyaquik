@@ -25,9 +25,17 @@ public class Patient extends SuperEntity {
     private String secondName;
     private String lastName;
     @Enumerated(EnumType.STRING)
-    private Gender gender=Gender.MALE;
+    private Gender gender;
     private String dateOfBirth;
     private String nationalId;
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean smsConsent;
+    private String smsConsentPhone;
+    private String smsConsentSource;
+    private String smsConsentBy;
+    private java.time.LocalDateTime smsConsentAt;
+    @Builder.Default
+    private String communicationLanguage = "EN";
     @Enumerated(EnumType.STRING)
     private MaritalStatus maritalStatus;
 

@@ -119,6 +119,7 @@ function DataTable<T extends { id: number }>({
     const [data, setData] = useState<T[]>(initialData);
     const [totalElements, setTotalElements] = useState(0);
     const [isSearching, setIsSearching] = useState(false);
+    const [loadError, setLoadError] = useState('');
     const [selectedFields, setSelectedFields] = useState<FieldConfig[]>(searchFields);
     const [showFieldSelector, setShowFieldSelector] = useState(false);
     const [dateFieldValue, setDateFieldValue] = useState('');
@@ -203,14 +204,8 @@ function DataTable<T extends { id: number }>({
     };
     const fetchData = async (page: number, size: number, sort?: string) => {
         setIsSearching(true);
-        if (!showDeletedRecords)
-        {
-            if (searchTerm.length > 0)
-            {
-                searchTerm+=',';
-            }
-            searchTerm+='deleted=false'
-        }
+        setLoadError('');
+        const query = [searchTerm, showDeletedRecords ? '' : 'deleted=false', combinedSearchFieldsAndTerms].filter(Boolean).join(',');
         try {
             let params = {
                 page,
@@ -228,27 +223,19 @@ function DataTable<T extends { id: number }>({
                     queryParams.append(key, String(value));
                 });
 
-                if (searchTerm) {
-                    queryParams.append('query', searchTerm);
+                if (query) {
+                    queryParams.append('query', query);
                     selectedFields.forEach(field => queryParams.append('fields', field.name));
                 }
 
                 response = await apiRequest(`${dataEndpoint}?${queryParams.toString()}`);
             } else {
 
-                if (combinedSearchFieldsAndTerms)
-                {
-                    if (searchTerm.length > 0)
-                    {
-                        searchTerm+=',';
-                    }
-                    searchTerm+=combinedSearchFieldsAndTerms;
-                }
                 const requestBody = {
                     ...params,
                     searchEntity: searchEntity,
-                    ...(searchTerm && {
-                        query: searchTerm,
+                    ...(query && {
+                        query,
                         searchFields: selectedFields.map(f=>f.name)
                     })
                 };
@@ -260,14 +247,16 @@ function DataTable<T extends { id: number }>({
                 });
             }
 
-            const result: PaginatedResponse<T> = response;
-            setData(result.results.content);
-            setTotalElements(result.results.page.totalElements);
-            setCurrentPage(result.results.page.number);
-            setPageSize(result.results.page.size);
+            const results = response.results ?? response;
+            const pageInfo = results.page ?? results;
+            const rows = Array.isArray(results) ? results : results.content ?? [];
+            setData(rows);
+            setTotalElements(pageInfo.totalElements ?? rows.length);
+            setCurrentPage(pageInfo.number ?? page);
+            setPageSize(pageInfo.size ?? size);
 
         } catch (error) {
-            console.error('Fetch error:', error);
+            setLoadError(error instanceof Error ? error.message : 'Unable to load records.');
         } finally {
             setIsSearching(false);
         }
@@ -280,7 +269,7 @@ function DataTable<T extends { id: number }>({
             }
             fetchData(currentPage, pageSize, sortParam);
         }
-    }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateFieldValue]);
+    }, [currentPage, pageSize, sortField, sortDirection, searchTerm, selectedFields, dateFieldValue, combinedSearchFieldsAndTerms, dataEndpoint]);
 
     const handleSort = (field: string) => {
         if (sortField === field) {
@@ -369,6 +358,8 @@ function DataTable<T extends { id: number }>({
 
     return (
         <div className="container my-4">
+            {loadError && <div className="alert alert-danger" role="alert">{loadError}
+                <button className="btn btn-sm btn-outline-danger ms-3" onClick={() => fetchData(currentPage, pageSize)}><i className="bi bi-arrow-clockwise me-1" />Retry</button></div>}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="text-primary fw-semibold m-0">{title}</h5>
                 <div>

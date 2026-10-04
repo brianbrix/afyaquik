@@ -20,8 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +33,18 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     private final PatientVisitRepo patientVisitRepository;
     private final PatientAssignmentsRepo  patientAssignmentsRepo;
     private final PatientAssignmentsMapper  patientAssignmentsMapper;
+    @Transactional
     @Override
     public PatientVisitDto createPatientVisit(PatientVisitDto patientVisitDto, Long patientId) {
 
-        Patient patient = patientRepository.findById(patientId)
+        Patient patient = patientRepository.findForUpdate(patientId)
+            .filter(existing -> !existing.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
 
         PatientVisit patientVisit = PatientVisit.builder()
                 .patient(patient)
                 .summaryReasonForVisit(patientVisitDto.getSummaryReasonForVisit())
-                .visitDate(LocalDate.now())
+                .visitDate(LocalDate.now(ZoneId.of("Africa/Nairobi")))
                 .visitType(VisitType.valueOf(patientVisitDto.getVisitType()))
                 .build();
         patientVisit.setVisitStatus(Status.STARTED);
@@ -52,6 +57,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .summaryReasonForVisit(savedVisit.getSummaryReasonForVisit())
                 .visitDate(savedVisit.getVisitDate())
                 .visitType(savedVisit.getVisitType().name())
+                .visitStatus(savedVisit.getVisitStatus().name())
                 .build();
 
 
@@ -59,17 +65,19 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
+    @Transactional
     public PatientVisitDto updatePatientVisit(PatientVisitDto patientVisitDto) {
-        PatientVisit  patientVisit = patientVisitRepository.findById(patientVisitDto.getId())
+        PatientVisit  patientVisit = patientVisitRepository.findForUpdate(patientVisitDto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
-        patientVisit.setSummaryReasonForVisit(patientVisitDto.getSummaryReasonForVisit());
-        patientVisit.setVisitType(VisitType.valueOf(patientVisitDto.getVisitType()));
+        requireOpenVisit(patientVisit);
+        if (patientVisitDto.getSummaryReasonForVisit() != null) patientVisit.setSummaryReasonForVisit(patientVisitDto.getSummaryReasonForVisit());
+        if (patientVisitDto.getVisitType() != null) patientVisit.setVisitType(VisitType.valueOf(patientVisitDto.getVisitType()));
+        if (patientVisitDto.getNextVisitDate() != null && patientVisitDto.getNextVisitDate().isBefore(patientVisit.getVisitDate())) {
+            throw new IllegalArgumentException("The next visit date cannot precede this encounter");
+        }
         patientVisit.setNextVisitDate(patientVisitDto.getNextVisitDate());
         if (patientVisitDto.getVisitStatus()!=null) {
-            patientVisit.setVisitStatus(Status.valueOf(patientVisitDto.getVisitStatus()));
-        }
-        else {
-            patientVisit.setVisitStatus(Status.STARTED); //todo work on this status
+            changeStatus(patientVisit, parseClinicalStatus(patientVisitDto.getVisitStatus()));
         }
         patientVisitRepository.save(patientVisit);
         return PatientVisitDto.builder()
@@ -79,22 +87,66 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .summaryReasonForVisit(patientVisit.getSummaryReasonForVisit())
                 .visitDate(patientVisit.getVisitDate())
                 .visitType(patientVisit.getVisitType().name())
+                .nextVisitDate(patientVisit.getNextVisitDate())
+                .inpatientActive(patientVisit.isInpatientActive())
+                .visitStatus(patientVisit.getVisitStatus().name())
                 .build();
     }
 
     @Override
+    @Transactional
     public void updatePatientVisitStatus(Long visitId, String status) {
-        PatientVisit  patientVisit = patientVisitRepository.findById(visitId)
+        PatientVisit  patientVisit = patientVisitRepository.findForUpdate(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
-        patientVisit.setVisitStatus(Status.valueOf(status));
-        if (patientVisit.getVisitStatus().equals(Status.COMPLETED) || patientVisit.getVisitStatus().equals(Status.CANCELLED)) {
-            patientVisit.getPatientAssignments()
-                    .forEach(assignment -> {
-                        assignment.setAssignmentStatus(Status.COMPLETED);
-//                        patientAssignmentsRepo.save(assignment);
-                    });
-        }
+        changeStatus(patientVisit, parseClinicalStatus(status));
         patientVisitRepository.save(patientVisit);
+    }
+
+    private Status parseClinicalStatus(String status) {
+        if (status == null || !Set.of("PENDING", "STARTED", "IN_PROGRESS", "COMPLETED", "CANCELLED").contains(status.toUpperCase(java.util.Locale.ROOT))) {
+            throw new IllegalArgumentException("Select a clinical status; payment status belongs to billing");
+        }
+        return Status.valueOf(status.toUpperCase(java.util.Locale.ROOT));
+    }
+
+    private void requireOpenVisit(PatientVisit visit) {
+        if (visit.isDeleted() || visit.getPatient().isDeleted()) throw new IllegalArgumentException("Archived encounters cannot be changed");
+        if (visit.getVisitStatus() == Status.COMPLETED || visit.getVisitStatus() == Status.CANCELLED) {
+            throw new IllegalArgumentException("Closed encounters cannot be reopened or edited");
+        }
+    }
+
+    private void changeStatus(PatientVisit visit, Status next) {
+        if (visit.getVisitStatus() == next) return;
+        requireOpenVisit(visit);
+        if (visit.isInpatientActive() && (next == Status.COMPLETED || next == Status.CANCELLED)) {
+            throw new IllegalArgumentException("Record inpatient discharge before closing this encounter");
+        }
+        if (next == Status.STARTED || next == Status.PENDING) {
+            throw new IllegalArgumentException("An encounter cannot be moved backwards in its workflow");
+        }
+        if (next == Status.COMPLETED) {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getAuthorities().stream().noneMatch(authority ->
+                    Set.of("ROLE_DOCTOR", "ROLE_ADMIN", "ROLE_SUPERADMIN").contains(authority.getAuthority()))) {
+                throw new AccessDeniedException("A clinician must complete the encounter");
+            }
+            if (visit.getPatientAssignments().stream().anyMatch(assignment -> !assignment.isDeleted()
+                    && assignment.getAssignmentStatus() != Status.COMPLETED && assignment.getAssignmentStatus() != Status.CANCELLED)) {
+                throw new IllegalArgumentException("Complete or cancel outstanding station assignments first");
+            }
+        }
+        if (next == Status.CANCELLED) {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getAuthorities().stream().noneMatch(authority ->
+                    Set.of("ROLE_RECEPTIONIST", "ROLE_DOCTOR", "ROLE_ADMIN", "ROLE_SUPERADMIN").contains(authority.getAuthority()))) {
+                throw new AccessDeniedException("Only reception, a clinician or an administrator can cancel an encounter");
+            }
+            visit.getPatientAssignments().stream().filter(assignment -> !assignment.isDeleted()
+                    && assignment.getAssignmentStatus() != Status.COMPLETED)
+                    .forEach(assignment -> assignment.setAssignmentStatus(Status.CANCELLED));
+        }
+        visit.setVisitStatus(next);
     }
 
 
@@ -110,6 +162,7 @@ public class PatientVisitServiceImpl implements PatientVisitService {
                 .visitDate(patientVisit.getVisitDate())
                 .visitType(patientVisit.getVisitType().name())
                 .nextVisitDate(patientVisit.getNextVisitDate())
+                .inpatientActive(patientVisit.isInpatientActive())
                 .visitStatus(patientVisit.getVisitStatus()!=null?patientVisit.getVisitStatus().name():null)
                 .build();
                 detailsType = detailsType==null?new HashSet<>():detailsType;
@@ -129,9 +182,12 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     }
 
     @Override
+    @Transactional
     public PatientVisit getPatientVisit(Long visitId) {
-        return patientVisitRepository.findById(visitId)
+        PatientVisit visit = patientVisitRepository.findForUpdate(visitId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
+        requireOpenVisit(visit);
+        return visit;
     }
 
     @Override
@@ -175,29 +231,25 @@ public class PatientVisitServiceImpl implements PatientVisitService {
     @Transactional
     @Override
     public void updateAssignmentStatus(Long assignmentId, String status) {
-        Status newStatus;
-        try {
-            newStatus = Status.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid status: " + status);
-        }
+        Status newStatus = parseClinicalStatus(status);
+        Long visitId = patientAssignmentsRepo.findVisitId(assignmentId).orElseThrow(() -> new EntityNotFoundException("Patient assignment not found"));
+        patientVisitRepository.findForUpdate(visitId).orElseThrow(() -> new EntityNotFoundException("Patient visit not found"));
 
         patientAssignmentsRepo.findByIdWithVisitAndAssignments(assignmentId)
                 .ifPresentOrElse(assignment -> {
+                    var authentication = SecurityContextHolder.getContext().getAuthentication();
+                    if (authentication == null || (!assignment.getAssignedOfficer().getUsername().equals(authentication.getName())
+                            && authentication.getAuthorities().stream().noneMatch(authority -> Set.of("ROLE_ADMIN", "ROLE_SUPERADMIN").contains(authority.getAuthority())))) {
+                        throw new AccessDeniedException("Only the assigned officer or administrator can update this station assignment");
+                    }
+                    if (assignment.getAssignmentStatus() == newStatus) return;
+                    requireOpenVisit(assignment.getPatientVisit());
+                    if (assignment.isDeleted() || assignment.getAssignmentStatus() == Status.COMPLETED || assignment.getAssignmentStatus() == Status.CANCELLED
+                            || newStatus == Status.PENDING || newStatus == Status.STARTED) {
+                        throw new IllegalArgumentException("Invalid station assignment transition");
+                    }
                     assignment.setAssignmentStatus(newStatus);
                     patientAssignmentsRepo.save(assignment);
-
-                    if (newStatus == Status.COMPLETED) {
-                        boolean allCompleted = assignment.getPatientVisit()
-                                .getPatientAssignments()
-                                .stream()
-                                .allMatch(a -> a.getAssignmentStatus() == Status.COMPLETED);
-
-                        if (allCompleted) {
-                            assignment.getPatientVisit().setVisitStatus(Status.COMPLETED);
-                            patientVisitRepository.save(assignment.getPatientVisit());
-                        }
-                    }
                 }, () -> {
                     throw new EntityNotFoundException("Patient assignment not found");
                 });

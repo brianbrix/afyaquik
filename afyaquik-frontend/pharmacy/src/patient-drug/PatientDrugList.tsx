@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from "react";
-import {apiRequest, DataTable, DataTableRef, useAlert, useToast} from "@afyaquik/shared";
+import {apiRequest, DataTable, DataTableRef, useAlert} from "@afyaquik/shared";
 
 const columns = [
 
@@ -20,7 +20,7 @@ interface PatientDrug {
 
 const searchFields = [
     {
-        name: 'drugName',
+        name: 'drug.name',
         label: 'Drug Name',
     },
     {
@@ -57,20 +57,6 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 showAlert(error.message, 'Drug Dispense Error', 'error');
             });
     };
-    const handleDrugRemove = (drug: PatientDrug)=>{
-        apiRequest(`/patient-drugs/${drug.id}`, {
-            method: 'DELETE'
-        })
-            .then(response => {
-                showAlert('Drug removed successfully', 'Drug Remove', 'success');
-                reloadData();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert(error.message, 'Drug Remove Error', 'error');
-            });
-    }
-
     const handleMultipleDispense = (selectedDrugs: PatientDrug[]) => {
         const undispensedDrugs = selectedDrugs.filter(drug => !drug.dispensed);
 
@@ -116,11 +102,8 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 title="Patient Drugs"
                 columns={columns}
                 detailsClassName={'primary'}
-                editView="index.html#/patient-drugs/#id/edit"
                 searchFields={searchFields}
                 detailsButtonAction={handleDispense}
-                deleteButtonAction={handleDrugRemove}
-                deleteButtonEnabled={(drug: PatientDrug) => !drug.dispensed}
                 detailsTitle={'Dispense Drug'}
                 detailsButtonEnabled={(drug: PatientDrug) => !drug.dispensed}
                 searchEntity="patientDrugs"
@@ -128,10 +111,8 @@ const PatientDrugList = ({visitId, data: initialData}:{visitId:number, data: Pat
                 dataEndpoint={`/search`}
                 preventDeleteMultipleAction={deleteMultipleErrorAction}
                 data={data}
-                addTitle="Add Drug"
-                addView={`index.html#/patient-drugs/add/${visitId}`}
                 showSelectionMode={true}
-                showMultipleDeleteButton={true}
+                showMultipleDeleteButton={false}
                 selectionModeAction={handleMultipleDispense}
                 selectionModeActionTitle="Dispense Selected"
                 onRef={(ref) => dataTableRef.current = ref}

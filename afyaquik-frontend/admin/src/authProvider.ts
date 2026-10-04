@@ -1,50 +1,33 @@
-import {apiRequest} from "@afyaquik/shared";
+import {apiRequest, clearSession, saveSession, sessionRoles} from "@afyaquik/shared";
 
 const authProvider = {
-    login: ({ username, password }: any) => {
-        const request = new Request('/api/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password }),
-            headers: new Headers({ 'Content-Type': 'application/json' }),
-        });
-        return fetch(request)
-            .then(response => {
-                if (response.status < 200 || response.status >= 300) {
-                    throw new Error(response.statusText);
-                }
-                localStorage.setItem('isLoggedIn', String(true));
-                return response.json();
-            })
-            .then((response ) => {
-                apiRequest('/api/users/me').then(
-                    rolesResponse => rolesResponse.json()
-                    .then((rolesData: { roles: any; }) => {
-                        localStorage.setItem('userRoles', JSON.stringify(rolesData.roles));
-                    })
-                )
-
-            });
+    login: async ({ username, password }: any) => {
+        const result = await apiRequest('/auth/login', { method: 'POST', body: { username, password } });
+        if (!result.roles?.some((role: string) => ['ADMIN', 'SUPERADMIN'].includes(role))) {
+            throw new Error('Administrator access is required.');
+        }
+        saveSession(result.userId, result.roles);
     },
-    logout: () => {
-        apiRequest('/auth/logout',{
-            method: 'POST',
-            body: JSON.stringify({})
-        }).then(() => {
-            console.log("Logged out");
-            localStorage.clear();
-        });
-        return Promise.resolve();
+    logout: async () => {
+        await apiRequest('/auth/logout', { method: 'POST', body: {} });
+        clearSession();
     },
-    checkAuth: () =>
-        localStorage.getItem('isLoggedIn') ? Promise.resolve() : Promise.reject(),
+    checkAuth: async () => {
+        const user = await apiRequest('/users/me');
+        if (!user.roles?.some((role: string) => ['ADMIN', 'SUPERADMIN'].includes(role))) {
+            throw new Error('Administrator access is required.');
+        }
+        saveSession(user.id, user.roles);
+    },
     checkError: (error: any) => {
-        if (error.status === 401 || error.status === 403) {
-            localStorage.removeItem('isLoggedIn');
+        if (error.status === 401) {
+            clearSession();
             return Promise.reject();
         }
+        if (error.status === 403) return Promise.reject({ logoutUser: false });
         return Promise.resolve();
     },
-    getPermissions: () => Promise.resolve(),
+    getPermissions: () => Promise.resolve(sessionRoles()),
 };
 
 export default authProvider;

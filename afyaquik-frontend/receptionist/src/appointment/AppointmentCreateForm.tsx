@@ -50,20 +50,16 @@ const AppointmentCreateForm = () => {
     const { showToast } = useToast();
 
     useEffect(() => {
-        apiRequest("/search", { method: "POST",
-        body: {
-            "searchEntity": "users",
-            "query": "DOCTOR",
-            "searchFields": ["roles.name"],
-            "page": 0,
-            "size": 100
-        }
-        })
+        apiRequest('/roles/byName/DOCTOR')
+            .then(role => apiRequest(`/users/byrole?roleId=${role.id}`))
             .then((data) => {
-                const doctorsOptions = data.results.content.map((s: any) => ({ label: s.username, value: s.id }));
+                const doctorsOptions = data.map((doctor: any) => ({
+                    label: [doctor.firstName, doctor.secondName, doctor.lastName].filter(Boolean).join(' ') || doctor.username,
+                    value: doctor.id,
+                }));
                 setDoctors(doctorsOptions);
             })
-            .catch(console.error);
+            .catch(() => showToast('Unable to load the doctor directory.', 'error'));
     }, []);
 
     const formConfig: StepConfig[] = [

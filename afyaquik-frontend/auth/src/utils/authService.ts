@@ -1,38 +1,28 @@
-import {apiRequest} from "@afyaquik/shared";
+import { apiRequest, clearSession, saveSession } from '@afyaquik/shared';
 
-const data = {
-    roles: [],
-    isLoggedIn: false,
-    userId: 0
-};
+const resetData = () => ({ roles: [] as string[], isLoggedIn: false, userId: 0 });
+let data = resetData();
+
 export const authService = {
 
     login: async (username: string, password: string) => {
-        const response = await fetch('/api/auth/login', {
+        data = resetData();
+        const loginData = await apiRequest('/auth/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
+            body: { username, password },
         });
-        if (response.ok) {
+        if (loginData.isLoggedIn === true) {
+            data.roles = Array.isArray(loginData.roles) ? [...loginData.roles] : [];
+            data.userId = loginData.userId || 0;
             data.isLoggedIn = true;
-            const rolesData = await apiRequest('/users/me');
-            data.roles = rolesData.roles;
-            data.userId = rolesData.id;
-
-            localStorage.setItem('userRoles', JSON.stringify(data.roles));
-            localStorage.setItem('userId',String(data.userId))
-            localStorage.setItem('isLoggedIn', String(true));
+            saveSession(data.userId, data.roles);
         }
         return data;
     },
-    logout: () => {
-        apiRequest('/auth/logout',{
-            method: 'POST',
-            body: JSON.stringify({})
-        }).then(() => {
-            console.log("Logged out");
-            localStorage.clear();
-        });
+    logout: async () => {
+        await apiRequest('/auth/logout', { method: 'POST', body: {} });
+        data = resetData();
+        clearSession();
     },
     getToken: () => {
         return localStorage.getItem('isLoggedIn');

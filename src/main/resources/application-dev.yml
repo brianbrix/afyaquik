@@ -18,6 +18,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+app:
+  cookie:
+    secure: false  # HTTP in dev; set true in production (HTTPS required)
+  jwt:
+    secret: ${APP_JWT_SECRET:?agdasfghjklqwertyuiopzxcvbnm1234567890} # Set a random JWT signing secret of at least 32 bytes
+  bootstrap:
+    password: ${APP_BOOTSTRAP_PASSWORD:?jklqwertyuiopzxcvbnm1234567890} # Set a random bootstrap password of at least 32 bytes
 logging:
   level:
-    org.springframework: TRACE
+    root: INFO
+    com.afyaquik: DEBUG

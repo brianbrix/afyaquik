@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/password-reset")
@@ -14,12 +15,12 @@ public class PasswordResetRequestController {
     private final PasswordResetRequestService passwordResetRequestService;
 
     @PostMapping("/request")
-    public ResponseEntity<Void> createPasswordResetRequest(@RequestParam PasswordResetRequestDto requestDto) {
+    public ResponseEntity<Void> createPasswordResetRequest(@Valid @RequestBody PasswordResetRequestDto requestDto) {
         passwordResetRequestService.createPasswordResetRequest(requestDto);
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @PostMapping("/process")
     public ResponseEntity<Void> processPasswordReset(@RequestBody PasswordResetRequestDto requestDto) {
         passwordResetRequestService.processPasswordReset(requestDto);

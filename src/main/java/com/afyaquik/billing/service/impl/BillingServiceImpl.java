@@ -35,11 +35,13 @@ public class BillingServiceImpl implements BillingService {
     private final BillingDetailRepository billingDetailRepository;
     private final BillingMapper billingMapper;
     private final BillingDetailMapper billingDetailMapper;
+    private final com.afyaquik.billing.repository.CurrencyRepository currencyRepository;
+    private final com.afyaquik.billing.service.BillPaymentService paymentService;
 
     @Override
     @Transactional
     public BillingDto createBilling(BillingDto billingDto) {
-        PatientVisit patientVisit = patientVisitRepository.findById(billingDto.getPatientVisitId())
+        PatientVisit patientVisit = patientVisitRepository.findForUpdate(billingDto.getPatientVisitId())
                 .orElseThrow(() -> new EntityNotFoundException("Patient visit not found with id: " + billingDto.getPatientVisitId()));
 
         // Check if billing already exists for this visit
@@ -49,12 +51,16 @@ public class BillingServiceImpl implements BillingService {
 
         Billing billing = Billing.builder()
                 .patientVisit(patientVisit)
-                .amount(billingDto.getAmount())
-                .discount(billingDto.getDiscount())
-                .totalAmount(billingDto.getTotalAmount())
+                .openingAmount(money(billingDto.getAmount()))
+                .amount(money(billingDto.getAmount()))
+                .discount(money(billingDto.getDiscount() == null ? BigDecimal.ZERO : billingDto.getDiscount()))
+                .currencyCode(currencyRepository.findByActiveTrue().orElseThrow(() -> new IllegalArgumentException("Configure an active billing currency first")).getCode())
                 .description(billingDto.getDescription())
                 .status(Status.PENDING)
                 .build();
+
+            if (patientVisit.isDeleted() || patientVisit.getPatient().isDeleted()) throw new IllegalArgumentException("Archived visits cannot be billed");
+            updateBillingAmounts(billing);
 
         Billing savedBilling = billingRepository.save(billing);
         return mapToDto(savedBilling);
@@ -63,20 +69,18 @@ public class BillingServiceImpl implements BillingService {
     @Override
     @Transactional
     public BillingDto updateBilling(Long id, BillingDto billingDto) {
-        Billing billing = billingRepository.findById(id)
+        Billing billing = billingRepository.findForUpdate(id)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + id));
-
-        billing.setAmount(billingDto.getAmount());
-        billing.setDiscount(billingDto.getDiscount());
-        billing.setTotalAmount(billingDto.getTotalAmount());
-
-        if (billing.getDiscount() != null) {
-            // Reject the request if discount is greater than the amount
-            if (billing.getDiscount().compareTo(billingDto.getAmount()) > 0) {
-                throw new IllegalArgumentException("Discount cannot be greater than the total amount");
-            }
-            billing.setTotalAmount(billingDto.getAmount().subtract(billing.getDiscount()));
+        requireEditable(billing);
+        BigDecimal detailTotal = billing.getBillingDetails().stream().map(BillingDetail::getTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        billing.setOpeningAmount(money(billingDto.getAmount()).subtract(detailTotal));
+        money(billing.getOpeningAmount());
+        billing.setDiscount(money(billingDto.getDiscount() == null ? BigDecimal.ZERO : billingDto.getDiscount()));
+        if (billing.getCurrencyCode() == null) {
+            billing.setCurrencyCode(currencyRepository.findByCode(billingDto.getCurrencyCode())
+                    .orElseThrow(() -> new IllegalArgumentException("A reviewed currency code is required for historical bills")).getCode());
         }
+        updateBillingAmounts(billing);
         billing.setDescription(billingDto.getDescription());
 
         Billing updatedBilling = billingRepository.save(billing);
@@ -125,18 +129,16 @@ public class BillingServiceImpl implements BillingService {
     @Override
     @Transactional
     public BillingDto updateBillingStatus(Long id, Status status) {
-        Billing billing = billingRepository.findById(id)
+        Billing billing = billingRepository.findForUpdate(id)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + id));
-        if (billing.getStatus() == Status.PAID) {
-            throw new IllegalArgumentException("Billing is already paid");
+        if (status != Status.PENDING && status != Status.CANCELLED) {
+            throw new IllegalArgumentException("Paid status is derived from recorded payments, not a status edit");
         }
-
+        if (billing.isDeleted() || billing.getPayments().stream().anyMatch(payment -> !payment.isReversed() && !payment.isDeleted())) {
+            throw new IllegalArgumentException("Reverse active payments before cancelling or reactivating this bill");
+        }
         billing.setStatus(status);
-
-        // If status is PAID, set the paidAt timestamp
-        if (status == Status.PAID) {
-            billing.setPaidAt(LocalDateTime.now());
-        }
+        billing.setPaidAt(null);
 
         Billing updatedBilling = billingRepository.save(billing);
         return mapToDto(updatedBilling);
@@ -145,34 +147,36 @@ public class BillingServiceImpl implements BillingService {
     @Override
     @Transactional
     public BillingDto recordPayment(Long id, String paymentMethod, String paymentReference) {
-        Billing billing = billingRepository.findById(id)
+        Billing billing = billingRepository.findForUpdate(id)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + id));
-
-        billing.setPaymentMethod(paymentMethod);
-        billing.setPaymentReference(paymentReference);
-        billing.setStatus(Status.PAID);
-        billing.setPaidAt(LocalDateTime.now());
-
-        Billing updatedBilling = billingRepository.save(billing);
-        return mapToDto(updatedBilling);
+        paymentService.createPayment(id, billing.getAmountDue(), paymentMethod, paymentReference, null);
+        return mapToDto(billing);
     }
 
     @Override
     @Transactional
     public BillingDetailDto addBillingDetail(Long billingId, BillingDetailDto billingDetailDto) {
-        Billing billing = billingRepository.findById(billingId)
+        Billing billing = billingRepository.findForUpdate(billingId)
                 .orElseThrow(() -> new EntityNotFoundException("Billing not found with id: " + billingId));
+        requireEditable(billing);
+        preserveOpeningAmount(billing);
 
         BillingItem billingItem = billingItemRepository.findById(billingDetailDto.getBillingItemId())
-                .orElseThrow(() -> new EntityNotFoundException("Billing item not found with id: " + billingDetailDto.getBillingItemId()));
+            .orElseThrow(() -> new EntityNotFoundException("Billing item not found with id: " + billingDetailDto.getBillingItemId()));
+                        if (!billingItem.isActive() || billingItem.isDeleted() || billingItem.getCurrency() == null
+                                || !billingItem.getCurrency().getCode().equals(billing.getCurrencyCode())) {
+                            throw new IllegalArgumentException("Select an active billing item in this bill's currency");
+                        }
 
         BillingDetail billingDetail = BillingDetail.builder()
                 .billing(billing)
                 .billingItem(billingItem)
-                .amount(billingDetailDto.getAmount() != null ? billingDetailDto.getAmount() : billingItem.getDefaultAmount())
+                .amount(money(billingDetailDto.getAmount() != null ? billingDetailDto.getAmount() : billingItem.getDefaultAmount()))
                 .description(billingDetailDto.getDescription())
                 .quantity(billingDetailDto.getQuantity() != null ? billingDetailDto.getQuantity() : 1)
                 .build();
+
+            if (billingDetail.getQuantity() < 1) throw new IllegalArgumentException("Quantity must be positive");
 
         // Calculate total amount
         billingDetail.setTotalAmount(billingDetail.getAmount().multiply(BigDecimal.valueOf(billingDetail.getQuantity())));
@@ -190,12 +194,15 @@ public class BillingServiceImpl implements BillingService {
     @Override
     @Transactional
     public BillingDetailDto updateBillingDetail(Long billingDetailId, BillingDetailDto billingDetailDto) {
+        Billing billing = lockedDetailBill(billingDetailId);
+        requireEditable(billing);
+        preserveOpeningAmount(billing);
         BillingDetail billingDetail = billingDetailRepository.findById(billingDetailId)
                 .orElseThrow(() -> new EntityNotFoundException("Billing detail not found with id: " + billingDetailId));
 
         // Update billing detail fields
         if (billingDetailDto.getAmount() != null) {
-            billingDetail.setAmount(billingDetailDto.getAmount());
+            billingDetail.setAmount(money(billingDetailDto.getAmount()));
         }
 
         if (billingDetailDto.getDescription() != null) {
@@ -203,13 +210,12 @@ public class BillingServiceImpl implements BillingService {
         }
 
         if (billingDetailDto.getQuantity() != null) {
+            if (billingDetailDto.getQuantity() < 1) throw new IllegalArgumentException("Quantity must be positive");
             billingDetail.setQuantity(billingDetailDto.getQuantity());
         }
 
         // Calculate total amount
-        if (billingDetailDto.getTotalAmount()!=null) {
-            billingDetail.setTotalAmount(billingDetail.getAmount().multiply(BigDecimal.valueOf(billingDetail.getQuantity())));
-        }
+        billingDetail.setTotalAmount(billingDetail.getAmount().multiply(BigDecimal.valueOf(billingDetail.getQuantity())));
 
         // Update billing amount and total amount
         updateBillingAmounts(billingDetail.getBilling());
@@ -223,10 +229,11 @@ public class BillingServiceImpl implements BillingService {
     @Override
     @Transactional
     public void removeBillingDetail(Long billingDetailId) {
+        Billing billing = lockedDetailBill(billingDetailId);
+        requireEditable(billing);
+        preserveOpeningAmount(billing);
         BillingDetail billingDetail = billingDetailRepository.findById(billingDetailId)
                 .orElseThrow(() -> new EntityNotFoundException("Billing detail not found with id: " + billingDetailId));
-
-        Billing billing = billingDetail.getBilling();
 
         // Remove billing detail from billing
         billing.removeBillingDetail(billingDetail);
@@ -252,10 +259,11 @@ public class BillingServiceImpl implements BillingService {
     }
 
     private void updateBillingAmounts(Billing billing) {
+        preserveOpeningAmount(billing);
         // Calculate total amount from billing details
-        BigDecimal totalAmount = billing.getBillingDetails().stream()
+        BigDecimal totalAmount = billing.getOpeningAmount().add(billing.getBillingDetails().stream()
                 .map(BillingDetail::getTotalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         if (billing.getDiscount() != null) {
             // Reject the request if discount is greater than the amount
@@ -265,11 +273,35 @@ public class BillingServiceImpl implements BillingService {
         }
 
         billing.setAmount(totalAmount);
-        billing.setTotalAmount(totalAmount);
+        billing.setTotalAmount(totalAmount.subtract(billing.getDiscount() == null ? BigDecimal.ZERO : billing.getDiscount()));
 
     }
 
     private BillingDto mapToDto(Billing billing) {
         return billingMapper.toDto(billing);
+    }
+
+    private Billing lockedDetailBill(Long detailId) {
+        Long billingId = billingDetailRepository.findBillingId(detailId).orElseThrow(() -> new EntityNotFoundException("Billing detail not found"));
+        return billingRepository.findForUpdate(billingId).orElseThrow(() -> new EntityNotFoundException("Billing not found"));
+    }
+
+    private void requireEditable(Billing billing) {
+        if (billing.isDeleted() || billing.getStatus() == Status.CANCELLED || !billing.getPayments().isEmpty()) {
+            throw new IllegalArgumentException("Bills with issued receipts cannot be repriced; use a reviewed adjustment workflow");
+        }
+    }
+
+    private void preserveOpeningAmount(Billing billing) {
+        if (billing.getOpeningAmount() == null) {
+            BigDecimal details = billing.getBillingDetails().stream().map(BillingDetail::getTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            billing.setOpeningAmount(money(billing.getAmount().subtract(details)));
+        }
+    }
+
+    private BigDecimal money(BigDecimal amount) {
+        if (amount == null || amount.signum() < 0) throw new IllegalArgumentException("Amounts and discounts must be non-negative");
+        try { return amount.setScale(2, java.math.RoundingMode.UNNECESSARY); }
+        catch (ArithmeticException exception) { throw new IllegalArgumentException("Use at most two decimal places"); }
     }
 }

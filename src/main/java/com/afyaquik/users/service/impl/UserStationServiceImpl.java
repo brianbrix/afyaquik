@@ -119,6 +119,7 @@ public class UserStationServiceImpl implements UserStationService {
                 .orElseThrow(() -> new EntityNotFoundException("Station not found with name: " + stationName));
 
         return usersRepository.findByStationsContaining(station).stream()
+                .filter(user -> user.isEnabled() && !user.isDeleted() && user.isAvailable())
                 .map(this::toUserDto)
                 .collect(Collectors.toSet());
     }
@@ -148,9 +149,9 @@ public class UserStationServiceImpl implements UserStationService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
+                .secondName(user.getSecondName())
                 .lastName(user.getLastName())
-                .email(user.getEmail())
-                .enabled(user.isEnabled())
+                .available(user.isAvailable())
                 .roles(user.getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.toSet()))

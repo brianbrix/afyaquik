@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import {AuthGuard, Header, PatientAssignForm, ToastProvider} from '@afyaquik/shared';
-import {Route, Routes} from "react-router-dom";
+import {AuthGuard, Header, ToastProvider} from '@afyaquik/shared';
+import {Navigate, Route, Routes} from "react-router-dom";
 import DoctorPatientVisitList from "./patient/DoctorPatientVisitList";
 import DoctorPatientVisitDetailsPage from "./patient/DoctorPatientVisitDetailsPage";
 import ObservationReportsAddPage from "./patient/ObservationReportsAddPage";
@@ -9,7 +9,6 @@ import DoctorAppointmentDetailsPage from "./patient/DoctorAppointmentDetailsPage
 import DoctorAppointmentList from "./patient/DoctorAppointmentsList";
 import DoctorTreatmentPlanAddPage from "./patient/DoctorTreatmentPlanAddPage";
 import DoctorVisitAssign from "./patient/DoctorVisitAssign";
-import DoctorAppointmentEditPage from "./patient/DoctorAppointmentEditPage";
 
 function App() {
   return (
@@ -24,9 +23,10 @@ function App() {
                       <Route path="/visits/:id/assign" element={<DoctorVisitAssign />} />
                       <Route path="/assignments/:id/edit" element={<ObservationReportsAddPage />} />
                       <Route path="/appointments/:id/details" element={<DoctorAppointmentDetailsPage />} />
-                      <Route path="/appointments/:id/edit" element={<DoctorAppointmentEditPage />} />
+                      <Route path="/appointments/:id/edit" element={<Navigate to="/appointments" replace />} />
                       <Route path="/appointments" element={<DoctorAppointmentList />} />
                       <Route path="/visits/:id/treatment/plans/create" element={<DoctorTreatmentPlanAddPage />} />
+                      <Route path="*" element={<Navigate to="/visits" replace />} />
 
                   </Routes>
               </div>

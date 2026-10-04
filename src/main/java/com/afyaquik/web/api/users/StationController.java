@@ -22,12 +22,12 @@ public class StationController {
         return ResponseEntity.ok(userStationService.createStation(stationDto));
     }
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('SUPERADMIN','RECEPTIONIST')")
+    @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','RECEPTIONIST','DOCTOR','NURSE','PHARMACIST')")
     public ResponseEntity<StationDto> getStation(@PathVariable Long id) {
         return ResponseEntity.ok(userStationService.getStation(id));
     }
     @GetMapping("/{name}/users")
-    @PreAuthorize("hasAnyRole('SUPERADMIN','RECEPTIONIST','ADMIN')")
+    @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','RECEPTIONIST','DOCTOR','NURSE','PHARMACIST')")
     public ResponseEntity<Set<UserDto>> getStationUsers(@PathVariable String name) {
         return ResponseEntity.ok(userStationService.getStationUsers(name));
     }
@@ -43,7 +43,7 @@ public class StationController {
         return ResponseEntity.ok(null);
     }
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN','RECEPTIONIST')")
+    @PreAuthorize("hasAnyRole('SUPERADMIN','ADMIN','RECEPTIONIST','DOCTOR','NURSE','PHARMACIST')")
     public ResponseEntity<?> getAllStations() {
         Set<StationDto> roles = userStationService.getAllStations();
         return ResponseEntity.ok(roles);

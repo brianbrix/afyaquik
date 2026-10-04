@@ -24,6 +24,7 @@ public class ApiPermissionDataLoader {
     @Bean
     public CommandLineRunner loadApiPermissions() {
         return args -> {
+            Role reports = getOrCreateRole("REPORTS");
             if (apiPermissionRepository.count() > 0) {
                 log.info("API permissions already exist, skipping initialization");
                 return;
@@ -46,6 +47,14 @@ public class ApiPermissionDataLoader {
                 "Search API endpoints",
                 receptionist, doctor, nurse, admin, superadmin, pharmacist);
 
+            createApiPermission("/api/notifications/**",
+                "Notifications API endpoints",
+                receptionist, doctor, nurse, admin, superadmin, pharmacist, cashier, labTechnician, reports);
+
+            createApiPermission("/api/users/**",
+                "Users API endpoints",
+                receptionist, doctor, nurse, admin, superadmin, pharmacist, cashier, labTechnician);
+
             createApiPermission("/api/admin/**",
                 "Admin API endpoints",
                 admin, superadmin);
@@ -64,7 +73,16 @@ public class ApiPermissionDataLoader {
 
             createApiPermission("/api/patients/**",
                 "Patient API endpoints",
-                receptionist, doctor, nurse, admin);
+                receptionist, doctor, nurse, admin, superadmin, pharmacist);
+
+            createApiPermission("/api/patient/visits/**", "Visit and handoff API endpoints",
+                    receptionist, doctor, nurse, admin, superadmin, pharmacist);
+            createApiPermission("/api/patient/triage/**", "Triage API endpoints", doctor, nurse, admin, superadmin);
+            createApiPermission("/api/appointments/**", "Appointment API endpoints", receptionist, doctor, nurse, admin, superadmin);
+            createApiPermission("/api/drugs/**", "Medicine catalogue and stock API endpoints", doctor, pharmacist, admin, superadmin);
+            createApiPermission("/api/patient-drugs/**", "Prescription and dispensing API endpoints", doctor, pharmacist, admin, superadmin);
+            createApiPermission("/api/billing/**", "Billing API endpoints", receptionist, cashier, admin, superadmin);
+            createApiPermission("/api/reports/**", "Aggregate activity reports", reports, doctor, nurse, admin, superadmin);
 
             createApiPermission("/api/cashier/**",
                 "Cashier API endpoints",

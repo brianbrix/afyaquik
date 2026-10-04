@@ -46,7 +46,8 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
                 .urlPattern(permissionDto.getUrlPattern())
                 .enabled(permissionDto.isEnabled())
                 .allowedRoles(permissionDto.getRoleNames().stream()
-                        .map(role -> rolesRepository.findByName(role).orElse(null))
+                        .map(role -> rolesRepository.findByName(role)
+                            .orElseThrow(() -> new EntityNotFoundException("Role not found: " + role)))
                         .collect(Collectors.toSet()))
                 .description(permissionDto.getDescription())
                 .build();
@@ -84,9 +85,10 @@ public class ApiPermissionServiceImpl implements ApiPermissionService {
         apiPermission.setEnabled(permissionDto.isEnabled());
         apiPermission.setUrlPattern(permissionDto.getUrlPattern());
         apiPermission.setDescription(permissionDto.getDescription());
-        apiPermission.getAllowedRoles().addAll(permissionDto.getRoleNames().stream()
-                .map(role -> rolesRepository.findByName(role).orElse(null))
-                .collect(Collectors.toSet()));
+        apiPermission.setAllowedRoles(permissionDto.getRoleNames().stream()
+            .map(role -> rolesRepository.findByName(role)
+                .orElseThrow(() -> new EntityNotFoundException("Role not found: " + role)))
+            .collect(Collectors.toSet()));
         return apiPermissionMapper.toDto(apiPermissionRepository.save(apiPermission));
     }
 }

@@ -9,7 +9,7 @@ const DoctorAppointmentDetailsPage = () => {
     console.log("Patient ID", id)
 
     return (
-        <AppointmentDetailsPage appointmentId={id}/>
+        <AppointmentDetailsPage appointmentId={id} canEdit={false}/>
     )
 }
 export default DoctorAppointmentDetailsPage;

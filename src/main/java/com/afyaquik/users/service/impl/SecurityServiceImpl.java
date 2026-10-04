@@ -32,10 +32,12 @@ import java.util.stream.Collectors;
 @Service
 public class SecurityServiceImpl implements SecurityService {
     private final RevokedTokenRepository revokedTokenRepository;
-
     private final JwtProviderService jwtProvider;
     private final UserService  userService;
     private final AuthenticationManager authenticationManager;
+
+    @org.springframework.beans.factory.annotation.Value("${app.cookie.secure:true}")
+    private boolean cookieSecure;
     @Override
     public HttpHeaders login(String username, String password, HttpServletRequest request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -56,7 +58,7 @@ public class SecurityServiceImpl implements SecurityService {
                 clientId);
         ResponseCookie cookie = ResponseCookie.from("authToken", token)
                 .httpOnly(true)
-                .secure(false) // Use true in production (with HTTPS)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(Duration.ofDays(1))
                 .sameSite("Strict")
@@ -88,10 +90,10 @@ public class SecurityServiceImpl implements SecurityService {
 
         ResponseCookie cookie = ResponseCookie.from("authToken", "")
                 .httpOnly(true)
-                .secure(false) // use HTTPS in production
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("Strict")
                 .build();
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }

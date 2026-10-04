@@ -1,6 +1,6 @@
-import {Routes, Route} from 'react-router-dom';
+import {Routes, Route, Navigate} from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-import {Header, ToastProvider} from "@afyaquik/shared";
+import {AuthGuard, Header, ToastProvider} from "@afyaquik/shared";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import React from "react";
@@ -12,10 +12,11 @@ export default function App() {
               <Header />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/home" element={<AuthGuard><HomePage /></AuthGuard>} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/profile" element={<AuthGuard><ProfilePage /></AuthGuard>} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
           </ToastProvider>
 

@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,9 +29,10 @@ public class PasswordResetRequestServiceImpl implements PasswordResetRequestServ
     @Transactional
     public void createPasswordResetRequest(PasswordResetRequestDto requestDto) {
         User user = usersRepository.findByUsername(requestDto.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElse(null);
+        if (user == null) return;
         if (passwordResetRequestRepository.findByUserAndStatus(user, PasswordRequestStatus.PENDING).isPresent()) {
-            throw new IllegalStateException("Password reset request already pending");
+            return;
         }
         java.time.LocalDateTime expiryDate = java.time.LocalDateTime.now().plusHours(3);
         PasswordResetRequest resetRequest = PasswordResetRequest.builder()
@@ -45,6 +48,15 @@ public class PasswordResetRequestServiceImpl implements PasswordResetRequestServ
     public void processPasswordReset(PasswordResetRequestDto requestDto) {
         User user = usersRepository.findByUsername(requestDto.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getAuthorities().stream()
+                .noneMatch(authority -> java.util.Set.of("ROLE_ADMIN", "ROLE_SUPERADMIN").contains(authority.getAuthority()))) {
+            throw new AccessDeniedException("Administrator access is required.");
+        }
+        if (user.getRoles().stream().anyMatch(role -> "SUPERADMIN".equals(role.getName()))
+                && authentication.getAuthorities().stream().noneMatch(authority -> "ROLE_SUPERADMIN".equals(authority.getAuthority()))) {
+            throw new AccessDeniedException("Only a superadmin can reset a superadmin password.");
+        }
         PasswordResetRequest resetRequest = passwordResetRequestRepository.findByUserAndStatus(user, PasswordRequestStatus.PENDING)
                 .orElseThrow(() -> new EntityNotFoundException("Pending password reset request not found for: "+user.getUsername()));
         if (resetRequest.getExpiryDate().isBefore(java.time.LocalDateTime.now())) {
@@ -55,6 +67,9 @@ public class PasswordResetRequestServiceImpl implements PasswordResetRequestServ
         }
         if (!requestDto.getPassword().equals(requestDto.getConfirmPassword())) {
             throw new IllegalArgumentException("Passwords do not match");
+        }
+        if (requestDto.getPassword().length() < 8) {
+            throw new IllegalArgumentException("Password must contain at least 8 characters");
         }
         user.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
         usersRepository.save(user);

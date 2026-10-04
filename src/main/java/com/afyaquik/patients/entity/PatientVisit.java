@@ -25,6 +25,8 @@ public class PatientVisit extends SuperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean inpatientActive;
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
@@ -44,12 +46,14 @@ public class PatientVisit extends SuperEntity {
     private TriageReport triageReport;
 
     @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<PatientAssignment> patientAssignments= new ArrayList<>();
 
     @OneToMany(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PatientVisitNotes> patientVisitNotes;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Status visitStatus= Status.PENDING;
 
     @OneToOne(mappedBy = "patientVisit", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -17,7 +17,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/patient/visits")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('RECEPTIONIST') or hasRole('NURSE') or hasRole('DOCTOR')")
+@PreAuthorize("hasAnyRole('RECEPTIONIST', 'NURSE', 'DOCTOR', 'PHARMACIST', 'ADMIN', 'SUPERADMIN')")
 public class PatientVisitController {
     private final PatientService patientService;
     private final PatientVisitService  patientVisitService;

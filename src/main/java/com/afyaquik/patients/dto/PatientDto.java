@@ -2,6 +2,7 @@ package com.afyaquik.patients.dto;
 
 import com.afyaquik.users.dto.ContactInfo;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,5 +25,6 @@ public class PatientDto {
         private LocalDateTime createdAt;
         private String nationalId;
         private String maritalStatus;
+        @Valid
         private ContactInfo contactInfo;
 }

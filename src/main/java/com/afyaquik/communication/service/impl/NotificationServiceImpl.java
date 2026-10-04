@@ -12,6 +12,8 @@ import com.afyaquik.users.repository.UsersRepository;
 import com.afyaquik.utils.mappers.communication.NotificationMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,10 +27,17 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationMapper mapper;
     @Override
     public NotificationDto sendToUser(NotificationDto  notificationDto) {
-        User user = usersRepo.findById(notificationDto.getRecipientId()).orElse(null);
         Role role = rolesRepository.findByName(notificationDto.getRecipientRole())
                 .orElseThrow(() -> new EntityNotFoundException("Role not found"));
-        Notification notification = Notification.builder()
+        List<User> recipients = notificationDto.getRecipientId() == null
+                ? usersRepo.findByRolesIn(List.of(role)).stream().filter(User::isEnabled).toList()
+                : List.of(usersRepo.findById(notificationDto.getRecipientId())
+                        .orElseThrow(() -> new EntityNotFoundException("Recipient not found")));
+        if (recipients.isEmpty() || recipients.stream().anyMatch(user -> !user.isEnabled()
+                || user.getRoles().stream().noneMatch(userRole -> role.getName().equals(userRole.getName())))) {
+            throw new IllegalArgumentException("No enabled recipient with the requested role.");
+        }
+        List<Notification> notifications = recipients.stream().map(user -> Notification.builder()
                 .title(notificationDto.getTitle())
                 .message(notificationDto.getMessage())
                 .targetUrl(notificationDto.getTargetUrl())
@@ -36,15 +45,15 @@ public class NotificationServiceImpl implements NotificationService {
                 .recipientRole(role)
                 .type(NotificationType.valueOf(notificationDto.getType()))
                 .read(false)
-                .build();
-        return mapper.toDto(notificationRepo.save(notification));
+                .createdAt(LocalDateTime.now())
+                .build()).toList();
+        return mapper.toDto(notificationRepo.saveAll(notifications).get(0));
     }
 
 
     @Override
     public List<NotificationDto> getUnread(Long userId, String roleName) {
-        User user = usersRepo.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                User user = requireMailboxOwner(userId, roleName);
         Role role = rolesRepository.findByName(roleName)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found"));
 
@@ -57,6 +66,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void markAsRead(Long id) {
         Notification notification = notificationRepo.findById(id).orElseThrow(()->new EntityNotFoundException("Notification not found"));
+                if (notification.getRecipient() == null || notification.getRecipientRole() == null) {
+                        throw new AccessDeniedException("This notification does not belong to your mailbox.");
+                }
+                requireMailboxOwner(notification.getRecipient().getId(), notification.getRecipientRole().getName());
         notification.setRead(true);
         notification.setReadAt(LocalDateTime.now());
         notificationRepo.save(notification);
@@ -65,8 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void markAllAsRead(Long userId, String roleName) {
 
-        User user = usersRepo.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User user = requireMailboxOwner(userId, roleName);
         Role role = rolesRepository.findByName(roleName)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found"));
 
@@ -77,4 +89,18 @@ public class NotificationServiceImpl implements NotificationService {
         });
         notificationRepo.saveAll(notifications);
     }
+
+        private User requireMailboxOwner(Long userId, String roleName) {
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication == null || !authentication.isAuthenticated()) {
+                        throw new AccessDeniedException("Authentication required.");
+                }
+                User current = usersRepo.findByUsername(authentication.getName())
+                                .orElseThrow(() -> new AccessDeniedException("Staff account not found."));
+                if (!current.getId().equals(userId)
+                                || current.getRoles().stream().noneMatch(role -> roleName.equals(role.getName()))) {
+                        throw new AccessDeniedException("This notification does not belong to your mailbox.");
+                }
+                return current;
+        }
 }

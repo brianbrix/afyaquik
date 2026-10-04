@@ -10,9 +10,7 @@ export const sendNotification= async (recipientId:any, title:string, message:str
         type: type,
         recipientRole: recipientRole
     }
-    console.log('Sending notification', requestBody)
     const response = await apiRequest(`/notifications/send`, { method: 'POST', body: requestBody });
-    console.log('Notification sent', response)
     return response;
 
 }

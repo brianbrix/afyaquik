@@ -19,6 +19,7 @@ public class TreatmentPlanItemController {
         return ResponseEntity.ok(treatmentPlanService.addTreatmentPlanItem(treatmentPlanItemDto));
     }
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN', 'DOCTOR', 'PHARMACIST')")
     public ResponseEntity<TreatmentPlanItemDto> getTreatmentPlanItem(@PathVariable Long id) {
         return ResponseEntity.ok(treatmentPlanService.getTreatmentPlanItem(id));
     }

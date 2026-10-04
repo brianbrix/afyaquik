@@ -3,6 +3,7 @@ package com.afyaquik.users.security;
 
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
+import com.afyaquik.users.repository.RevokedTokenRepository;
 import com.afyaquik.users.service.JwtProviderService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProviderService tokenProvider;
     private final UsersRepository userRepository;
+    private final RevokedTokenRepository revokedTokenRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -45,11 +47,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        if (token != null && tokenProvider.validateToken(token)) {
+        String clientId = request.getHeader("User-Agent");
+        if (clientId == null || clientId.isBlank()) {
+            clientId = "unknown-client";
+        }
+        if (token != null && !revokedTokenRepository.existsByToken(token) && tokenProvider.validateToken(token, clientId)) {
             String username = tokenProvider.getUserNameFromToken(token);
             User user = userRepository.findByUsername(username).orElse(null);
 
-            if (user != null && user.isEnabled()) {
+                    if (user != null && user.isEnabled() && !user.isDeleted()) {
                 Set<SimpleGrantedAuthority> authorities = user.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                         .collect(Collectors.toSet());

@@ -35,7 +35,7 @@ public class DrugInventoryServiceImpl implements DrugInventoryService {
     private final DrugRepository drugRepository;
 
     @Override
-    @PreAuthorize("hasAnyRole('PHARMACY', 'ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('PHARMACIST', 'ADMIN', 'SUPERADMIN')")
     @Transactional
     public DrugInventoryDto adjustInventory(Long drugId, String batchNumber, double quantity) {
         if (quantity > 0) {

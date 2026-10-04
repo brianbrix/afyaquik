@@ -37,4 +37,16 @@ public class BillPayment extends SuperEntity {
     private LocalDateTime paymentDate;
 
     private String notes;
+    private String currencyCode;
+    private String patientNameSnapshot;
+    private String facilityNameSnapshot;
+    private String receivedBy;
+    private BigDecimal billTotalSnapshot;
+    private BigDecimal paidToDateSnapshot;
+    private BigDecimal balanceSnapshot;
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean reversed;
+    private String reversalReason;
+    private String reversedBy;
+    private LocalDateTime reversedAt;
 }

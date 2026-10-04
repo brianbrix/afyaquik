@@ -1,10 +1,7 @@
 import React from 'react';
 import './App.css';
-import { Route, Routes } from 'react-router-dom';
-import PatientDrugList from './patient-drug/PatientDrugList';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import PatientDrugDetailsPage from './patient-drug/PatientDrugDetailsPage';
-import PatientDrugEditPage from './patient-drug/PatientDrugEditPage';
-import PatientDrugAddPage from './patient-drug/PatientDrugAddPage';
 
 import PatientAssignmentList from './patient/PatientAssignmentList';
 import PatientAssignmentDetailsPage from './patient/PatientAssignmentDetailsPage';
@@ -24,8 +21,7 @@ function App() {
           <Header homeUrl="/client/pharmacy/index.html" userRole={'PHARMACIST'} />
           <div className="container my-4">
             <Routes>
-          <Route path="/patient-drugs/:id/edit" element={<PatientDrugEditPage />} />
-          <Route path="/patient-drugs/add/:patientVisitId" element={<PatientDrugAddPage />} />
+          <Route path="/patient-drugs/:id/details" element={<PatientDrugDetailsPage />} />
 
           <Route path="/assignments" element={<PatientAssignmentList />} />
           <Route path="/assignments/:id/details" element={<PatientAssignmentDetailsPage />} />
@@ -36,6 +32,7 @@ function App() {
           <Route path="/drugs" element={<DrugList />} />
           <Route path="/drugs/:id/details" element={<DrugDetailsPage />} />
           <Route path="" element={<HomePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
           </div>
         </AuthGuard>

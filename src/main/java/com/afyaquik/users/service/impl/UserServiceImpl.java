@@ -36,6 +36,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -66,6 +67,7 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = "searchResults", allEntries = true)
     @Transactional
     public UserResponse createUser(UserDto request) {
+        validateRoleAssignment(request.getRoles());
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateValueException("Username already exists");
         }
@@ -81,9 +83,14 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .username(request.getUsername())
                 .firstName(request.getFirstName())
-                .secondName(request.getSecondName())
+                .secondName(request.getSecondName() == null ? "" : request.getSecondName())
                 .email(request.getEmail())
-                .enabled(request.getEnabled())
+                .enabled(Boolean.TRUE.equals(request.getEnabled()))
+                .available(request.isAvailable())
+                .stations(request.getStations() == null ? Set.of() : request.getStations().stream()
+                    .map(name -> stationRepository.findByName(name)
+                        .orElseThrow(() -> new EntityNotFoundException("Station not found: " + name)))
+                    .collect(Collectors.toSet()))
                 .lastName(request.getLastName())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .roles(userRoles)
@@ -97,6 +104,9 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .roles(userRoles.stream().map(Role::getName).collect(Collectors.toSet()))
+                .enabled(user.isEnabled())
+                .available(user.isAvailable())
+                .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                 .build();
     }
     public String getCurrentUsername() {
@@ -125,9 +135,11 @@ public class UserServiceImpl implements UserService {
     }
 
     public Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userDetails = (User) authentication.getPrincipal();
-        return userDetails.getId();
+        String username = getCurrentUsername();
+        if (username == null) {
+            throw new AccessDeniedException("Authentication required.");
+        }
+        return findByUsername(username).getId();
     }
 
     @Override
@@ -219,6 +231,11 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUserDetails(Long userId, UserDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        validateRoleAssignment(request.getRoles());
+        if (user.getRoles().stream().anyMatch(role -> "SUPERADMIN".equals(role.getName()))
+            && !getCurrentUserRoles().contains("ROLE_SUPERADMIN")) {
+            throw new AccessDeniedException("Only a superadmin can change a superadmin account.");
+        }
         cleanEditDetails(request);
         user.setFirstName(request.getFirstName());
         user.setSecondName(request.getSecondName());
@@ -248,6 +265,20 @@ public class UserServiceImpl implements UserService {
                 .stations(user.getStations().stream().map(Station::getName).collect(Collectors.toSet()))
                 .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
+    }
+
+    private void validateRoleAssignment(Set<String> roles) {
+        Authentication authentication = getCurrentUser();
+        if (authentication == null || authentication.getAuthorities().stream()
+                .noneMatch(authority -> Set.of("ROLE_ADMIN", "ROLE_SUPERADMIN").contains(authority.getAuthority()))) {
+            throw new AccessDeniedException("Only administrators can manage staff accounts.");
+        }
+        if (roles == null || roles.isEmpty()) {
+            throw new IllegalArgumentException("At least one staff role is required.");
+        }
+        if (roles.contains("SUPERADMIN") && !getCurrentUserRoles().contains("ROLE_SUPERADMIN")) {
+            throw new AccessDeniedException("Only a superadmin can assign the superadmin role.");
+        }
     }
 
     /**
@@ -295,7 +326,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getUsersByRole(Long roleId) {
-        return List.of();
+        Role role = roleRepository.findById(roleId)
+            .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+        return userRepository.findByRolesIn(List.of(role)).stream()
+            .filter(User::isEnabled)
+            .map(user -> UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .secondName(user.getSecondName())
+                .lastName(user.getLastName())
+                .available(user.isAvailable())
+                .build())
+            .toList();
     }
 
     @Override

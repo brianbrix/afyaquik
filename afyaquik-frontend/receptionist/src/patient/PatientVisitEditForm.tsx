@@ -45,29 +45,29 @@ const components = function (visitId:any){
 const PatientVisitEditForm = () => {
     let  params = useParams();
     const id = Number(params.id);
-    console.log('Visit ID', id)
-    formConfig.map((step) => {
-        step.topComponents = [components(id)];
-    });
-    const [defaultValues, setDefaultValues] = useState([]);
+    const config = formConfig.map(step => ({ ...step, topComponents: [components(id)] }));
+    const [defaultValues, setDefaultValues] = useState<Record<string, any> | null>(null);
+    const [error, setError] = useState('');
+    const [attempt, setAttempt] = useState(0);
     useEffect(() => {
+        let active = true;
+        setDefaultValues(null);
+        setError('');
         apiRequest(`/patient/visits/${id}`, { method: 'GET' })
             .then(data => {
-                console.log('Visit data', data)
-                setDefaultValues(data);
+                if (active) setDefaultValues(data);
             })
-            .catch(err => console.error(err));
-    }, []);
+            .catch(failure => { if (active) setError(failure.message || 'Unable to load this encounter.'); });
+        return () => { active = false; };
+    }, [id, attempt]);
+    if (error) return <div className="alert alert-danger" role="alert">{error}<Button onClick={() => setAttempt(value => value + 1)}>Retry</Button></div>;
+    if (!defaultValues) return <p role="status">Loading encounter...</p>;
+    if (['COMPLETED', 'CANCELLED'].includes(defaultValues.visitStatus)) return <div className="alert alert-secondary">Closed encounters cannot be edited.{components(id)}</div>;
     return (
-        <PatientVisitForm formConfig={formConfig}
-                      onSubmit={(data) => {
-                          console.log('Submitted data:', data);
-                          apiRequest(`/patient/visits/update`, { method:'PUT' , body: data})
-                              .then(response => {
-                                  console.log(response)
-                                  window.location.href = `index.html#/visits/${response.id}/details`;
-                              })
-                              .catch(err => console.error(err));
+        <PatientVisitForm formConfig={config}
+                      onSubmit={async data => {
+                          const response = await apiRequest(`/patient/visits/update`, { method:'PUT', body: { ...data, id, visitStatus: undefined } });
+                          window.location.href = `index.html#/visits/${response.id}/details`;
                       }}
                       idFromParent={id}
                       defaultValues={defaultValues}

@@ -14,6 +14,7 @@ import java.util.Set;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+    java.util.List<Appointment> findTop20ByPatientIdAndAppointmentDateTimeGreaterThanEqualOrderByAppointmentDateTimeAsc(Long patientId, LocalDateTime from);
     Page<Appointment> findByDoctorId(Long doctorId, Pageable pageable);
     Page<Appointment> findByPatientId(Long patientId, Pageable pageable);
     boolean existsByPatientAndAppointmentDateTime(Patient patient, LocalDateTime dateTime);

@@ -1,6 +1,7 @@
 import { List, Datagrid, TextField, BooleanField, Button } from 'react-admin';
 import { useRecordContext } from 'react-admin';
 import { useState } from 'react';
+import { apiRequest } from '@afyaquik/shared';
 
 const ActivateButton = () => {
     const record = useRecordContext();
@@ -11,11 +12,8 @@ const ActivateButton = () => {
     const handleActivate = async () => {
         setLoading(true);
         try {
-            await fetch(`/api/currencies/${record.id}/activate`, {
+            await apiRequest(`/currencies/${record.id}/activate`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             });
             // Refresh the list
             window.location.reload();

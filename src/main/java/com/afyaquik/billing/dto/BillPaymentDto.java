@@ -27,6 +27,11 @@ public class BillPaymentDto {
     private LocalDateTime paymentDate;
 
     private String notes;
+    private String currencyCode;
+    private boolean reversed;
+    private String reversalReason;
+    private String reversedBy;
+    private LocalDateTime reversedAt;
 
     private LocalDateTime createdAt;
 

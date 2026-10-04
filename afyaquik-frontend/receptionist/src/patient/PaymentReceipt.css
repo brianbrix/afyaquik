@@ -1,0 +1,17 @@
+.payment-receipt { color: #20262b; background: #fff; padding: 16px; }
+.payment-receipt header { border-bottom: 2px solid #287567; padding-bottom: 16px; margin-bottom: 20px; }
+.payment-receipt h2 { font-size: 24px; }
+.payment-receipt h3 { font-size: 18px; }
+.payment-receipt dl { display: grid; grid-template-columns: minmax(115px, 1fr) minmax(0, 2fr); gap: 8px 16px; }
+.payment-receipt dd, .payment-receipt td { overflow-wrap: anywhere; }
+.payment-receipt td { text-align: right; }
+@media print {
+  body:has(.receipt-modal) { overflow: visible !important; }
+  body:has(.receipt-modal) * { visibility: hidden; }
+  body:has(.receipt-modal) .payment-receipt, body:has(.receipt-modal) .payment-receipt * { visibility: visible; }
+  .receipt-modal { position: absolute !important; overflow: visible !important; padding: 0 !important; }
+  .receipt-modal .modal-dialog { margin: 0; max-width: none; transform: none !important; }
+  .receipt-modal .modal-content { border: 0; }
+  .receipt-modal .modal-header, .receipt-modal .modal-footer { display: none; }
+  .payment-receipt { padding: 0; break-inside: avoid; }
+}

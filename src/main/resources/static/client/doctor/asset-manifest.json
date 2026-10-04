@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/client/doctor/static/css/main.8d70e490.css",
+    "main.js": "/client/doctor/static/js/main.b27689de.js",
+    "static/js/317.1905fff8.chunk.js": "/client/doctor/static/js/317.1905fff8.chunk.js",
+    "static/media/bootstrap-icons.woff?": "/client/doctor/static/media/bootstrap-icons.1295669cd4e305c97f2c.woff",
+    "static/media/bootstrap-icons.woff2?": "/client/doctor/static/media/bootstrap-icons.92ea18a81d737146ff04.woff2",
+    "index.html": "/client/doctor/index.html",
+    "main.8d70e490.css.map": "/client/doctor/static/css/main.8d70e490.css.map",
+    "main.b27689de.js.map": "/client/doctor/static/js/main.b27689de.js.map",
+    "317.1905fff8.chunk.js.map": "/client/doctor/static/js/317.1905fff8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8d70e490.css",
+    "static/js/main.b27689de.js"
+  ]
+}

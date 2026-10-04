@@ -5,9 +5,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Entity
-@Table(name = "triage_report_items")
+@Table(name = "triage_reports")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,7 +20,8 @@ public class TriageReport extends SuperEntity {
     private Long id;
 
     @OneToMany(mappedBy = "triageReport", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TriageReportItem> triageReportItems;
+    @Builder.Default
+    private List<TriageReportItem> triageReportItems = new ArrayList<>();
 
     @OneToOne(mappedBy = "triageReport")
     private PatientVisit patientVisit;

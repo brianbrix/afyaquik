@@ -1,13 +1,12 @@
 import { fetchUtils } from 'react-admin';
 import simpleRestProvider from 'ra-data-simple-rest';
+import { csrfHeaders } from '@afyaquik/shared';
 
 const apiUrl = '/api';
-const httpClient = (url: string, options: any = {}) => {
-    if (!options.headers) {
-        options.headers = new Headers({ Accept: 'application/json', credential: 'include' });
-    }
-
-    return fetchUtils.fetchJson(url, options);
+const httpClient = async (url: string, options: any = {}) => {
+    const headers = await csrfHeaders(options.method, options.headers);
+    headers.set('Accept', 'application/json');
+    return fetchUtils.fetchJson(url, { ...options, headers, credentials: 'include' });
 };
 
 const baseDataProvider = simpleRestProvider(apiUrl, httpClient);
@@ -37,7 +36,7 @@ const dataProvider = {
 
             const shouldPaginate = params?.pagination !== false;
 
-            const { page = 1, perPage = 10 } = shouldPaginate ? params.pagination : {};
+            const { page = 1, perPage = 10 } = shouldPaginate ? (params.pagination || {}) : {};
             const { field = 'createdAt', order = 'DESC' } = params.sort || {};
 
             const requestBody: any = {
@@ -69,7 +68,7 @@ const dataProvider = {
                 const results = json.results || {};
                 return {
                     data: results.content || [],
-                    total: results.page?.totalElements || (Array.isArray(results) ? results.length : 0),
+                    total: results.totalElements ?? results.page?.totalElements ?? (Array.isArray(results) ? results.length : 0),
                 };
             });
         },
@@ -93,7 +92,7 @@ const dataProvider = {
                 const results = json.results || {};
                 return {
                     data: results.content || [],
-                    total: results.page?.totalElements || (Array.isArray(results) ? results.length : 0),
+                    total: results.totalElements ?? results.page?.totalElements ?? (Array.isArray(results) ? results.length : 0),
                 };
             });
         },
@@ -110,9 +109,14 @@ const dataProvider = {
     update: (resource: string, params: any) => {
         const endpoint = resourceUrlMap[resource] || resource;
         const url = `${apiUrl}/${endpoint}/${params.id}`;
+        const data = { ...params.data };
+        // Strip empty password so the backend keeps the existing hash
+        if (resource === 'users' && !data.password) {
+            delete data.password;
+        }
         return httpClient(url, {
-            method: 'PUT',  // or 'PATCH' if your API supports partial updates
-            body: JSON.stringify(params.data),
+            method: 'PUT',
+            body: JSON.stringify(data),
         }).then(({ json }) => ({
             data: json,
         }));

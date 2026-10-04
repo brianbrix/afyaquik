@@ -4,8 +4,9 @@ import {DetailsPage} from "../index";
 interface AppointmentDetailsPageProps
 {
     appointmentId: number;
+    canEdit?: boolean;
 }
-const AppointmentDetailsPage: React.FC<AppointmentDetailsPageProps>= ({appointmentId}) => {
+const AppointmentDetailsPage: React.FC<AppointmentDetailsPageProps>= ({appointmentId, canEdit = true}) => {
     const endpoint = `/appointments/${appointmentId}`;
     const back = function (){
         return (  <Button
@@ -43,9 +44,9 @@ const AppointmentDetailsPage: React.FC<AppointmentDetailsPageProps>= ({appointme
 
     return (
         <DetailsPage title={"Appointment Details"} endpoint={endpoint} fields={fields} topComponents={topComponents}
-        otherComponentsToRender={[{
+        otherComponentsToRender={canEdit ? [{
             title:'Actions',content:editButton()
-        }]}
+        }] : []}
         />
     )
 }

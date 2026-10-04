@@ -1,5 +1,5 @@
 import {useParams} from "react-router-dom";
-import {AssignmentsList, DetailsPage} from "@afyaquik/shared";
+import {AssignmentsList, DetailsPage, EncounterOperations} from "@afyaquik/shared";
 import {Button} from "react-bootstrap";
 import React from "react";
 import DoctorObservationReportList from "./DoctorObservationReportList";
@@ -53,7 +53,6 @@ const treatmentPlanReportList= function (visitId:number){
 const DoctorPatientVisitDetailsPage = () => {
     let  params = useParams();
     const id = Number(params.id);
-    console.log("Visit ID", id)
     const endpoint = `/patient/visits/${id}`;
     const fields=[
         { label: "Patient Name", accessor: "patientName" },
@@ -69,6 +68,7 @@ const DoctorPatientVisitDetailsPage = () => {
                          {title:'Assignments',content:assignmentList(id)},
                          {title:'Observation Reports',content:observationReportsList(id)},
                          {title:'Treatment Plan',content:treatmentPlanReportList(id)},
+                         {title:'Workflow',content:<EncounterOperations visitId={id}/>},
                      ]}
         />
     )

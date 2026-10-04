@@ -9,16 +9,16 @@ const formConfig: StepConfig[] = [
     {
         label: 'Edit Patient Info',
         fields: [
-            { name: 'id', label: 'User Id', type: 'text', colSpan:6 , disabled: true },
+            { name: 'id', label: 'Patient Number', type: 'text', colSpan:6 , disabled: true },
             { name: 'firstName', label: 'First Name', type: 'text', colSpan:6 , required: true },
             { name: 'secondName', label: 'Second Name', colSpan:6 , type: 'text' },
             { name: 'lastName', label: 'Last Name', type: 'text', colSpan:6  },
-            { name: 'gender', label: 'Gender', type: 'select', colSpan:6 , options: [
+            { name: 'gender', label: 'Sex', type: 'select', colSpan:6 , options: [
                     { label: 'Male', value: 'MALE' },
                     { label: 'Female', value: 'FEMALE' }
                 ] },
-            { name: 'dateOfBirth', label: 'Date of Birth', type: 'date', colSpan:6  },
-            { name: 'nationalId', label: 'National ID', type: 'text' , colSpan:6 },
+            { name: 'dateOfBirth', label: 'Date of Birth', type: 'date', max: new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Nairobi' }), colSpan:6 },
+            { name: 'nationalId', label: 'ID / Passport Number (optional)', type: 'text', colSpan:6 },
             { name: 'maritalStatus', label: 'Marital Status', type: 'select', colSpan:6 , options: [
                     { label: 'Single', value: 'SINGLE' },
                     { label: 'Married', value: 'MARRIED' },
@@ -32,10 +32,10 @@ const formConfig: StepConfig[] = [
     {
         label: 'Contact Info',
         fields: [
-            { name: 'contactInfo.phoneNumber', label: 'Phone', type: 'text', colSpan:6  },
-            { name: 'contactInfo.phoneNumber2', label: 'Phone 2', type: 'text', colSpan:6  },
+            { name: 'contactInfo.phoneNumber', label: 'Mobile Number', type: 'tel', placeholder: '0712 345678 / +254712345678', colSpan:6 },
+            { name: 'contactInfo.phoneNumber2', label: 'Alternate Mobile Number', type: 'tel', colSpan:6 },
             { name: 'contactInfo.email', label: 'Email', type: 'email', colSpan:6  },
-            { name: 'contactInfo.address', label: 'Address', type: 'text', colSpan:6  }
+            { name: 'contactInfo.address', label: 'County / Town / Address', type: 'text', colSpan:6 }
         ],
         topComponents: [backtoList()]
     }
@@ -61,7 +61,7 @@ const PatientEditForm = () => {
         <StepForm
             config={formConfig}
             onSubmit={(data) => {
-                apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
+                return apiRequest(`/patients/${id}/update`, { method:'PUT' ,body: data})
                    .then(response=>{
                        if (goToAppointment && response?.id) {
                            console.log('Go to app', goToAppointment)

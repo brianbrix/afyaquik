@@ -1,5 +1,5 @@
-import React from 'react';
-import Header from "./Header";
+import React, { useState } from 'react';
+import { portalUrl, selectRole, sessionRoles } from './session';
 
 export interface AfyaQuikModule {
     name: string;
@@ -10,14 +10,11 @@ export interface AfyaQuikModule {
     currentRole?: string;
 }
 
+const LOGIN_URL = portalUrl('auth', '/login');
 
 const hasRole = (roles: string[]): boolean => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-        return true;
-    }
-    const currentRole = localStorage.getItem('currentRole');
-    return roles.includes(currentRole as string)
+    if (localStorage.getItem('isLoggedIn') !== 'true') return false;
+    return sessionRoles().some(role => roles.includes(role));
 };
 
 interface BaseHomePageProps {
@@ -25,21 +22,47 @@ interface BaseHomePageProps {
 }
 
 export const BaseHomePage: React.FC<BaseHomePageProps> = ({modules}) => {
-    const handleNavigation = (mod: AfyaQuikModule) => {
+    const [error, setError] = useState('');
+    const [opening, setOpening] = useState('');
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+    if (!isLoggedIn) {
+        window.location.replace(LOGIN_URL);
+        return null;
+    }
+
+    const handleNavigation = async (mod: AfyaQuikModule) => {
         if (hasRole(mod.requiredRoles)) {
-            window.location.href = mod.path;
+            setOpening(mod.name);
+            setError('');
+            try {
+                const current = localStorage.getItem('currentRole') || '';
+                const role = mod.requiredRoles.includes(current) ? current : sessionRoles().find(value => mod.requiredRoles.includes(value));
+                if (role) await selectRole(role);
+                window.location.href = mod.path;
+            } catch {
+                setError('Unable to open this module. Please retry.');
+                setOpening('');
+            }
         } else {
-            window.location.href = "/client/auth/index.html#/home"
+            window.location.href = LOGIN_URL;
         }
     };
+
+    const visibleModules = modules.filter(mod => hasRole(mod.requiredRoles));
 
     return (
         <>
             <div className="container py-5">
                 <h2 className="text-center mb-4 text-primary">AfyaQuik System Modules</h2>
-                <div className="row row-cols-1 row-cols-md-2 g-4">
-                    {modules.map((mod) => {
-                        return (
+                {error && <div className="alert alert-warning" role="alert">{error}</div>}
+                {visibleModules.length === 0 ? (
+                    <p className="text-center text-muted">
+                        No modules are assigned to your current role. Contact an administrator.
+                    </p>
+                ) : (
+                    <div className="row row-cols-1 row-cols-md-2 g-4">
+                        {visibleModules.map((mod) => (
                             <div className="col" key={mod.name}>
                                 <div className="card h-100 shadow-sm">
                                     <div className="card-body d-flex flex-column">
@@ -51,6 +74,7 @@ export const BaseHomePage: React.FC<BaseHomePageProps> = ({modules}) => {
                                         <p className="card-text flex-grow-1">{mod.description}</p>
                                         <button
                                             className="btn btn-primary mt-3 w-100"
+                                            disabled={!!opening}
                                             onClick={() => handleNavigation(mod)}
                                         >
                                             <i className="bi-box-arrow-in-right me-1"></i> Go to {mod.name}
@@ -58,9 +82,9 @@ export const BaseHomePage: React.FC<BaseHomePageProps> = ({modules}) => {
                                     </div>
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </>
     );

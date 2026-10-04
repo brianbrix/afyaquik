@@ -24,7 +24,7 @@ const DoctorAppointmentList = () => {
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     return (
-        <AppointmentList query={`doctor.id=${doctorId}`}/>
+        <AppointmentList query={`doctor.id=${doctorId}`} canEdit={false}/>
     )
 }
 export default DoctorAppointmentList;

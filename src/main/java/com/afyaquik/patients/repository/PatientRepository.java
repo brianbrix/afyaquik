@@ -10,6 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface PatientRepository extends CrudRepository<Patient, Long> {
-    @Query("SELECT p FROM Patient p LEFT JOIN FETCH p.patientVisit WHERE p.id = :id")
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select patient from Patient patient where patient.id = :id")
+    Optional<Patient> findForUpdate(@Param("id") Long id);
+    @Query("SELECT p FROM Patient p LEFT JOIN FETCH p.patientVisit WHERE p.id = :id AND p.deleted = false")
     Optional<Patient> findByIdWithVisits(@Param("id") Long id);
 }

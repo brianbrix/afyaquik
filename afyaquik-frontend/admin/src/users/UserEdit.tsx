@@ -22,7 +22,7 @@ const UserEdit = () => {
             <TextInput source="lastName" required={true} />
             <TextInput source="email" required={true} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <PasswordInput source="password" type="password" validate={passwordValidator} defaultValue={generatedPassword} />
+                <PasswordInput source="password" type="password" validate={passwordValidator} defaultValue={generatedPassword} helperText="Leave blank to keep current password" />
                 <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setGeneratedPassword(generatePassword())}>
                     Generate Password
                 </button>

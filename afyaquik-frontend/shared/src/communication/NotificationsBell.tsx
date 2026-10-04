@@ -7,8 +7,11 @@ const NotificationsBell = ({ userId, userRole }: { userId: number,userRole:strin
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
-        fetchNotifications(setNotifications,userId, userRole);
-        console.log("Notifications", notifications)
+        if (localStorage.getItem('isLoggedIn')=='true') {
+            console.log("Checking notifications for userId:", userId, "with role:", userRole);
+            fetchNotifications(setNotifications, userId, userRole);
+            console.log("Notifications", notifications)
+        }
     }, [userId, userRole]);
 
     return (

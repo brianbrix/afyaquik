@@ -11,8 +11,9 @@ import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,23 +39,54 @@ public class EntityUtilServiceImpl implements EntityUtilService {
 
     private final Map<String, Join<?, ?>> joins = new HashMap<>();
 
-    // Map of allowed roles for each entity
-    private static final Map<String, Set<String>> ENTITY_ROLE_MAP = Map.of(
-        "Patient", Set.of("ADMIN", "DOCTOR", "NURSE", "SUPER_ADMIN"),
-        "Billing", Set.of("ADMIN", "ACCOUNTANT", "SUPER_ADMIN","DOCTOR","RECEPTIONIST"),
-        "User", Set.of("ADMIN", "SUPERADMIN")
-        // Add more entities and allowed roles as needed
+    private static final Set<String> ADMIN_ROLES = Set.of("ADMIN", "SUPERADMIN");
+    private static final Set<String> CARE_ROLES = Set.of("ADMIN", "SUPERADMIN", "RECEPTIONIST", "DOCTOR", "NURSE", "PHARMACIST");
+    private static final Set<String> CLINICAL_ROLES = Set.of("ADMIN", "SUPERADMIN", "DOCTOR", "NURSE");
+    private static final Set<String> PHARMACY_ROLES = Set.of("ADMIN", "SUPERADMIN", "PHARMACIST", "DOCTOR");
+    private static final Set<String> BILLING_ROLES = Set.of("ADMIN", "SUPERADMIN", "CASHIER", "RECEPTIONIST");
+    private static final Map<String, Set<String>> ENTITY_ROLE_MAP = Map.ofEntries(
+        Map.entry("users", ADMIN_ROLES),
+        Map.entry("roles", ADMIN_ROLES),
+        Map.entry("stations", CARE_ROLES),
+        Map.entry("patients", CARE_ROLES),
+        Map.entry("appointments", Set.of("ADMIN", "SUPERADMIN", "RECEPTIONIST", "DOCTOR", "NURSE")),
+        Map.entry("triageItems", CLINICAL_ROLES),
+        Map.entry("visits", CARE_ROLES),
+        Map.entry("generalSettings", ADMIN_ROLES),
+        Map.entry("observationItems", CLINICAL_ROLES),
+        Map.entry("observationItemCategories", CLINICAL_ROLES),
+        Map.entry("treatmentPlans", Set.of("ADMIN", "SUPERADMIN", "DOCTOR", "PHARMACIST")),
+        Map.entry("treatmentPlanItems", Set.of("ADMIN", "SUPERADMIN", "DOCTOR", "PHARMACIST")),
+        Map.entry("drugs", PHARMACY_ROLES),
+        Map.entry("drugInventory", PHARMACY_ROLES),
+        Map.entry("drugCategories", PHARMACY_ROLES),
+        Map.entry("drugForms", PHARMACY_ROLES),
+        Map.entry("patientAssignments", CARE_ROLES),
+        Map.entry("patientDrugs", PHARMACY_ROLES),
+        Map.entry("apiPermissions", Set.of("SUPERADMIN")),
+        Map.entry("billingItems", BILLING_ROLES),
+        Map.entry("billings", BILLING_ROLES),
+        Map.entry("billingDetails", BILLING_ROLES),
+        Map.entry("currencies", BILLING_ROLES),
+        Map.entry("passwordResetRequests", ADMIN_ROLES)
     );
 
 
     private Set<String> getCurrentUserRoles() {
-         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            throw new AccessDeniedException("Authentication required.");
+        }
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(authority -> authority.startsWith("ROLE_"))
+                .map(authority -> authority.substring(5))
+                .collect(Collectors.toSet());
     }
 
     private boolean isRoleAllowedForEntity(String entity, Set<String> userRoles) {
         Set<String> allowedRoles = ENTITY_ROLE_MAP.get(entity);
-        // If no allowed roles are specified, entity is public
-        if (allowedRoles == null) return true;
+        if (allowedRoles == null) throw new IllegalArgumentException("Unknown search entity: " + entity);
         for (String role : userRoles) {
             if (allowedRoles.contains(role)) return true;
         }
@@ -62,7 +94,6 @@ public class EntityUtilServiceImpl implements EntityUtilService {
     }
 
     @Override
-    @Cacheable(value = "searchResults", key = "#searchDto.searchEntity + '-' + #searchDto.query + '-' + #searchDto.page + '-' + #searchDto.size + '-' + #searchDto.sort+ '-' + #searchDto.dateFilter")
     public SearchResponseDto search(SearchDto searchDto) {
         String entityKey = searchDto.getSearchEntity();
         if (entityKey == null) throw new IllegalArgumentException("Search entity not specified");
@@ -70,12 +101,14 @@ public class EntityUtilServiceImpl implements EntityUtilService {
         // Role-based entity search restriction
         Set<String> userRoles = getCurrentUserRoles();
         if (!isRoleAllowedForEntity(entityKey, userRoles)) {
-            throw new SecurityException("You do not have permission to search this entity.");
+            throw new AccessDeniedException("You do not have permission to search this entity.");
+        }
+        if (searchDto.getPage() < 0 || searchDto.getSize() < 1 || searchDto.getSize() > 200) {
+            throw new IllegalArgumentException("Search requires a nonnegative page and a page size between 1 and 200");
         }
 
         try {
             Class<?> entityClass = resolveEntityClass(entityKey);
-            Class<?> dtoClass = resolveDtoClass(entityKey);
             EntityMapper<Object, Object> mapper = mapperRegistry.getMapper(entityKey);
             if (mapper == null) throw new IllegalArgumentException("No mapper registered for entity: " + entityKey);
 
@@ -196,6 +229,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
 
     private Predicate buildPredicates(SearchDto dto, CriteriaBuilder cb, Root<?> root, Class<?> entityClass) {
         List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.isFalse(root.get("deleted")));
         if (dto.getSearchFields() == null) dto.setSearchFields(new ArrayList<>());
 
         // Handle date filter
@@ -211,7 +245,7 @@ public class EntityUtilServiceImpl implements EntityUtilService {
                     predicates.add(cb.between(
                             path.as(LocalDateTime.class),
                             parsedDate.atStartOfDay(),
-                            parsedDate.plusDays(1).atStartOfDay()
+                            parsedDate.plusDays(1).atStartOfDay().minusNanos(1)
                     ));
                 }
             } else {
@@ -419,6 +453,18 @@ public class EntityUtilServiceImpl implements EntityUtilService {
     @Transactional
     //Rename it this to use in clearing cache after delete
     public void softdelete(String entityName, List<Long> ids) {
+        Set<String> userRoles = getCurrentUserRoles();
+        if ("users".equals(entityName)) {
+            throw new AccessDeniedException("Deactivate staff accounts through staff administration instead.");
+        }
+        if (Set.of("patients", "visits", "patientAssignments", "billings", "billingDetails").contains(entityName)) {
+            throw new AccessDeniedException("Use the patient, encounter or billing workflow instead of generic deletion.");
+        }
+        if (!isRoleAllowedForEntity(entityName, userRoles)
+                || Collections.disjoint(userRoles, ADMIN_ROLES)
+                || (Set.of("roles", "apiPermissions").contains(entityName) && !userRoles.contains("SUPERADMIN"))) {
+            throw new AccessDeniedException("You do not have permission to delete this entity.");
+        }
         if (ids == null || ids.isEmpty()) {
             return;
         }

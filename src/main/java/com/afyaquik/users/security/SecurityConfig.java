@@ -3,22 +3,20 @@ package com.afyaquik.users.security;
 
 import com.afyaquik.users.entity.User;
 import com.afyaquik.users.repository.UsersRepository;
-import com.afyaquik.users.service.ApiPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +26,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,11 +38,12 @@ import java.util.stream.Collectors;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity
 @EnableJpaAuditing
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final UsersRepository userRepository;
-    private final ApiPermissionService apiPermissionService;
+    private final ApiAuthorizationManager apiAuthorizationManager;
 
     @Bean
     public AuditorAware<String> auditorProvider() {
@@ -49,38 +52,30 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        var authorizeRequests = http
+        http
                 .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(errors -> errors
+                    .authenticationEntryPoint((request, response, exception) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                    .accessDeniedHandler((request, response, exception) -> response.sendError(HttpServletResponse.SC_FORBIDDEN)))
                 .authorizeHttpRequests(auth -> {
                     // Public endpoints that don't require authentication
                     auth.requestMatchers("/").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout", "/api/auth/validate-token", "/api/password-reset/request").permitAll()
+                        .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/error/**").permitAll()
                         .requestMatchers("/.well-known/**").permitAll()
                         .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/static/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/client/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/test/**").permitAll();
+                        .requestMatchers("/swagger-ui.html").permitAll();
 
-                    // Get all API permissions from the database
-                    var permissions = apiPermissionService.getEnabledPermissions();
-
-                    // Configure role-based access for each API endpoint
-                    for (var permission : permissions) {
-                        var urlPattern = permission.getUrlPattern();
-                        var roles = permission.getRoleNames().stream()
-                                .map(role -> "ROLE_" + role)
-                                .toArray(String[]::new);
-                        if (roles.length > 0) {
-                            auth.requestMatchers(urlPattern).hasAnyAuthority(roles);
-                        }
-                    }
-
-                    // Any other request requires authentication
-                    auth.anyRequest().authenticated();
+                    auth.requestMatchers("/api/**").access(apiAuthorizationManager);
+                    auth.anyRequest().denyAll();
                 })
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -22,6 +22,7 @@ public class TreatmentPlanController {
         return ResponseEntity.ok(treatmentPlanService.addTreatmentPlan(treatmentPlanDto));
     }
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'PHARMACIST')")
     public ResponseEntity<TreatmentPlanDto> getTreatmentPlan(@PathVariable Long id) {
         return ResponseEntity.ok(treatmentPlanService.getTreatmentPlan(id));
     }
@@ -31,6 +32,7 @@ public class TreatmentPlanController {
         ResponseEntity.ok();
     }
     @GetMapping("/visit/{visitId}")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'PHARMACIST')")
     public ResponseEntity<ListFetchDto<TreatmentPlanDto>> getPatientVisitObservationReports(@PathVariable Long visitId, Pageable pageable) {
         return ResponseEntity.ok(treatmentPlanService.getTreatmentPlansForVisit(visitId, pageable));
     }

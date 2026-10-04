@@ -81,6 +81,10 @@ The project follows a modular architecture with separate backend services and fr
    ```
 
 3. Configure the database connection in `application.properties` or `application.yml`.
+   Set `APP_JWT_SECRET` to a securely generated, persistent signing key of at least 32 bytes.
+   An empty staff database also requires `APP_BOOTSTRAP_PASSWORD` of at least 12 characters.
+   `APP_BOOTSTRAP_USERNAME` and `APP_BOOTSTRAP_EMAIL` configure the initial facility administrator.
+   Existing users and customized permission rules are not replaced.
 
 4. Run the backend services:
    ```
@@ -109,18 +113,23 @@ The project follows a modular architecture with separate backend services and fr
    ```
 
 ### Docker Deployment
-1. Build and start all services using Docker Compose:
+1. Set the signing-key and bootstrap environment variables described above. For localhost HTTP testing only,
+   set `APP_COOKIE_SECURE=false`. HTTPS deployments must use secure cookies.
+   Build and start all services using Docker Compose:
    ```
    docker-compose up -d
    ```
 
-2. Access the services at:
-   - Backend API: http://localhost:8080
-   - Admin Frontend: http://localhost:3001
-   - Auth Frontend: http://localhost:3002
-   - Doctor Frontend: http://localhost:3003
-   - Receptionist Frontend: http://localhost:3004
-   - Reports Frontend: http://localhost:3005
+2. Access the application at http://localhost:8080/client/auth/index.html#/login.
+   The backend serves all built portals under `/client/<portal>/index.html` on the same origin.
+   Separate frontend development servers use auth 3000, admin 3001, doctor 3003, receptionist 3004,
+   reports 3005, pharmacy 3006, and nurse 3007.
+
+## Operations and Verification
+
+See [HMS hardening and verification](docs/hms-hardening.md) for the role boundaries, CSRF client contract,
+test commands, deployment prerequisites, and remaining production gaps.
+Existing databases require a reviewed triage schema migration before deploying this revision.
 
 ## API Documentation
 
